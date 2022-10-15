@@ -1,7 +1,7 @@
 # WEBINF-Project
 
 Let it be known that the following statements are guidelines and not hard-written rules. 
-They may and can change overtime (with or without documentation changes in this document).
+They may and can change over time (with or without documentation changes in this document).
 
 ## Git Conventions
 
