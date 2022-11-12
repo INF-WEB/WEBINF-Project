@@ -1,31 +1,39 @@
 import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.ontology.ObjectProperty;
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.VCARD;
 import org.apache.jena.vocabulary.AS;
 import org.apache.jena.vocabulary.XSD;
 
 public class Main {
+    private static Model model;
+    private final static String WEB_DOMAIN = "https://testDomain/";
+
     public static void main(String[] args) {
-        createUser();
-        createCompany();
+        // create an empty Model
+        model = ModelFactory.createDefaultModel();
+        Resource john = createUser("John", "Smith", "johnsmith@mail.com", "Agoralaan 13 Diepenbeek", "https://johnsmiths");
+        Resource rebecca = createUser("Rebecca", "Smith", "Rebeccasmith@mail.com", "Agoralaan 13 Diepenbeek", "https://johnsmiths");
+        Resource company = createCompany("company.sowewhere@gmail.com", "companyName", "https://company.com", "Agoralaan Gebouw D, 3590 Diepenbeek");
+        //addEmployeeToCompany(john, company);
+        //addEmployeeToCompany(rebecca, company);
         //test1();
         //test2();
     }
 
-    final static String WEB_DOMAIN = "https://testDomain/";
-
-    public static void createUser() {
-        String userURI          = WEB_DOMAIN + "<username>";
-        String firstName        = "John";
-        String lastName         = "Smith";
+    public static Resource createUser(  String firstName,
+                                        String lastName,
+                                        String email,
+                                        String area,
+                                        String webpage) {
+        String userURI          = WEB_DOMAIN + firstName + lastName; //TODO: is not unique
         String fullName         = firstName + " " + lastName;
-        String email            = "john.smith@gmail.com"; //WEB_DOMAIN + "<username>/email";
-        String webpage          = "https://johnsmith.com"; //WEB_DOMAIN +
-        String area             = "Agoralaan 13 Diepenbeek";
+
         Boolean lookingForWork  = true;
 
         // create an empty Model
-        Model model = ModelFactory.createDefaultModel();
+
 
         Resource johnSmith
                 = model.createResource(userURI)
@@ -37,22 +45,45 @@ public class Main {
                 .addProperty(VCARD.EMAIL, email)
                 .addProperty(AS.url, webpage) //TODO: Syntax for url could be incorrect
                 .addProperty(VCARD.ADR, area);
-                //.addProperty(model.createProperty("https://"), lookingForWork); //TODO: looking for work as it's own URI perhaps
+        //.addProperty(model.createProperty("https://"), lookingForWork); //TODO: looking for work as it's own URI perhaps
         model.write(System.out);
+
+        System.out.println();
+
+        return johnSmith;
     }
 
-    public  static void createCompany(){
-        String companyURI = WEB_DOMAIN + "<company>";
-        String email = "company.sowewhere@gmail.com";
-        String companyName = WEB_DOMAIN + "<company>/name";
-        String companyWebsite = "https://company.com"; //WEB_DOMAIN + "<company>/website";
-        String companyHeadQuaters = "Agoralaan Gebouw D, 3590 Diepenbeek";//WEB_DOMAIN + "<company>/headquarters";
-        Model model = ModelFactory.createDefaultModel();
+//    public static Resource createDiploma() {
+//
+//    }
+
+    public static Resource createCompany(String email, String companyName, String companyWebsite, String companyHeadQuaters){
+        String companyURI = WEB_DOMAIN + companyName;
+        // make the company resource
         Resource company = model.createResource(companyURI)
                 .addProperty(VCARD.EMAIL, email)
                 .addProperty(VCARD.FN,companyName)
                 .addProperty(VCARD.ADR, companyHeadQuaters) //TODO: Syntax for ADR could be incorrect
                 .addProperty(AS.url, companyWebsite);
+
+        model.write(System.out);
+        return company;
+    }
+
+    //TODO: make this one work
+    public static void addEmployeeToCompany(Resource employee, Resource company){
+        //Creating a list of employees
+        Property employeesProperty = model.createProperty(WEB_DOMAIN + "employees");
+        Property companyEmployeesProperty = company.getModel().getProperty(employeesProperty.getURI());
+        if (companyEmployeesProperty == null) {
+            Bag employees = model.createBag();
+            employees.add(employee);
+            company.addProperty(employeesProperty, employees);
+        } else {
+            Bag companyEmployeesBag = (Bag) companyEmployeesProperty;
+            companyEmployeesBag.add(employee);
+        }
+
         model.write(System.out);
     }
 
@@ -79,7 +110,7 @@ public class Main {
         // list the statements in the Model
         StmtIterator iter = model.listStatements();
 
-// print out the predicate, subject and object of each statement
+        // print out the predicate, subject and object of each statement
         while (iter.hasNext()) {
             Statement stmt      = iter.nextStatement();  // get next statement
             Resource  subject   = stmt.getSubject();     // get the subject
