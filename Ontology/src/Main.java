@@ -12,6 +12,8 @@ public class Main {
     private final static String WEB_DOMAIN = "https://testDomain/";
     private static Property jobTypeProperty;
 
+    //TODO: add types to ≠ object types
+    // f.e. nstype user voor een user resource
     public static void main(String[] args) {
         // create an empty Model
         model = ModelFactory.createDefaultModel();
@@ -23,11 +25,9 @@ public class Main {
         createProfessionalExperienceFor(john, "testjobtype", new Date(), new Date(), "this is a description");
         Resource company = createCompany("company.sowewhere@gmail.com", "companyName", "https://company.com", "Agoralaan Gebouw D, 3590 Diepenbeek");
         Resource job = createJobOffer(company, "jobName", "Agoralaan Gebouw D, 3590 Diepenbeek", "this is a description of the work experience", "testdiplomatype", "Maken webpagina (job description)", "pending", "ICT");
-        addPotentialJob(john, job);
+        addPotentialJob(john, job, false);
         //addEmployeeToCompany(john, company);
         //addEmployeeToCompany(rebecca, company);
-        //test1();
-        //test2();
 
         model.write(System.out);
     }
@@ -95,13 +95,13 @@ public class Main {
         return user;
     }
 
+    private static String getLastSubstring(String URI) {
+        return URI.substring(URI.lastIndexOf("/")+1);
+    }
+
     //TODO: make status an enum
     public static void createConnectionWith(Resource user1, Resource user2, String status) {
-        String user1URI = user1.getURI();
-        String user1Name = user1URI.substring(user1URI.lastIndexOf("/")+1, user1URI.length() - 1);
-        String user2URI = user2.getURI();
-        String user2Name = user2URI.substring(user2URI.lastIndexOf("/")+1, user2URI.length() - 1);
-        String connectionURI = WEB_DOMAIN + "/connection/" + user1Name + ";" + user2Name;
+        String connectionURI = WEB_DOMAIN + "/connection/" + getLastSubstring(user1.getURI()) + ";" + getLastSubstring(user2.getURI());
         Property connection1Property = model.createProperty(connectionURI);
         Property connection2Property = model.createProperty(connectionURI);
 
@@ -112,8 +112,8 @@ public class Main {
                 model.createResource(connectionURI)
                         .addProperty(connectionStatusProperty, status);
 
-        Bag connections1 = model.createBag(user1URI + "/connections");
-        Bag connections2 = model.createBag(user2URI + "/connections");
+        Bag connections1 = model.createBag(user1.getURI() + "/connections");
+        Bag connections2 = model.createBag(user2.getURI() + "/connections");
 
         connections1.add(connection);
         connections2.add(connection);
@@ -127,11 +127,17 @@ public class Main {
     }
 
     // TODO: else werkende krijgen
-    public static void addPotentialJob(Resource user, Resource job){
-        Property potentialJobProperty = model.createProperty(user.getURI() + "/potential-jobs");
-        Property jobProperty = user.getModel().getProperty(potentialJobProperty.getURI());
+    public static void addPotentialJob(Resource user, Resource job, Boolean isAccepted){
+        Property potentialJobsProperty = model.createProperty(user.getURI() + "/potential-jobs");
+        Property potentialJobProperty = model.createProperty(user.getURI() + "/potential-job");
+        Property jobProperty = user.getModel().getProperty(potentialJobsProperty.getURI());
         Bag potentialJobs = model.createBag(user.getURI() + "/potential-jobs");
-        potentialJobs.add(job);
+        Resource blank = model.createResource();
+
+        Property isAcceptedProperty = model.createProperty(user.getURI() + getLastSubstring(job.getURI()) + "/isAccepted");
+        blank.addProperty(isAcceptedProperty, isAccepted.toString());
+        blank.addProperty(potentialJobProperty, job);
+        potentialJobs.add(blank);
         user.addProperty(jobProperty, potentialJobs);
         /*
         if (jobProperty == null) {
@@ -143,6 +149,14 @@ public class Main {
             companyEmployeesBag.add(job);
         }
          */
+    }
+    // Extra
+    public static void addJobOffer(Resource user, Resource job){
+        Property jobOfferProperty = model.createProperty(user.getURI() + "/job-offers");
+        Property offerJobProperty = user.getModel().getProperty(jobOfferProperty.getURI());
+        Bag jobOffers = model.createBag(user.getURI() + "/job-offers");
+        jobOffers.add(job);
+        user.addProperty(offerJobProperty, jobOffers);
     }
 
     public static Resource createCompany(String email, String companyName, String companyWebsite, String companyHeadQuaters){
@@ -160,7 +174,7 @@ public class Main {
 
     public static Resource createJobOffer(Resource company, String jobName,String area, String workExperience, String diploma, String jobDescription, String status, String type){
         String uri = company.getURI() + "/job-offers";
-        Property jobStatus = model.createProperty(uri + "/staus");
+        Property jobStatus = model.createProperty(uri + "/status");
         Resource job = model.createResource(uri + jobName)
                 .addProperty(DC.title, jobName)
                 .addProperty(VCARD.ADR, area)
@@ -195,61 +209,11 @@ public class Main {
         //model.write(System.out);
     }
 
-    public static void test2() {
-        // some definitions
-        String personURI    = "http://somewhere/JohnSmith";
-        String givenName    = "John";
-        String familyName   = "Smith";
-        String fullName     = givenName + " " + familyName;
-
-        // create an empty Model
-        Model model = ModelFactory.createDefaultModel();
-
-// create the resource
-//   and add the properties cascading style
-        Resource johnSmith
-                = model.createResource(personURI)
-                .addProperty(VCARD.FN, fullName)
-                .addProperty(VCARD.N,
-                        model.createResource()
-                                .addProperty(VCARD.Given, givenName)
-                                .addProperty(VCARD.Family, familyName));
-
-        // list the statements in the Model
-        StmtIterator iter = model.listStatements();
-
-        // print out the predicate, subject and object of each statement
-        while (iter.hasNext()) {
-            Statement stmt      = iter.nextStatement();  // get next statement
-            Resource  subject   = stmt.getSubject();     // get the subject
-            Property  predicate = stmt.getPredicate();   // get the predicate
-            RDFNode   object    = stmt.getObject();      // get the object
-
-            System.out.print(subject.toString());
-            System.out.print(" " + predicate.toString() + " ");
-            if (object instanceof Resource) {
-                System.out.print(object.toString());
-            } else {
-                // object is a literal
-                System.out.print(" \"" + object.toString() + "\"");
-            }
-
-            System.out.println(" .");
-        }
-
-        model.write(System.out);
-    }
-
-    public static void test1() {
-        System.out.println("Viet - Jena Ontology & Inference API Demo");
-
-        Model m = ModelFactory.createDefaultModel();
-        String NS = "http://bibooki.com/test/";
-
-        Resource viet = m.createResource(NS + "viet");
-        Property studyAt = m.createProperty(NS + "studyAt");
-
-        viet.addProperty(studyAt, "Konkuk Graduate University", XSDDatatype.XSDstring);
-        m.write(System.out, "Turtle");
+    public static void addPotentialEmployees(Resource user, Resource job){
+        Property potentialEmployeeProperty = model.createProperty(job.getURI() + "/potential-employees");
+        Property potentialEmployeesProperty = user.getModel().getProperty(potentialEmployeeProperty.getURI());
+        Bag potentialEmployees = model.createBag(user.getURI() + "/potential-jobs");
+        potentialEmployees.add(user);
+        user.addProperty(potentialEmployeesProperty, potentialEmployees);
     }
 }
