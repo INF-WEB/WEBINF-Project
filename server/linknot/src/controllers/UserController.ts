@@ -33,17 +33,21 @@ class UserController{
         }
     };
     //TODO:
-    //Need to be extende to working with all specs
+    //Need to be extended to working with all specs
     static newUser = async (req: Request, res: Response) => {
       //Get parameters from the body
-      let { firstName, password, role } = req.body;
-
+      let { firstName, lastName, email, password, role, jobStatus } = req.body;
+      console.log(req.body);
+      
       let user = new UserEntity();
       user.firstName = firstName;
+      user.lastName = lastName;
+      user.email = email;
       user.password = password;
       user.role = role;
+      user.jobStatus = jobStatus;
     
-      //Validade if the parameters are ok
+      //Validate if the parameters are ok
       const errors = await validate(user);
       if (errors.length > 0) {
         res.status(400).send(errors);

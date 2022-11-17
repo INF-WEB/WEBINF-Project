@@ -17,9 +17,13 @@ router.get(
     );
 
 //Create a new user
+
+// [checkJwt, checkRole(["ADMIN"])], 
+//     UserController.newUser
+//     );
 router.post(
     "/", 
-    [checkJwt, checkRole(["ADMIN"])], 
+    [], 
     UserController.newUser
     );
 

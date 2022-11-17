@@ -105,4 +105,4 @@ dist
 
 
 #for the db
-.sqlite
+*.sqlite

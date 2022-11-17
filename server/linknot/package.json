@@ -30,11 +30,12 @@
       "typeorm": "0.3.10"
    },
    "scripts": {
-      "start": "set debug=* && ts-node-dev --respawn --transpileOnly ./src/index.ts",
+      "start": "set debug=* && ts-node-dev --respawn --transpile-only ./src/index.ts",
       "run": "ts-node-dev --respawn src/index.ts",
       "dev": "nodemon --exec ts-node src/index.ts",
       "typeorm": "typeorm-ts-node-commonjs",
-      "build": "tsc",
+      "tsc": "tsc",
+      "prod": "tsc && node ./build/app.js",
 
       "migration:run":"ts-node ./node_modules/typeorm/cli.js migration:run"
    }
