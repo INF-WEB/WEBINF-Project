@@ -9,7 +9,7 @@ class UserController{
       //Get users from database
       const userRepository = getRepository(UserEntity);
       const users = await userRepository.find({
-        select: ["id", "email", "role"] //We dont want to send the passwords on response
+        select: ["id", "email", ] //We dont want to send the passwords on response
       });
     
       //Send the users object
@@ -36,7 +36,7 @@ class UserController{
     //Need to be extended to working with all specs
     static newUser = async (req: Request, res: Response) => {
       //Get parameters from the body
-      let { firstName, lastName, email, password, role, jobStatus } = req.body;
+      let { firstName, lastName, email, password, jobStatus } = req.body;
       console.log(req.body);
       
       let user = new UserEntity();
@@ -44,7 +44,6 @@ class UserController{
       user.lastName = lastName;
       user.email = email;
       user.password = password;
-      user.role = role;
       user.jobStatus = jobStatus;
     
       //Validate if the parameters are ok
@@ -93,7 +92,6 @@ class UserController{
         
         //Validate the new values on model
         user.firstName = firstName;
-        user.role = role;
         
         const errors = await validate(user);
         if (errors.length > 0) {

@@ -17,10 +17,6 @@ router.get(
     );
 
 //Create a new user
-
-// [checkJwt, checkRole(["ADMIN"])], 
-//     UserController.newUser
-//     );
 router.post(
     "/", 
     [], 
@@ -41,4 +37,11 @@ router.delete(
     UserController.deleteUser
     );
 
+
+//TEST
+router.get(
+    "/test",
+    [checkJwt],
+    UserController.listAll
+    );
 export default router;

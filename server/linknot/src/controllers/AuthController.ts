@@ -5,9 +5,13 @@ import { validate } from "class-validator";
 
 import { UserEntity } from "../database/entities/user.entities";
 import config from "../config/config";
+import { createJWT } from "../middlewares/checkJwt";
+const session = require("express-session")
+
 
 class AuthController {
         static login = async (req: Request, res: Response) => {
+            
         //Check if username and password are set
             let { email, password } = req.body;
             if (!(email && password)) {
@@ -31,17 +35,15 @@ class AuthController {
         }
 
         //Sing JWT, valid for 1 hour
-        const token = jwt.sign(
-            { userId: user.id, email: user.email },
-            config.jwtSecret,
-            { expiresIn: "1h" }
-            );
+        const token = createJWT({email: user.email, id: user.id}, "1h");
+        
 
-        //Send the jwt in the response
-        res.send(token);
+        req.session = {jwt: token};
+        
+        res.status(200).send("Logged in");
+        
         };
 
-        //Needs more checks and error sends
         static changePassword = async (req: Request, res: Response) => {
         //Get ID from JWT
         const id = res.locals.jwtPayload.userId;
@@ -80,5 +82,12 @@ class AuthController {
 
         res.status(204).send();
         };
+
+
+       static logout = async (req:Request, res:Response) => {
+            req.session = null;
+            res.status(200).send({});
+       };
+
 }
 export default AuthController;

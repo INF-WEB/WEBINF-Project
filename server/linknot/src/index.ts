@@ -5,6 +5,8 @@ import * as bodyParser from "body-parser";
 import helmet from "helmet";
 import routes from "./routes";
 import cors = require("cors");
+import * as cookieSession from "cookie-session";
+
 
 //Connects to the Database -> then starts the express
 
@@ -16,6 +18,12 @@ createConnection()
 
     // Call midlewares
     app.use(cors());
+   
+    app.use(cookieSession({
+        name: "session",
+        keys: ["key1", "key2"]
+    }));
+
     app.use(helmet());
     app.use(bodyParser.json());
 

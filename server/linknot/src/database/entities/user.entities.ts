@@ -37,12 +37,6 @@ export class UserEntity implements UserRecord {
     @IsNotEmpty()
     jobStatus: UserRecord["jobStatus"];
     
-
-    //Need to remove (tutorial)
-    @Column()
-    @IsNotEmpty()
-    role: string
-    
     @Column()
     @CreateDateColumn()
     createdAt: Date;

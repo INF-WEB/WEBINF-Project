@@ -19,4 +19,9 @@ router.post(
     AuthController.changePassword
     );
 
+router.get(
+    "/logout",
+    AuthController.logout
+    );
+
 export default router;
