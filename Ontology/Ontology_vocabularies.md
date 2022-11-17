@@ -25,75 +25,68 @@ example:
 </foaf:Person>
 ```
 
-
-
 ## [vCard](https://www.w3.org/TR/vcard-rdf/)
 For describing People and Organizations.
 
-
 [Difference between FOAF and vCard:](https://solidproject.org/developers/vocabularies/well-known/common#:~:text=vCard%20(vc)&text=Note%20that%20there%20is%20a,from%20applications%20using%20the%20other.)
-"vCard is aligned with an RFC, while foaf is a little lighter" 
+"vCard is aligned with an RFC, while foaf is a little lighter"
+
+The documentation of vCard is not great.
 
 ## [Geo](https://www.w3.org/2003/01/geo/)
+Representing lat(itude), long(itude) and other information about spatially-located things.
 
+A Point has only one 'lat', only one 'long', and only one 'alt'; we could use W3C's Web Ontology Language (OWL) to express this. OWL allows us to note that these RDF properties are 'functional properties'.
+[Source](https://www.w3.org/2003/01/geo/#discussion)
 
 ## [GeoNames](http://www.geonames.org/ontology/documentation.html)
+Add geospatial semantic information.
 
+The Ontology for GeoNames is available in OWL: https://www.geonames.org/ontology/ontology_v3.3.rdf, [mappings](https://www.geonames.org/ontology/mappings_v3.01.rdf).
+
+Has complete list of all countries with relevant information.
+
+[See](https://www.geonames.org/export/) for GeoNames Data, it contains links to the:
+- available web services
+- support pages
+- sources
 
 ## [The BIO Ontology](https://vocab.org/bio/)
+
+Biographical information about people, both living and dead.
+Finding out more about people and their backgrounds and has some cross-over into genealogical information.
+Concerned with people, their relationships and the events in their lives.
+
+Useful for events/relations between persons.
+
+Good documentation.
 
 ## Comparison with analysis
 - _Cursive_: optional
 
-### FOAF
+| **Analysis**                 | **FOAF** ```foaf:```                                     | **vCard** ```vcard:```         | **Geo** ```geo:```              | **GeoNames** ```:gn```                                                                                    | **The BIO Ontology** ```bio:```             |
+|------------------------------|----------------------------------------------------------|--------------------------------|---------------------------------|-----------------------------------------------------------------------------------------------------------|---------------------------------------------|
+| User                         | ```Person```                                             | ```Agent``` ```Individual```   |                                 |                                                                                                           | ```Agent```                                 |
+| Name (front, (middle,) last) | ```name``` ```title```                                   | ```Name```                     |                                 |                                                                                                           |                                             |
+| _Profile picture_            | ```img``` ```Image```                                    |                                |                                 |                                                                                                           |                                             |
+| Email                        | ```mbox```                                               | ```Email```                    |                                 |                                                                                                           |                                             |
+| Area                         | ```based_near```                                         | ```Address```                  | ```Point``` ```lat``` ```lon``` | ```Class``` ```Code``` ```GeonamesFeature``` ```Feature``` ```Map``` ```RDFData``` ```WikipediaArticle``` | ```Place```                                 |
+| Current job(s)               |                                                          |                                |                                 |                                                                                                           |                                             |
+| Web page                     | ```homepage```                                           |                                |                                 |                                                                                                           |                                             |
+| Diploma(s)                   | ```Document```                                           |                                |                                 |                                                                                                           |                                             |
+| Professional experience      |                                                          |                                |                                 |                                                                                                           |                                             |
+| Looking for job              |                                                          |                                |                                 |                                                                                                           |                                             |
+| Connection                   | ```knows```                                              |                                |                                 |                                                                                                           | ```Agent Relationship``` ```Relationship``` |
+| Current Job                  |                                                          |                                |                                 |                                                                                                           |                                             |
+| _Interests_                  | ```interest``` ```topic_interest```                      |                                |                                 |                                                                                                           |                                             |
+| _Collection of agents_       | ```Group``` ```member``` ```membershipClass```           | ```Group```                    |                                 |                                                                                                           |                                             |
+| Job Offer                    | ```Document```                                           |                                |                                 |                                                                                                           |                                             |
+| Company                      | ```Organization``` ```logo```                            | ```Organization```             |                                 |                                                                                                           | ```Organization```                          |
+| Headquarters                 | ```based_near```                                         |                                |                                 |                                                                                                           |                                             |
+| Web page                     | ```homepage```                                           |                                |                                 |                                                                                                           |                                             |
+| Email                        | ```mbox```                                               |                                |                                 |                                                                                                           |                                             |
+| Employee(s)                  | ```Person```                                             |                                |                                 |                                                                                                           | ```Employment```                            |
+| Company type                 | ```topic```                                              |                                |                                 |                                                                                                           |                                             |
+| _EXTRA_                      | ```OnlineAccount``` ```holdsAccount``` ```accountName``` | ```Colleague``` ```Coworker``` |                                 |                                                                                                           | ```Birth Event``` ```Date``` ```Event```    |
 
-#### User ```foaf:Person```
-- Name (front, (middle,) last) ```foaf:name``` ```foaf:title```
-- _Profile picture_ ```foaf:img``` ```foaf:Image```
-- Email ```foaf:mbox```
-- Area ```foaf:based_near```
-- Current job(s)
-- Web page ```foaf:homepage```
-- Diploma(s) ```foaf:Document```
-- Professional experience
-- Looking for job
-- Connection ```foaf:knows```
-- Current Job
-- _Interests_ ```foaf:interest``` ```foaf:topic_interest```
-- ```foaf:OnlineAccount``` ```foaf:holdsAccount``` ```foaf:accountName```
-- _Collection of agents_ ```foaf:Group``` ```foaf:member``` ```foaf:membershipClass```
-
-#### Job Offer ```foaf:Document```
-
-#### Company ```foaf:Organization``` ```foaf:logo```
-- Headquarters ```foaf:based_near```
-- Web page ```foaf:homepage```
-- Email ```foaf:mbox```
-- Employee(s) ```foaf:Person```
-- Company type ```foaf:topic```
-
-### vCard
-
-#### User
-- Name (front, (middle,) last)
-- _Profile picture_
-- Email
-- Area ```vcard:Adress```
-- Current job(s)
-- Web page
-- Diploma(s)
-- Professional experience
-- Looking for job
-- Connection
-- Current Job
-- _Interests_
-- _Collection of agents_
-
-#### Job Offer
-
-#### Company
-- Headquarters ```vcard:Adress```
-- Web page
-- Email
-- Employee(s)
-- Company type
+## Usability
