@@ -90,3 +90,9 @@ Good documentation.
 | _EXTRA_                      | ```OnlineAccount``` ```holdsAccount``` ```accountName``` | ```Colleague``` ```Coworker``` |                                 |                                                                                                           | ```Birth Event``` ```Date``` ```Event```    |
 
 ## Usability
+
+- FOAF: For almost everything.
+- vCard: No, contains almost everything the same as FOAF, but documentation is bad.
+- Geo: Only usable for coordinates.
+- GeoNames: Can be used for locations. Home, work.
+- BIO: Usable for personal relations. Making of, and attributes of a person are also available in FOAF. This can be useful if we would dive deeper in the personal relationships of an ```Agent```.
