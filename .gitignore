@@ -103,5 +103,12 @@ dist
 # TernJS port file
 .tern-port
 
-#for the db
+# For the personal information db
 *.sqlite
+
+# Debug folder
+out
+
+.idea
+.vscode
+*.iml
