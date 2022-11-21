@@ -109,6 +109,7 @@ dist
 # Debug folder
 out
 
+# Local/generated folders/files
 .idea
 .vscode
 *.iml
