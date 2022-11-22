@@ -1,19 +1,15 @@
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.reasoner.Derivation;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.reasoner.ValidityReport;
 import org.apache.jena.reasoner.ValidityReport.Report;
-import org.apache.jena.reasoner.rulesys.GenericRuleReasoner;
-import org.apache.jena.reasoner.rulesys.Rule;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.util.PrintUtil;
 import org.apache.jena.vocabulary.*;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Connection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.UUID;
@@ -22,17 +18,89 @@ public class Main {
     private static Model model;
     private final static String WEB_DOMAIN = "https://testDomain/";
     private static Property jobTypeProperty;
+    
+    private final static String EG = "urn:x-hp:eg/";
+    private final static String FILE_LOC = "Ontology/data/";
 
     public static void main(String[] args) throws IOException {
-        String fileName = "Ontology/data/rdfschema.rdf";
-        File file = new File(fileName);
+        // rdfs();
+        // rdfsExample();
+        owl();
+    }
 
-        // creates the file
-        file.createNewFile();
+    /**
+     * Example from
+     * https://jena.apache.org/documentation/inference/index.html#OWLexamples
+     * 
+     * @throws IOException
+     */
+    public static void owl() throws IOException {
+        Model schema = RDFDataMgr.loadModel(FILE_LOC + "owlDemoSchema.rdf");
+        Model data = RDFDataMgr.loadModel(FILE_LOC + "owlDemoData.rdf");
 
-        // creates a FileWriter Object
-        FileWriter writer = new FileWriter(file);
+        Reasoner reasoner = ReasonerRegistry.getOWLReasoner();
+        reasoner = reasoner.bindSchema(schema);
+        InfModel infModel = ModelFactory.createInfModel(reasoner, data);
 
+        // find out all we know about a specific instance
+        Resource nForce = infModel.getResource(EG + "nForce");
+        System.out.println("nForce *:");
+        printStatements(infModel, nForce, null, null);
+
+        /// instance recognition
+        // Testing if an individual is an instance of a class expression.
+        Resource gamingComputer = infModel.getResource(EG + "GamingComputer");
+        Resource whiteBox = infModel.getResource(EG + "whiteBoxZX");
+        if (infModel.contains(whiteBox, RDF.type, gamingComputer)) {
+            System.out.println("White box recognized as gaming computer");
+        } else {
+            System.out.println("Failed to recognize white box correctly");
+        }
+
+        testInferenceValidity(infModel);
+
+        printToFile(schema, "owlschema.rdf");
+
+    }
+
+    public static void printStatements(Model m, Resource s, Property p, Resource o) {
+        for (StmtIterator i = m.listStatements(s, p, o); i.hasNext();) {
+            Statement stmt = i.nextStatement();
+            System.out.println(" - " + PrintUtil.print(stmt));
+        }
+    }
+
+    /**
+     * Example from
+     * https://jena.apache.org/documentation/inference/index.html#RDFSexamples
+     * 
+     * @throws IOException
+     */
+    public static void rdfsExample() throws IOException {
+        Model schema = RDFDataMgr.loadModel(FILE_LOC + "rdfsDemoSchema.rdf");
+        Model data = RDFDataMgr.loadModel(FILE_LOC + "rdfsDemoData.rdf");
+        InfModel infmodel = ModelFactory.createRDFSModel(schema, data);
+
+        Resource colin = infmodel.getResource(EG + "colin");
+        System.out.println("colin has types:");
+        printStatements(infmodel, colin, RDF.type, null);
+
+        Resource Person = infmodel.getResource(EG + "Person");
+        System.out.println("\nPerson has types:");
+        printStatements(infmodel, Person, RDF.type, null);
+
+        testInferenceValidity(infmodel);
+
+        printToFile(schema, "rdfsExample.rdf");
+    }
+
+    /**
+     * Example from
+     * https://jena.apache.org/documentation/inference/index.html#generalExamples
+     * 
+     * @throws IOException
+     */
+    public static void rdfs() throws IOException {
         /**
          * Create a Jena model containing the statements that some property "p" is a
          * subproperty of another property "q" and that we have a resource "a" with
@@ -55,89 +123,60 @@ public class Main {
         Resource a = inf.getResource(NS + "a");
         System.out.println("Statement: " + a.getProperty(q));
 
-        // testInferenceValidity(inf);
+        testInferenceValidity(inf);
 
-        /** Derivation */
-        /*
-         * Property A = rdfsExample.createProperty(NS, "A");
-         * Property D = rdfsExample.createProperty(NS, "D");
-         * 
-         * // Trivial rule set which computes the transitive closure over relation eg:p
-         * String rules = "[rule1: (?a eg:p ?b) (?b eg:p ?c) -&gt; (?a eg:p ?c)]";
-         * Reasoner reasoner = new GenericRuleReasoner(Rule.parseRules(rules));
-         * reasoner.setDerivationLogging(true);
-         * InfModel inf2 = ModelFactory.createInfModel(reasoner, rdfsExample);
-         * 
-         * // Query whether eg:A is related through eg:p to eg:D and list the derivation
-         * // route using the following code fragment
-         * PrintWriter out = new PrintWriter(System.out);
-         * for (StmtIterator i = inf2.listStatements(A, p, D); i.hasNext();) {
-         * Statement s = i.nextStatement();
-         * System.out.println("Statement is " + s);
-         * for (Iterator<Derivation> id = inf2.getDerivation(s); id.hasNext();) {
-         * Derivation deriv = (Derivation) id.next();
-         * deriv.printTrace(out, true);
-         * }
-         * }
-         * out.flush();
-         */
+        rdfsExample.write(System.out);
+        // Access raw data
+        inf.getRawModel().write(System.out);
+        // Access decuted statements
+        inf.getDeductionsModel().write(System.out);
 
-        /*
-         * rdfsExample.write(System.out);
-         * // Access raw data
-         * inf.getRawModel().write(System.out);
-         * // Access decuted statements
-         * inf.getDeductionsModel().write(System.out);
-         */
+        printToFile(rdfsExample, "rdfschema.rdf");
+    }
 
-        /** RDFS reasoner */
-        /*
-         * Reasoner reasoner = ReasonerRegistry.getRDFSReasoner();
-         * 
-         * Model rdfsmModel = ModelFactory.createRDFSModel(rdfsExample);
-         * reasoner.setParameter(ReasonerVocabulary.PROPsetRDFSLevel,
-         * ReasonerVocabulary.RDFS_DEFAULT);
-         * 
-         * try {
-         * Model schema = RDFDataMgr.loadModel("Ontology/data/rdfsDemoSchema.rdf");
-         * Model data = RDFDataMgr.loadModel("Ontology/data/rdfsDemoData.rdf");
-         * InfModel infmodel = ModelFactory.createRDFSModel(schema, data);
-         * 
-         * Resource colin = infmodel.getResource("urn:x-hp:eg/colin");
-         * System.out.println("colin has types:");
-         * printStatements(infmodel, colin, RDF.type, null);
-         * 
-         * Resource Person = infmodel.getResource("urn:x-hp:eg/Person");
-         * System.out.println("\nPerson has types:");
-         * printStatements(infmodel, Person, RDF.type, null);
-         * } catch (Exception e) {
-         * e.printStackTrace();
-         * }
-         */
+    /**
+     * Logs the produced schema to an output file.
+     * 
+     * @param model    Produced schema
+     * @param fileName Name of outout file, without file location
+     * @throws IOException
+     */
+    public static void printToFile(Model model, String fileName) throws IOException {
+        File file = new File(FILE_LOC + fileName);
+
+        // creates the file
+        file.createNewFile();
+
+        // creates a FileWriter Object
+        FileWriter writer = new FileWriter(file);
 
         try {
-            rdfsExample.write(writer, "RDF/XML-ABBREV");
+            model.write(writer, "RDF/XML-ABBREV");
         } finally {
             try {
                 writer.close();
-                System.out.println("File: '" + fileName + "' made");
+                System.out.println("\nFile: '" + fileName + "' made");
             } catch (IOException closeException) {
                 closeException.printStackTrace();
             }
         }
     }
 
+    /**
+     * To test a data set for inconsistencies and list any problems.
+     * 
+     * @param inf The schema to check
+     */
     public static void testInferenceValidity(InfModel inf) {
         ValidityReport validity = inf.validate();
         if (validity.isValid()) {
-            System.out.println("OK");
+            System.out.println("\nOK");
         } else {
-            System.out.println("Conflicts");
+            System.out.println("\nConflicts");
             for (Iterator<Report> i = validity.getReports(); i.hasNext();) {
                 System.out.println(" - " + i.next());
             }
         }
-
     }
 
     // TODO: add types to ≠ object types

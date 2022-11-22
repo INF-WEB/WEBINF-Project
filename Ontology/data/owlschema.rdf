@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="urn:x-hp:eg/"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <owl:Class rdf:about="urn:x-hp:eg/GamingComputer">
+    <owl:equivalentClass rdf:parseType="Resource">
+      <owl:intersectionOf rdf:parseType="Collection">
+        <owl:Restriction>
+          <owl:hasValue>
+            <GraphicsCard rdf:about="urn:x-hp:eg/gamingGraphics"/>
+          </owl:hasValue>
+          <owl:onProperty>
+            <owl:TransitiveProperty rdf:about="urn:x-hp:eg/hasComponent"/>
+          </owl:onProperty>
+        </owl:Restriction>
+        <owl:Restriction>
+          <owl:someValuesFrom>
+            <owl:Class rdf:about="urn:x-hp:eg/GameBundle"/>
+          </owl:someValuesFrom>
+          <owl:onProperty>
+            <owl:ObjectProperty rdf:about="urn:x-hp:eg/hasBundle"/>
+          </owl:onProperty>
+        </owl:Restriction>
+        <owl:Class rdf:about="urn:x-hp:eg/Computer"/>
+      </owl:intersectionOf>
+    </owl:equivalentClass>
+  </owl:Class>
+  <owl:Class rdf:about="urn:x-hp:eg/Bundle"/>
+  <owl:Class rdf:about="urn:x-hp:eg/Computer">
+    <rdfs:subClassOf rdf:parseType="Resource">
+      <owl:intersectionOf rdf:parseType="Collection">
+        <owl:Restriction>
+          <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+          >1</owl:maxCardinality>
+          <owl:onProperty>
+            <owl:ObjectProperty rdf:about="urn:x-hp:eg/hasMotherBoard"/>
+          </owl:onProperty>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="urn:x-hp:eg/GameBundle">
+    <rdfs:subClassOf rdf:resource="urn:x-hp:eg/Bundle"/>
+  </owl:Class>
+  <owl:Class rdf:about="urn:x-hp:eg/MotherBoard"/>
+  <owl:Class rdf:about="urn:x-hp:eg/GraphicsCard"/>
+  <owl:ObjectProperty rdf:about="urn:x-hp:eg/hasMotherBoard">
+    <rdfs:subPropertyOf>
+      <owl:TransitiveProperty rdf:about="urn:x-hp:eg/hasComponent"/>
+    </rdfs:subPropertyOf>
+    <rdfs:domain rdf:resource="urn:x-hp:eg/Computer"/>
+    <rdfs:range rdf:resource="urn:x-hp:eg/MotherBoard"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="urn:x-hp:eg/hasGraphics">
+    <rdfs:subPropertyOf>
+      <owl:TransitiveProperty rdf:about="urn:x-hp:eg/hasComponent"/>
+    </rdfs:subPropertyOf>
+    <rdfs:range rdf:resource="urn:x-hp:eg/GraphicsCard"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="urn:x-hp:eg/hasBundle">
+    <rdfs:domain rdf:resource="urn:x-hp:eg/Computer"/>
+  </owl:ObjectProperty>
+  <owl:TransitiveProperty rdf:about="urn:x-hp:eg/hasComponent">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </owl:TransitiveProperty>
+  <GraphicsCard rdf:about="urn:x-hp:eg/budgetGraphics"/>
+  <GraphicsCard rdf:about="urn:x-hp:eg/DTPGraphics"/>
+</rdf:RDF>
