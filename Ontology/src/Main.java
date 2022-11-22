@@ -1,8 +1,21 @@
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.reasoner.Derivation;
+import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.reasoner.ReasonerRegistry;
+import org.apache.jena.reasoner.ValidityReport;
+import org.apache.jena.reasoner.ValidityReport.Report;
+import org.apache.jena.reasoner.rulesys.GenericRuleReasoner;
+import org.apache.jena.reasoner.rulesys.Rule;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.vocabulary.*;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.UUID;
 
 public class Main {
@@ -10,48 +23,179 @@ public class Main {
     private final static String WEB_DOMAIN = "https://testDomain/";
     private static Property jobTypeProperty;
 
-    //TODO: add types to ≠ object types
+    public static void main(String[] args) throws IOException {
+        String fileName = "Ontology/data/rdfschema.rdf";
+        File file = new File(fileName);
+
+        // creates the file
+        file.createNewFile();
+
+        // creates a FileWriter Object
+        FileWriter writer = new FileWriter(file);
+
+        /**
+         * Create a Jena model containing the statements that some property "p" is a
+         * subproperty of another property "q" and that we have a resource "a" with
+         * value "foo" for "p".
+         */
+        String NS = "urn:x-hp-jena:eg/";
+
+        // Build a trivial example data set
+        Model rdfsExample = ModelFactory.createDefaultModel();
+        Property p = rdfsExample.createProperty(NS, "p");
+        Property q = rdfsExample.createProperty(NS, "q");
+
+        rdfsExample.add(p, RDFS.subPropertyOf, q);
+        rdfsExample.createResource(NS + "a").addProperty(p, "foo");
+
+        // Create an inference model which performs RDFS inference over this data
+        InfModel inf = ModelFactory.createRDFSModel(rdfsExample); // [1]
+
+        // Check the resulting model
+        Resource a = inf.getResource(NS + "a");
+        System.out.println("Statement: " + a.getProperty(q));
+
+        // testInferenceValidity(inf);
+
+        /** Derivation */
+        /*
+         * Property A = rdfsExample.createProperty(NS, "A");
+         * Property D = rdfsExample.createProperty(NS, "D");
+         * 
+         * // Trivial rule set which computes the transitive closure over relation eg:p
+         * String rules = "[rule1: (?a eg:p ?b) (?b eg:p ?c) -&gt; (?a eg:p ?c)]";
+         * Reasoner reasoner = new GenericRuleReasoner(Rule.parseRules(rules));
+         * reasoner.setDerivationLogging(true);
+         * InfModel inf2 = ModelFactory.createInfModel(reasoner, rdfsExample);
+         * 
+         * // Query whether eg:A is related through eg:p to eg:D and list the derivation
+         * // route using the following code fragment
+         * PrintWriter out = new PrintWriter(System.out);
+         * for (StmtIterator i = inf2.listStatements(A, p, D); i.hasNext();) {
+         * Statement s = i.nextStatement();
+         * System.out.println("Statement is " + s);
+         * for (Iterator<Derivation> id = inf2.getDerivation(s); id.hasNext();) {
+         * Derivation deriv = (Derivation) id.next();
+         * deriv.printTrace(out, true);
+         * }
+         * }
+         * out.flush();
+         */
+
+        /*
+         * rdfsExample.write(System.out);
+         * // Access raw data
+         * inf.getRawModel().write(System.out);
+         * // Access decuted statements
+         * inf.getDeductionsModel().write(System.out);
+         */
+
+        /** RDFS reasoner */
+        /*
+         * Reasoner reasoner = ReasonerRegistry.getRDFSReasoner();
+         * 
+         * Model rdfsmModel = ModelFactory.createRDFSModel(rdfsExample);
+         * reasoner.setParameter(ReasonerVocabulary.PROPsetRDFSLevel,
+         * ReasonerVocabulary.RDFS_DEFAULT);
+         * 
+         * try {
+         * Model schema = RDFDataMgr.loadModel("Ontology/data/rdfsDemoSchema.rdf");
+         * Model data = RDFDataMgr.loadModel("Ontology/data/rdfsDemoData.rdf");
+         * InfModel infmodel = ModelFactory.createRDFSModel(schema, data);
+         * 
+         * Resource colin = infmodel.getResource("urn:x-hp:eg/colin");
+         * System.out.println("colin has types:");
+         * printStatements(infmodel, colin, RDF.type, null);
+         * 
+         * Resource Person = infmodel.getResource("urn:x-hp:eg/Person");
+         * System.out.println("\nPerson has types:");
+         * printStatements(infmodel, Person, RDF.type, null);
+         * } catch (Exception e) {
+         * e.printStackTrace();
+         * }
+         */
+
+        try {
+            rdfsExample.write(writer, "RDF/XML-ABBREV");
+        } finally {
+            try {
+                writer.close();
+                System.out.println("File: '" + fileName + "' made");
+            } catch (IOException closeException) {
+                closeException.printStackTrace();
+            }
+        }
+    }
+
+    public static void testInferenceValidity(InfModel inf) {
+        ValidityReport validity = inf.validate();
+        if (validity.isValid()) {
+            System.out.println("OK");
+        } else {
+            System.out.println("Conflicts");
+            for (Iterator<Report> i = validity.getReports(); i.hasNext();) {
+                System.out.println(" - " + i.next());
+            }
+        }
+
+    }
+
+    // TODO: add types to ≠ object types
     // f.e. nstype user voor een user resource
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
         // create an empty Model
         model = ModelFactory.createDefaultModel();
-        jobTypeProperty = model.createProperty(WEB_DOMAIN + "job-types"); //TODO: use a database of jobtypes from elsewhere
-        Resource john = createUser("John", "Smith", "johnsmith@mail.com", "Agoralaan 13 Diepenbeek", "https://johnsmiths", false);
-        Resource rebecca = createUser("Rebecca", "Smith", "Rebeccasmith@mail.com", "Agoralaan 13 Diepenbeek", "https://johnsmiths", true);
-        Resource jef = createUser("Jef", "Jansens", "Jefjansens@mail.com", "Agoralaan 11 Diepenbeek", "https://jefjansens", false);
+
+        jobTypeProperty = model.createProperty(WEB_DOMAIN + "job-types"); // TODO: use a database of jobtypes from
+                                                                          // elsewhere
+
+        Resource john = createUser("John", "Smith", "johnsmith@mail.com", "Agoralaan 13 Diepenbeek",
+                "https://johnsmiths", false);
+        Resource rebecca = createUser("Rebecca", "Smith", "Rebeccasmith@mail.com", "Agoralaan 13 Diepenbeek",
+                "https://johnsmiths", true);
+        Resource jef = createUser("Jef", "Jansens", "Jefjansens@mail.com", "Agoralaan 11 Diepenbeek",
+                "https://jefjansens", false);
+
         createConnectionWith(john, rebecca, ConnectionStatus.Pending, ConnectionType.Coworker);
         createConnectionWith(john, jef, ConnectionStatus.Accepted, ConnectionType.Friend);
+
         createDiplomaFor(john, new Date(), JobType.PlaceHolder, "Uhasselt");
+
         createProfessionalExperienceFor(john, new Date(2000, 1, 1), new Date(2001, 2, 1), "this is a description");
-        Resource company = createCompany("company.sowewhere@gmail.com", "companyName", "https://company.com", "Agoralaan Gebouw D, 3590 Diepenbeek");
-        Resource job = createJob(company, "jobName", "Agoralaan Gebouw D, 3590 Diepenbeek", "this is a description of the work experience", DiplomaType.PlaceHolder, "Maken webpagina (job description)", JobStatus.Hired, "ICT");
+
+        Resource company = createCompany("company.sowewhere@gmail.com", "companyName", "https://company.com",
+                "Agoralaan Gebouw D, 3590 Diepenbeek");
+        Resource job = createJob(company, "jobName", "Agoralaan Gebouw D, 3590 Diepenbeek",
+                "this is a description of the work experience", DiplomaType.PlaceHolder,
+                "Maken webpagina (job description)", JobStatus.Hired, "ICT");
+
         addPotentialJob(john, job, false);
+
         addEmployeeToCompany(john, company);
         addEmployeeToCompany(rebecca, company);
 
         model.write(System.out);
     }
 
-    public static Resource createUser(  String firstName,
-                                        String lastName,
-                                        String email,
-                                        String area,
-                                        String webpage,
-                                        Boolean lookingForJob) {
-        String userURI          = WEB_DOMAIN + firstName + lastName +"-"+ UUID.randomUUID(); // added unique numbers
-        String fullName         = firstName + " " + lastName;
+    public static Resource createUser(String firstName,
+            String lastName,
+            String email,
+            String area,
+            String webpage,
+            Boolean lookingForJob) {
+        String userURI = WEB_DOMAIN + firstName + lastName + "-" + UUID.randomUUID(); // added unique numbers
+        String fullName = firstName + " " + lastName;
 
         Property lookingForJobProperty = model.createProperty(userURI + "/looking-for-job");
 
-        Resource johnSmith
-                = model.createResource(userURI)
+        Resource johnSmith = model.createResource(userURI)
                 .addProperty(VCARD.FN, fullName)
                 .addProperty(VCARD.N,
                         model.createResource()
                                 .addProperty(VCARD.Given, firstName)
                                 .addProperty(VCARD.Family, lastName))
                 .addProperty(VCARD.EMAIL, email)
-                .addProperty(AS.url, webpage) //TODO: Syntax for url could be incorrect
+                .addProperty(AS.url, webpage) // TODO: Syntax for url could be incorrect
                 .addProperty(VCARD.ADR, area)
                 .addProperty(lookingForJobProperty, lookingForJob.toString())
                 .addProperty(RDF.type, WEB_DOMAIN + "/type/user");
@@ -61,21 +205,21 @@ public class Main {
         return johnSmith;
     }
 
-    public static Resource createDiplomaFor(Resource user, Date graduation, JobType jobType, String educationalInstitute) {
+    public static Resource createDiplomaFor(Resource user, Date graduation, JobType jobType,
+            String educationalInstitute) {
         Property diplomasProperty = model.createProperty(user.getURI() + "/diplomas");
         Bag diplomasBag = model.getBag(user.getURI() + "/diplomas");
-        Resource diploma =
-                model.createResource(WEB_DOMAIN + "/diplomas/{diploma1}" +"-"+ UUID.randomUUID())
-                        .addProperty(DC.date, graduation.toString())
-                        .addProperty(jobTypeProperty, jobType.toString())
-                        .addProperty(VCARD.ADR, educationalInstitute)
-                        .addProperty(RDF.type, WEB_DOMAIN + "/type/diploma");
+        Resource diploma = model.createResource(WEB_DOMAIN + "/diplomas/{diploma1}" + "-" + UUID.randomUUID())
+                .addProperty(DC.date, graduation.toString())
+                .addProperty(jobTypeProperty, jobType.toString())
+                .addProperty(VCARD.ADR, educationalInstitute)
+                .addProperty(RDF.type, WEB_DOMAIN + "/type/diploma");
 
-        if(diplomasBag == null) {
+        if (diplomasBag == null) {
             Bag diplomas = model.createBag(user.getURI() + "/diplomas");
             diplomas.add(diploma);
             user.addProperty(diplomasProperty, diplomas);
-        }else{
+        } else {
             diplomasBag.add(diploma);
             user.addProperty(diplomasProperty, diplomasBag);
         }
@@ -83,21 +227,22 @@ public class Main {
         return user;
     }
 
-    public static Resource createProfessionalExperienceFor(Resource job, Date startDate, Date endDate, String description) {
+    public static Resource createProfessionalExperienceFor(Resource job, Date startDate, Date endDate,
+            String description) {
         Property professionalExperienceProperty = model.createProperty(job.getURI() + "/professional-experiences");
         Bag professionalExperiencesBag = model.getBag(job.getURI() + "/professional-experience");
-        Resource professionalExperience =
-                model.createResource(job.getURI() + "/professional-experiences/{professional-experience1}")
-                        .addProperty(DCAT.startDate, startDate.toString())
-                        .addProperty(DCAT.endDate, endDate.toString())
-                        .addProperty(DC.description, description)
-                        .addProperty(RDF.type, WEB_DOMAIN + "/type/professional-experience");
+        Resource professionalExperience = model
+                .createResource(job.getURI() + "/professional-experiences/{professional-experience1}")
+                .addProperty(DCAT.startDate, startDate.toString())
+                .addProperty(DCAT.endDate, endDate.toString())
+                .addProperty(DC.description, description)
+                .addProperty(RDF.type, WEB_DOMAIN + "/type/professional-experience");
 
-        if(professionalExperiencesBag == null) {
+        if (professionalExperiencesBag == null) {
             Bag professionalExperiences = model.createBag(job.getURI() + "/professional-experience");
             professionalExperiences.add(professionalExperience);
             job.addProperty(professionalExperienceProperty, professionalExperiences);
-        }else{
+        } else {
             professionalExperiencesBag.add(professionalExperience);
             job.addProperty(professionalExperienceProperty, professionalExperiencesBag);
         }
@@ -106,59 +251,62 @@ public class Main {
     }
 
     private static String getLastSubstring(String URI) {
-        return URI.substring(URI.lastIndexOf("/")+1);
+        return URI.substring(URI.lastIndexOf("/") + 1);
     }
 
     // TODO: add to bags
-    public static void createConnectionWith(Resource user1, Resource user2, ConnectionStatus status, ConnectionType type) {
-        String connectionURI = WEB_DOMAIN + "connection/" + getLastSubstring(user1.getURI()) + ";" + getLastSubstring(user2.getURI());
+    public static void createConnectionWith(Resource user1, Resource user2, ConnectionStatus status,
+            ConnectionType type) {
+        String connectionURI = WEB_DOMAIN + "connection/" + getLastSubstring(user1.getURI()) + ";"
+                + getLastSubstring(user2.getURI());
         Property connection1Property = model.createProperty(connectionURI);
         Property connection2Property = model.createProperty(connectionURI);
 
         Property connectionStatusProperty = model.createProperty(connectionURI + "/status");
         Property connectionTypeProperty = model.createProperty(connectionURI + "/type");
 
-        Resource connection =
-                model.createResource(connectionURI)
-                        .addProperty(connectionStatusProperty, status.toString())
-                        .addProperty(connectionTypeProperty, type.toString())
-                        .addProperty(RDF.type, WEB_DOMAIN + "/type/connection");;
+        Resource connection = model.createResource(connectionURI)
+                .addProperty(connectionStatusProperty, status.toString())
+                .addProperty(connectionTypeProperty, type.toString())
+                .addProperty(RDF.type, WEB_DOMAIN + "/type/connection");
+        ;
 
         Bag connections1Bag = model.getBag(user1.getURI() + "/connections");
-        if(connections1Bag == null){
+        if (connections1Bag == null) {
             Bag connections1 = model.createBag(user1.getURI() + "/connections");
             connections1.add(connection);
             user1.addProperty(connection1Property, connections1);
-        }else{
+        } else {
             connections1Bag.add(connection);
             user1.addProperty(connection1Property, connections1Bag);
         }
 
         Bag connections2Bag = model.getBag(user2.getURI() + "/connections");
-        if(connections2Bag == null){
+        if (connections2Bag == null) {
             Bag connections2 = model.createBag(user2.getURI() + "/connections");
             connections2.add(connection);
             user2.addProperty(connection2Property, connections2);
-        }else{
+        } else {
             connections2Bag.add(connection);
             user2.addProperty(connection2Property, connections2Bag);
         }
     }
 
-    public static void addPotentialJob(Resource user, Resource job, Boolean isAccepted){
+    public static void addPotentialJob(Resource user, Resource job, Boolean isAccepted) {
         Property potentialJobsProperty = model.createProperty(user.getURI() + "/potential-jobs");
         Property potentialJobProperty = model.createProperty(user.getURI() + "/potential-job");
         Property jobProperty = user.getModel().getProperty(potentialJobsProperty.getURI());
         Bag potentialJobsBag = model.getBag(user.getURI() + "/potential-jobs");
-        Property isAcceptedProperty = model.createProperty(user.getURI() + getLastSubstring(job.getURI()) + "/isAccepted");
+        Property isAcceptedProperty = model
+                .createProperty(user.getURI() + getLastSubstring(job.getURI()) + "/isAccepted");
         Resource blank = model.createResource();
 
-        if(potentialJobsBag == null) {
+        if (potentialJobsBag == null) {
             Bag potentialJobs = model.createBag(user.getURI() + "/potential-jobs");
             blank.addProperty(isAcceptedProperty, isAccepted.toString());
             blank.addProperty(potentialJobProperty, job);
             user.addProperty(jobProperty, potentialJobs);
-        }else{
+        } else {
             blank.addProperty(isAcceptedProperty, isAccepted.toString());
             blank.addProperty(potentialJobProperty, job);
             potentialJobsBag.add(blank);
@@ -167,34 +315,36 @@ public class Main {
 
     }
 
-    public static void addJob(Resource user, Resource job){
+    public static void addJob(Resource user, Resource job) {
         Property jobProperty = model.createProperty(user.getURI() + "/jobs");
         Bag jobsBag = model.getBag(user.getURI() + "/jobs");
-        if(jobsBag == null) {
+        if (jobsBag == null) {
             Bag jobs = model.createBag(user.getURI() + "/jobs");
             jobs.add(job);
             user.addProperty(jobProperty, jobs);
-        }else{
+        } else {
             jobsBag.add(job);
             user.addProperty(jobProperty, jobsBag);
         }
     }
 
-    public static Resource createCompany(String email, String companyName, String companyWebsite, String companyHeadQuaters){
-        String companyURI = WEB_DOMAIN + companyName +"-"+ UUID.randomUUID();
+    public static Resource createCompany(String email, String companyName, String companyWebsite,
+            String companyHeadQuaters) {
+        String companyURI = WEB_DOMAIN + companyName + "-" + UUID.randomUUID();
         // make the company resource
         Resource company = model.createResource(companyURI)
                 .addProperty(VCARD.EMAIL, email)
-                .addProperty(VCARD.FN,companyName)
-                .addProperty(VCARD.ADR, companyHeadQuaters) //TODO: Syntax for ADR could be incorrect
+                .addProperty(VCARD.FN, companyName)
+                .addProperty(VCARD.ADR, companyHeadQuaters) // TODO: Syntax for ADR could be incorrect
                 .addProperty(AS.url, companyWebsite)
                 .addProperty(RDF.type, WEB_DOMAIN + "/type/company");
 
-        //model.write(System.out);
+        // model.write(System.out);
         return company;
     }
 
-    public static Resource createJob(Resource company, String jobName, String area, String workExperience, DiplomaType diploma, String jobDescription, JobStatus status, String type){
+    public static Resource createJob(Resource company, String jobName, String area, String workExperience,
+            DiplomaType diploma, String jobDescription, JobStatus status, String type) {
         String uri = company.getURI() + "/jobs";
         Property jobStatus = model.createProperty(uri + "/status");
         Property diplomaTypeProperty = model.createProperty(uri + "/diploma-type");
@@ -208,13 +358,13 @@ public class Main {
                 .addProperty(jobTypeProperty, type)
                 .addProperty(RDF.type, WEB_DOMAIN + "/type/job");
         Property jobsProperty = model.createProperty(company.getURI() + "/jobs");
-        Property companyEmployeesProperty = model.createProperty(company.getURI()); //?
+        Property companyEmployeesProperty = model.createProperty(company.getURI()); // ?
         Bag jobsBag = model.getBag(company.getURI() + "/jobs");
-        if(jobsBag == null) {
+        if (jobsBag == null) {
             Bag jobs = model.createBag(company.getURI() + "/jobs");
             jobs.add(job);
             company.addProperty(jobsProperty, jobs);
-        }else{
+        } else {
             jobsBag.add(job);
             company.addProperty(jobsProperty, jobsBag);
         }
@@ -223,8 +373,8 @@ public class Main {
         return job;
     }
 
-    public static void addEmployeeToCompany(Resource employee, Resource company){
-        //Creating a list of employees
+    public static void addEmployeeToCompany(Resource employee, Resource company) {
+        // Creating a list of employees
         Property employeesProperty = model.createProperty(company.getURI() + "/employees");
         Bag companyEmployeesBag = (Bag) company.getModel().getBag(company.getURI() + "/employees");
         if (companyEmployeesBag == null) {
@@ -238,15 +388,15 @@ public class Main {
 
     }
 
-    public static void addPotentialEmployees(Resource user, Resource job){
+    public static void addPotentialEmployees(Resource user, Resource job) {
         Property potentialEmployeeProperty = model.createProperty(job.getURI() + "/potential-employees");
         Property potentialEmployeesProperty = user.getModel().getProperty(potentialEmployeeProperty.getURI());
         Bag potentialEmployeesBag = model.getBag(user.getURI() + "/potential-jobs");
-        if(potentialEmployeesBag == null) {
+        if (potentialEmployeesBag == null) {
             Bag potentialEmployees = model.createBag(user.getURI() + "/potential-jobs");
             potentialEmployees.add(user);
             user.addProperty(potentialEmployeesProperty, potentialEmployees);
-        }else{
+        } else {
             potentialEmployeesBag.add(user);
             user.addProperty(potentialEmployeesProperty, potentialEmployeesBag);
         }

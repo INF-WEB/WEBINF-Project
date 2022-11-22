@@ -1,0 +1,13 @@
+  <rdf:Description rdf:about="eg:mum">
+    <rdfs:subPropertyOf rdf:resource="eg:parent"/>
+  </rdf:Description>
+ 
+  <rdf:Description rdf:about="eg:parent">
+    <rdfs:range  rdf:resource="eg:Person"/>
+    <rdfs:domain rdf:resource="eg:Person"/>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="eg:age">
+    <rdfs:range rdf:resource="xsd:integer" />
+  </rdf:Description>
+

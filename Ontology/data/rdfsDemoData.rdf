@@ -1,0 +1,4 @@
+  <Teenager rdf:about="eg:colin">
+      <mum rdf:resource="eg:rosy" />
+      <age>13</age>
+  </Teenager>
