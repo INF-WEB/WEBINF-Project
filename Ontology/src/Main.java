@@ -1,4 +1,5 @@
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.sparql.vocabulary.FOAF;
 import org.apache.jena.vocabulary.*;
 
 import java.sql.Connection;
@@ -48,11 +49,11 @@ public class Main {
                 .addProperty(VCARD.FN, fullName)
                 .addProperty(VCARD.N,
                         model.createResource()
-                                .addProperty(VCARD.Given, firstName)
-                                .addProperty(VCARD.Family, lastName))
-                .addProperty(VCARD.EMAIL, email)
-                .addProperty(AS.url, webpage) //TODO: Syntax for url could be incorrect
-                .addProperty(VCARD.ADR, area)
+                                .addProperty(FOAF.firstName, firstName)
+                                .addProperty(FOAF.familyName, lastName))
+                .addProperty(FOAF.mbox, email)
+                .addProperty(FOAF.homepage, webpage) //TODO: Syntax for url could be incorrect
+                .addProperty(FOAF.based_near, area)
                 .addProperty(lookingForJobProperty, lookingForJob.toString())
                 .addProperty(RDF.type, WEB_DOMAIN + "/type/user");
 
@@ -68,7 +69,7 @@ public class Main {
                 model.createResource(WEB_DOMAIN + "/diplomas/{diploma1}" +"-"+ UUID.randomUUID())
                         .addProperty(DC.date, graduation.toString())
                         .addProperty(jobTypeProperty, jobType.toString())
-                        .addProperty(VCARD.ADR, educationalInstitute)
+                        .addProperty(FOAF.based_near, educationalInstitute)
                         .addProperty(RDF.type, WEB_DOMAIN + "/type/diploma");
 
         if(diplomasBag == null) {
@@ -184,10 +185,10 @@ public class Main {
         String companyURI = WEB_DOMAIN + companyName +"-"+ UUID.randomUUID();
         // make the company resource
         Resource company = model.createResource(companyURI)
-                .addProperty(VCARD.EMAIL, email)
+                .addProperty(FOAF.mbox, email)
                 .addProperty(VCARD.FN,companyName)
-                .addProperty(VCARD.ADR, companyHeadQuaters) //TODO: Syntax for ADR could be incorrect
-                .addProperty(AS.url, companyWebsite)
+                .addProperty(FOAF.based_near, companyHeadQuaters) //TODO: Syntax for ADR could be incorrect
+                .addProperty(FOAF.homepage, companyWebsite)
                 .addProperty(RDF.type, WEB_DOMAIN + "/type/company");
 
         //model.write(System.out);
@@ -200,7 +201,7 @@ public class Main {
         Property diplomaTypeProperty = model.createProperty(uri + "/diploma-type");
         Resource job = model.createResource(uri + jobName)
                 .addProperty(DC.title, jobName)
-                .addProperty(VCARD.ADR, area)
+                .addProperty(FOAF.based_near, area)
                 .addProperty(DC.description, workExperience)
                 .addProperty(diplomaTypeProperty, diploma.toString())
                 .addProperty(DC.description, jobDescription)
