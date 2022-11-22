@@ -19,20 +19,21 @@ public class Main {
     private static Model model;
     private final static String WEB_DOMAIN = "https://testDomain/";
     private static Property jobTypeProperty;
-    
+
     private final static String EG = "urn:x-hp:eg/";
     private final static String FILE_LOC = "Ontology/data/";
 
     public static void main(String[] args) throws IOException {
+        main1(args);
         // rdfs();
         // rdfsExample();
-        owl();
+        // owl();
     }
 
     /**
      * Example from
      * https://jena.apache.org/documentation/inference/index.html#OWLexamples
-     * 
+     *
      * @throws IOException
      */
     public static void owl() throws IOException {
@@ -74,7 +75,7 @@ public class Main {
     /**
      * Example from
      * https://jena.apache.org/documentation/inference/index.html#RDFSexamples
-     * 
+     *
      * @throws IOException
      */
     public static void rdfsExample() throws IOException {
@@ -98,7 +99,7 @@ public class Main {
     /**
      * Example from
      * https://jena.apache.org/documentation/inference/index.html#generalExamples
-     * 
+     *
      * @throws IOException
      */
     public static void rdfs() throws IOException {
@@ -110,15 +111,15 @@ public class Main {
         String NS = "urn:x-hp-jena:eg/";
 
         // Build a trivial example data set
-        Model rdfsExample = ModelFactory.createDefaultModel();
-        Property p = rdfsExample.createProperty(NS, "p");
-        Property q = rdfsExample.createProperty(NS, "q");
+        Model model = ModelFactory.createDefaultModel();
+        Property p = model.createProperty(NS, "p");
+        Property q = model.createProperty(NS, "q");
 
-        rdfsExample.add(p, RDFS.subPropertyOf, q);
-        rdfsExample.createResource(NS + "a").addProperty(p, "foo");
+        model.add(p, RDFS.subPropertyOf, q);
+        model.createResource(NS + "a").addProperty(p, "foo");
 
         // Create an inference model which performs RDFS inference over this data
-        InfModel inf = ModelFactory.createRDFSModel(rdfsExample); // [1]
+        InfModel inf = ModelFactory.createRDFSModel(model); // [1]
 
         // Check the resulting model
         Resource a = inf.getResource(NS + "a");
@@ -126,18 +127,18 @@ public class Main {
 
         testInferenceValidity(inf);
 
-        rdfsExample.write(System.out);
+        model.write(System.out);
         // Access raw data
         inf.getRawModel().write(System.out);
         // Access decuted statements
         inf.getDeductionsModel().write(System.out);
 
-        printToFile(rdfsExample, "rdfschema.rdf");
+        printToFile(model, "rdfschema.rdf");
     }
 
     /**
      * Logs the produced schema to an output file.
-     * 
+     *
      * @param model    Produced schema
      * @param fileName Name of outout file, without file location
      * @throws IOException
@@ -165,7 +166,7 @@ public class Main {
 
     /**
      * To test a data set for inconsistencies and list any problems.
-     * 
+     *
      * @param inf The schema to check
      */
     public static void testInferenceValidity(InfModel inf) {
@@ -182,12 +183,11 @@ public class Main {
 
     // TODO: add types to ≠ object types
     // f.e. nstype user voor een user resource
-    public static void main1(String[] args) {
+    public static void main1(String[] args) throws IOException {
         // create an empty Model
         model = ModelFactory.createDefaultModel();
 
-        jobTypeProperty = model.createProperty(WEB_DOMAIN + "job-types"); // TODO: use a database of jobtypes from
-                                                                          // elsewhere
+        jobTypeProperty = model.createProperty(WEB_DOMAIN + "job-types"); // TODO: use a database of jobtypes from elsewhere
 
         Resource john = createUser("John", "Smith", "johnsmith@mail.com", "Agoralaan 13 Diepenbeek",
                 "https://johnsmiths", false);
@@ -215,15 +215,19 @@ public class Main {
         addEmployeeToCompany(rebecca, company);
 
         model.write(System.out);
+        printToFile(model, "model.rdf");
+
+        InfModel inf = ModelFactory.createRDFSModel(model);
+        testInferenceValidity(inf);
     }
 
     public static Resource createUser(String firstName,
-            String lastName,
-            String email,
-            String area,
-            String webpage,
-            Boolean lookingForJob) {
-        String userURI = WEB_DOMAIN + firstName + lastName + "-" + UUID.randomUUID(); // added unique numbers
+                                      String lastName,
+                                      String email,
+                                      String area,
+                                      String webpage,
+                                      Boolean lookingForJob) {
+        String userURI = WEB_DOMAIN + firstName + lastName + "-" + UUID.randomUUID(); // added unique numbers // FIXME: will this always be unique?
         String fullName = firstName + " " + lastName;
 
         Property lookingForJobProperty = model.createProperty(userURI + "/looking-for-job");
@@ -246,7 +250,7 @@ public class Main {
     }
 
     public static Resource createDiplomaFor(Resource user, Date graduation, JobType jobType,
-            String educationalInstitute) {
+                                            String educationalInstitute) {
         Property diplomasProperty = model.createProperty(user.getURI() + "/diplomas");
         Bag diplomasBag = model.getBag(user.getURI() + "/diplomas");
         Resource diploma =
@@ -269,7 +273,7 @@ public class Main {
     }
 
     public static Resource createProfessionalExperienceFor(Resource job, Date startDate, Date endDate,
-            String description) {
+                                                           String description) {
         Property professionalExperienceProperty = model.createProperty(job.getURI() + "/professional-experiences");
         Bag professionalExperiencesBag = model.getBag(job.getURI() + "/professional-experience");
         Resource professionalExperience =
@@ -297,7 +301,7 @@ public class Main {
 
     // TODO: add to bags
     public static void createConnectionWith(Resource user1, Resource user2, ConnectionStatus status,
-            ConnectionType type) {
+                                            ConnectionType type) {
         String connectionURI = WEB_DOMAIN + "connection/" + getLastSubstring(user1.getURI()) + ";"
                 + getLastSubstring(user2.getURI());
         Property connection1Property = model.createProperty(connectionURI);
@@ -370,7 +374,7 @@ public class Main {
     }
 
     public static Resource createCompany(String email, String companyName, String companyWebsite,
-            String companyHeadQuaters) {
+                                         String companyHeadQuaters) {
         String companyURI = WEB_DOMAIN + companyName + "-" + UUID.randomUUID();
         // make the company resource
         Resource company = model.createResource(companyURI)
@@ -385,7 +389,7 @@ public class Main {
     }
 
     public static Resource createJob(Resource company, String jobName, String area, String workExperience,
-            DiplomaType diploma, String jobDescription, JobStatus status, String type) {
+                                     DiplomaType diploma, String jobDescription, JobStatus status, String type) {
         String uri = company.getURI() + "/jobs";
         Property jobStatus = model.createProperty(uri + "/status");
         Property diplomaTypeProperty = model.createProperty(uri + "/diploma-type");
