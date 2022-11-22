@@ -55,7 +55,7 @@ public class Main {
                 .addProperty(FOAF.homepage, webpage) //TODO: Syntax for url could be incorrect
                 .addProperty(FOAF.based_near, area)
                 .addProperty(lookingForJobProperty, lookingForJob.toString())
-                .addProperty(RDF.type, WEB_DOMAIN + "/type/user");
+                .addProperty(RDF.type, WEB_DOMAIN + "type/user");
 
         System.out.println();
 
@@ -66,11 +66,11 @@ public class Main {
         Property diplomasProperty = model.createProperty(user.getURI() + "/diplomas");
         Bag diplomasBag = model.getBag(user.getURI() + "/diplomas");
         Resource diploma =
-                model.createResource(WEB_DOMAIN + "/diplomas/{diploma1}" +"-"+ UUID.randomUUID())
+                model.createResource(WEB_DOMAIN + "diplomas/{diploma1}" +"-"+ UUID.randomUUID())
                         .addProperty(DC.date, graduation.toString())
                         .addProperty(jobTypeProperty, jobType.toString())
                         .addProperty(FOAF.based_near, educationalInstitute)
-                        .addProperty(RDF.type, WEB_DOMAIN + "/type/diploma");
+                        .addProperty(RDF.type, WEB_DOMAIN + "type/diploma");
 
         if(diplomasBag == null) {
             Bag diplomas = model.createBag(user.getURI() + "/diplomas");
@@ -92,7 +92,7 @@ public class Main {
                         .addProperty(DCAT.startDate, startDate.toString())
                         .addProperty(DCAT.endDate, endDate.toString())
                         .addProperty(DC.description, description)
-                        .addProperty(RDF.type, WEB_DOMAIN + "/type/professional-experience");
+                        .addProperty(RDF.type, WEB_DOMAIN + "type/professional-experience");
 
         if(professionalExperiencesBag == null) {
             Bag professionalExperiences = model.createBag(job.getURI() + "/professional-experience");
@@ -123,7 +123,7 @@ public class Main {
                 model.createResource(connectionURI)
                         .addProperty(connectionStatusProperty, status.toString())
                         .addProperty(connectionTypeProperty, type.toString())
-                        .addProperty(RDF.type, WEB_DOMAIN + "/type/connection");;
+                        .addProperty(RDF.type, WEB_DOMAIN + "type/connection");;
 
         Bag connections1Bag = model.getBag(user1.getURI() + "/connections");
         if(connections1Bag == null){
@@ -189,7 +189,7 @@ public class Main {
                 .addProperty(VCARD.FN,companyName)
                 .addProperty(FOAF.based_near, companyHeadQuaters) //TODO: Syntax for ADR could be incorrect
                 .addProperty(FOAF.homepage, companyWebsite)
-                .addProperty(RDF.type, WEB_DOMAIN + "/type/company");
+                .addProperty(RDF.type, WEB_DOMAIN + "type/company");
 
         //model.write(System.out);
         return company;
@@ -207,7 +207,7 @@ public class Main {
                 .addProperty(DC.description, jobDescription)
                 .addProperty(jobStatus, status.toString())
                 .addProperty(jobTypeProperty, type)
-                .addProperty(RDF.type, WEB_DOMAIN + "/type/job");
+                .addProperty(RDF.type, WEB_DOMAIN + "type/job");
         Property jobsProperty = model.createProperty(company.getURI() + "/jobs");
         Property companyEmployeesProperty = model.createProperty(company.getURI()); //?
         Bag jobsBag = model.getBag(company.getURI() + "/jobs");
