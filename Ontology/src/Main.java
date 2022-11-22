@@ -5,6 +5,7 @@ import org.apache.jena.reasoner.ValidityReport;
 import org.apache.jena.reasoner.ValidityReport.Report;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.PrintUtil;
+import org.apache.jena.sparql.vocabulary.FOAF;
 import org.apache.jena.vocabulary.*;
 
 import java.io.File;
@@ -231,13 +232,13 @@ public class Main {
                 .addProperty(VCARD.FN, fullName)
                 .addProperty(VCARD.N,
                         model.createResource()
-                                .addProperty(VCARD.Given, firstName)
-                                .addProperty(VCARD.Family, lastName))
-                .addProperty(VCARD.EMAIL, email)
-                .addProperty(AS.url, webpage) // TODO: Syntax for url could be incorrect
-                .addProperty(VCARD.ADR, area)
+                                .addProperty(FOAF.firstName, firstName)
+                                .addProperty(FOAF.familyName, lastName))
+                .addProperty(FOAF.mbox, email)
+                .addProperty(FOAF.homepage, webpage) //TODO: Syntax for url could be incorrect
+                .addProperty(FOAF.based_near, area)
                 .addProperty(lookingForJobProperty, lookingForJob.toString())
-                .addProperty(RDF.type, WEB_DOMAIN + "/type/user");
+                .addProperty(RDF.type, WEB_DOMAIN + "type/user");
 
         System.out.println();
 
@@ -248,13 +249,14 @@ public class Main {
             String educationalInstitute) {
         Property diplomasProperty = model.createProperty(user.getURI() + "/diplomas");
         Bag diplomasBag = model.getBag(user.getURI() + "/diplomas");
-        Resource diploma = model.createResource(WEB_DOMAIN + "/diplomas/{diploma1}" + "-" + UUID.randomUUID())
-                .addProperty(DC.date, graduation.toString())
-                .addProperty(jobTypeProperty, jobType.toString())
-                .addProperty(VCARD.ADR, educationalInstitute)
-                .addProperty(RDF.type, WEB_DOMAIN + "/type/diploma");
+        Resource diploma =
+                model.createResource(WEB_DOMAIN + "diplomas/{diploma1}" +"-"+ UUID.randomUUID())
+                        .addProperty(DC.date, graduation.toString())
+                        .addProperty(jobTypeProperty, jobType.toString())
+                        .addProperty(FOAF.based_near, educationalInstitute)
+                        .addProperty(RDF.type, WEB_DOMAIN + "type/diploma");
 
-        if (diplomasBag == null) {
+        if(diplomasBag == null) {
             Bag diplomas = model.createBag(user.getURI() + "/diplomas");
             diplomas.add(diploma);
             user.addProperty(diplomasProperty, diplomas);
@@ -270,14 +272,14 @@ public class Main {
             String description) {
         Property professionalExperienceProperty = model.createProperty(job.getURI() + "/professional-experiences");
         Bag professionalExperiencesBag = model.getBag(job.getURI() + "/professional-experience");
-        Resource professionalExperience = model
-                .createResource(job.getURI() + "/professional-experiences/{professional-experience1}")
-                .addProperty(DCAT.startDate, startDate.toString())
-                .addProperty(DCAT.endDate, endDate.toString())
-                .addProperty(DC.description, description)
-                .addProperty(RDF.type, WEB_DOMAIN + "/type/professional-experience");
+        Resource professionalExperience =
+                model.createResource(job.getURI() + "/professional-experiences/{professional-experience1}")
+                        .addProperty(DCAT.startDate, startDate.toString())
+                        .addProperty(DCAT.endDate, endDate.toString())
+                        .addProperty(DC.description, description)
+                        .addProperty(RDF.type, WEB_DOMAIN + "type/professional-experience");
 
-        if (professionalExperiencesBag == null) {
+        if(professionalExperiencesBag == null) {
             Bag professionalExperiences = model.createBag(job.getURI() + "/professional-experience");
             professionalExperiences.add(professionalExperience);
             job.addProperty(professionalExperienceProperty, professionalExperiences);
@@ -304,11 +306,11 @@ public class Main {
         Property connectionStatusProperty = model.createProperty(connectionURI + "/status");
         Property connectionTypeProperty = model.createProperty(connectionURI + "/type");
 
-        Resource connection = model.createResource(connectionURI)
-                .addProperty(connectionStatusProperty, status.toString())
-                .addProperty(connectionTypeProperty, type.toString())
-                .addProperty(RDF.type, WEB_DOMAIN + "/type/connection");
-        ;
+        Resource connection =
+                model.createResource(connectionURI)
+                        .addProperty(connectionStatusProperty, status.toString())
+                        .addProperty(connectionTypeProperty, type.toString())
+                        .addProperty(RDF.type, WEB_DOMAIN + "type/connection");;
 
         Bag connections1Bag = model.getBag(user1.getURI() + "/connections");
         if (connections1Bag == null) {
@@ -372,11 +374,11 @@ public class Main {
         String companyURI = WEB_DOMAIN + companyName + "-" + UUID.randomUUID();
         // make the company resource
         Resource company = model.createResource(companyURI)
-                .addProperty(VCARD.EMAIL, email)
-                .addProperty(VCARD.FN, companyName)
-                .addProperty(VCARD.ADR, companyHeadQuaters) // TODO: Syntax for ADR could be incorrect
-                .addProperty(AS.url, companyWebsite)
-                .addProperty(RDF.type, WEB_DOMAIN + "/type/company");
+                .addProperty(FOAF.mbox, email)
+                .addProperty(VCARD.FN,companyName)
+                .addProperty(FOAF.based_near, companyHeadQuaters) //TODO: Syntax for ADR could be incorrect
+                .addProperty(FOAF.homepage, companyWebsite)
+                .addProperty(RDF.type, WEB_DOMAIN + "type/company");
 
         // model.write(System.out);
         return company;
@@ -389,13 +391,13 @@ public class Main {
         Property diplomaTypeProperty = model.createProperty(uri + "/diploma-type");
         Resource job = model.createResource(uri + jobName)
                 .addProperty(DC.title, jobName)
-                .addProperty(VCARD.ADR, area)
+                .addProperty(FOAF.based_near, area)
                 .addProperty(DC.description, workExperience)
                 .addProperty(diplomaTypeProperty, diploma.toString())
                 .addProperty(DC.description, jobDescription)
                 .addProperty(jobStatus, status.toString())
                 .addProperty(jobTypeProperty, type)
-                .addProperty(RDF.type, WEB_DOMAIN + "/type/job");
+                .addProperty(RDF.type, WEB_DOMAIN + "type/job");
         Property jobsProperty = model.createProperty(company.getURI() + "/jobs");
         Property companyEmployeesProperty = model.createProperty(company.getURI()); // ?
         Bag jobsBag = model.getBag(company.getURI() + "/jobs");
