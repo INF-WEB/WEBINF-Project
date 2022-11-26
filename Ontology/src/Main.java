@@ -1,3 +1,10 @@
+import org.apache.jena.query.ARQ;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.ReasonerRegistry;
@@ -5,14 +12,22 @@ import org.apache.jena.reasoner.ValidityReport;
 import org.apache.jena.reasoner.ValidityReport.Report;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.PrintUtil;
+import org.apache.jena.sparql.exec.QueryExecDatasetBuilder;
 import org.apache.jena.sparql.vocabulary.FOAF;
 import org.apache.jena.vocabulary.*;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class Main {
@@ -21,13 +36,68 @@ public class Main {
     private static Property jobTypeProperty;
 
     private final static String EG = "urn:x-hp:eg/";
-    private final static String FILE_LOC = "Ontology/data/";
+    private final static String DATA_LOC = "Ontology/data/";
 
     public static void main(String[] args) throws IOException {
-        main1(args);
+        // main1(args);
         // rdfs();
         // rdfsExample();
         // owl();
+        wikidata();
+    }
+
+    /**
+     * Reads and returns the SPARQL query from given file.
+     * 
+     * @param filename Filename containing SPARQL query
+     * @return SPARQL query as string
+     * @throws IOException
+     */
+    private static String readQueryString(String filename) throws IOException {
+        DataInputStream dis = new DataInputStream(new FileInputStream(DATA_LOC + filename));
+
+        byte[] datainBytes = new byte[dis.available()];
+        dis.readFully(datainBytes);
+        dis.close();
+
+        String queryString = new String(datainBytes, 0, datainBytes.length);
+
+        return queryString;
+    }
+
+    /**
+     * Example from
+     * https://www.youtube.com/watch?v=q3T1T51cH3A&ab_channel=MarcLieber
+     * 
+     * @throws FileNotFoundException
+     */
+    public static void wikidata() throws FileNotFoundException {
+        String queryString = new String();
+        try {
+            queryString = readQueryString("wikidata_profession.rq");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        System.out.println(queryString);
+        Query query = QueryFactory.create(queryString);
+
+        // Local execution which uses SERVICE for remote access.
+        QueryExecDatasetBuilder.create().context(null);
+
+        String serviceURI = "https://query.wikidata.org/sparql";
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, ModelFactory.createDefaultModel())) {
+            Map<String, Map<String, List<String>>> serviceParams = new HashMap<>();
+            Map<String, List<String>> params = new HashMap<>();
+            List<String> values = new ArrayList<>();
+            values.add("2000");
+            params.put("timeout", values);
+            serviceParams.put(serviceURI, params);
+            qexec.getContext().set(ARQ.serviceParams, serviceParams);
+
+            ResultSet rs = qexec.execSelect();
+            ResultSetFormatter.out(System.out, rs, query);
+        }
     }
 
     /**
@@ -37,8 +107,8 @@ public class Main {
      * @throws IOException
      */
     public static void owl() throws IOException {
-        Model schema = RDFDataMgr.loadModel(FILE_LOC + "owlDemoSchema.rdf");
-        Model data = RDFDataMgr.loadModel(FILE_LOC + "owlDemoData.rdf");
+        Model schema = RDFDataMgr.loadModel(DATA_LOC + "owlDemoSchema.rdf");
+        Model data = RDFDataMgr.loadModel(DATA_LOC + "owlDemoData.rdf");
 
         Reasoner reasoner = ReasonerRegistry.getOWLReasoner();
         reasoner = reasoner.bindSchema(schema);
@@ -79,8 +149,8 @@ public class Main {
      * @throws IOException
      */
     public static void rdfsExample() throws IOException {
-        Model schema = RDFDataMgr.loadModel(FILE_LOC + "rdfsDemoSchema.rdf");
-        Model data = RDFDataMgr.loadModel(FILE_LOC + "rdfsDemoData.rdf");
+        Model schema = RDFDataMgr.loadModel(DATA_LOC + "rdfsDemoSchema.rdf");
+        Model data = RDFDataMgr.loadModel(DATA_LOC + "rdfsDemoData.rdf");
         InfModel infmodel = ModelFactory.createRDFSModel(schema, data);
 
         Resource colin = infmodel.getResource(EG + "colin");
@@ -144,7 +214,7 @@ public class Main {
      * @throws IOException
      */
     public static void printToFile(Model model, String fileName) throws IOException {
-        File file = new File(FILE_LOC + fileName);
+        File file = new File(DATA_LOC + fileName);
 
         // creates the file
         file.createNewFile();
@@ -187,7 +257,8 @@ public class Main {
         // create an empty Model
         model = ModelFactory.createDefaultModel();
 
-        jobTypeProperty = model.createProperty(WEB_DOMAIN + "job-types"); // TODO: use a database of jobtypes from elsewhere
+        jobTypeProperty = model.createProperty(WEB_DOMAIN + "job-types"); // TODO: use a database of jobtypes from
+                                                                          // elsewhere
 
         Resource john = createUser("John", "Smith", "johnsmith@mail.com", "Agoralaan 13 Diepenbeek",
                 "https://johnsmiths", false);
@@ -222,12 +293,13 @@ public class Main {
     }
 
     public static Resource createUser(String firstName,
-                                      String lastName,
-                                      String email,
-                                      String area,
-                                      String webpage,
-                                      Boolean lookingForJob) {
-        String userURI = WEB_DOMAIN + firstName + lastName + "-" + UUID.randomUUID(); // added unique numbers // FIXME: will this always be unique?
+            String lastName,
+            String email,
+            String area,
+            String webpage,
+            Boolean lookingForJob) {
+        String userURI = WEB_DOMAIN + firstName + lastName + "-" + UUID.randomUUID(); // added unique numbers // FIXME:
+                                                                                      // will this always be unique?
         String fullName = firstName + " " + lastName;
 
         Property lookingForJobProperty = model.createProperty(userURI + "/looking-for-job");
@@ -239,7 +311,7 @@ public class Main {
                                 .addProperty(FOAF.firstName, firstName)
                                 .addProperty(FOAF.familyName, lastName))
                 .addProperty(FOAF.mbox, email)
-                .addProperty(FOAF.homepage, webpage) //TODO: Syntax for url could be incorrect
+                .addProperty(FOAF.homepage, webpage) // TODO: Syntax for url could be incorrect
                 .addProperty(FOAF.based_near, area)
                 .addProperty(lookingForJobProperty, lookingForJob.toString())
                 .addProperty(RDF.type, WEB_DOMAIN + "type/user");
@@ -250,17 +322,16 @@ public class Main {
     }
 
     public static Resource createDiplomaFor(Resource user, Date graduation, JobType jobType,
-                                            String educationalInstitute) {
+            String educationalInstitute) {
         Property diplomasProperty = model.createProperty(user.getURI() + "/diplomas");
         Bag diplomasBag = model.getBag(user.getURI() + "/diplomas");
-        Resource diploma =
-                model.createResource(WEB_DOMAIN + "diplomas/{diploma1}" +"-"+ UUID.randomUUID())
-                        .addProperty(DC.date, graduation.toString())
-                        .addProperty(jobTypeProperty, jobType.toString())
-                        .addProperty(FOAF.based_near, educationalInstitute)
-                        .addProperty(RDF.type, WEB_DOMAIN + "type/diploma");
+        Resource diploma = model.createResource(WEB_DOMAIN + "diplomas/{diploma1}" + "-" + UUID.randomUUID())
+                .addProperty(DC.date, graduation.toString())
+                .addProperty(jobTypeProperty, jobType.toString())
+                .addProperty(FOAF.based_near, educationalInstitute)
+                .addProperty(RDF.type, WEB_DOMAIN + "type/diploma");
 
-        if(diplomasBag == null) {
+        if (diplomasBag == null) {
             Bag diplomas = model.createBag(user.getURI() + "/diplomas");
             diplomas.add(diploma);
             user.addProperty(diplomasProperty, diplomas);
@@ -273,17 +344,17 @@ public class Main {
     }
 
     public static Resource createProfessionalExperienceFor(Resource job, Date startDate, Date endDate,
-                                                           String description) {
+            String description) {
         Property professionalExperienceProperty = model.createProperty(job.getURI() + "/professional-experiences");
         Bag professionalExperiencesBag = model.getBag(job.getURI() + "/professional-experience");
-        Resource professionalExperience =
-                model.createResource(job.getURI() + "/professional-experiences/{professional-experience1}")
-                        .addProperty(DCAT.startDate, startDate.toString())
-                        .addProperty(DCAT.endDate, endDate.toString())
-                        .addProperty(DC.description, description)
-                        .addProperty(RDF.type, WEB_DOMAIN + "type/professional-experience");
+        Resource professionalExperience = model
+                .createResource(job.getURI() + "/professional-experiences/{professional-experience1}")
+                .addProperty(DCAT.startDate, startDate.toString())
+                .addProperty(DCAT.endDate, endDate.toString())
+                .addProperty(DC.description, description)
+                .addProperty(RDF.type, WEB_DOMAIN + "type/professional-experience");
 
-        if(professionalExperiencesBag == null) {
+        if (professionalExperiencesBag == null) {
             Bag professionalExperiences = model.createBag(job.getURI() + "/professional-experience");
             professionalExperiences.add(professionalExperience);
             job.addProperty(professionalExperienceProperty, professionalExperiences);
@@ -301,7 +372,7 @@ public class Main {
 
     // TODO: add to bags
     public static void createConnectionWith(Resource user1, Resource user2, ConnectionStatus status,
-                                            ConnectionType type) {
+            ConnectionType type) {
         String connectionURI = WEB_DOMAIN + "connection/" + getLastSubstring(user1.getURI()) + ";"
                 + getLastSubstring(user2.getURI());
         Property connection1Property = model.createProperty(connectionURI);
@@ -310,11 +381,11 @@ public class Main {
         Property connectionStatusProperty = model.createProperty(connectionURI + "/status");
         Property connectionTypeProperty = model.createProperty(connectionURI + "/type");
 
-        Resource connection =
-                model.createResource(connectionURI)
-                        .addProperty(connectionStatusProperty, status.toString())
-                        .addProperty(connectionTypeProperty, type.toString())
-                        .addProperty(RDF.type, WEB_DOMAIN + "type/connection");;
+        Resource connection = model.createResource(connectionURI)
+                .addProperty(connectionStatusProperty, status.toString())
+                .addProperty(connectionTypeProperty, type.toString())
+                .addProperty(RDF.type, WEB_DOMAIN + "type/connection");
+        ;
 
         Bag connections1Bag = model.getBag(user1.getURI() + "/connections");
         if (connections1Bag == null) {
@@ -374,13 +445,13 @@ public class Main {
     }
 
     public static Resource createCompany(String email, String companyName, String companyWebsite,
-                                         String companyHeadQuaters) {
+            String companyHeadQuaters) {
         String companyURI = WEB_DOMAIN + companyName + "-" + UUID.randomUUID();
         // make the company resource
         Resource company = model.createResource(companyURI)
                 .addProperty(FOAF.mbox, email)
-                .addProperty(VCARD.FN,companyName)
-                .addProperty(FOAF.based_near, companyHeadQuaters) //TODO: Syntax for ADR could be incorrect
+                .addProperty(VCARD.FN, companyName)
+                .addProperty(FOAF.based_near, companyHeadQuaters) // TODO: Syntax for ADR could be incorrect
                 .addProperty(FOAF.homepage, companyWebsite)
                 .addProperty(RDF.type, WEB_DOMAIN + "type/company");
 
@@ -389,7 +460,7 @@ public class Main {
     }
 
     public static Resource createJob(Resource company, String jobName, String area, String workExperience,
-                                     DiplomaType diploma, String jobDescription, JobStatus status, String type) {
+            DiplomaType diploma, String jobDescription, JobStatus status, String type) {
         String uri = company.getURI() + "/jobs";
         Property jobStatus = model.createProperty(uri + "/status");
         Property diplomaTypeProperty = model.createProperty(uri + "/diploma-type");
