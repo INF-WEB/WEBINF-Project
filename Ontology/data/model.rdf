@@ -1,147 +1,146 @@
-<?xml version="1.0" encoding="windows-1252"?>
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="https://testDomain/JefJansens-1b0c69e3-3117-4a83-8e91-a3b99bfc5bb6/"
+    xmlns:j.1="https://testDomain/connection/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4;JefJansens-1b0c69e3-3117-4a83-8e91-a3b99bfc5bb6/"
     xmlns:vcard="http://www.w3.org/2001/vcard-rdf/3.0#"
-    xmlns:j.0="https://testDomain/RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee/"
-    xmlns:j.1="https://testDomain/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13ejobsjobName/"
-    xmlns:j.2="https://testDomain/companyName-f35d40dd-ef0d-4619-9a48-21e26827c2b5/jobs/"
+    xmlns:j.2="https://testDomain/RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056/"
+    xmlns:j.3="https://testDomain/companyName-56bb742b-517a-4dea-acfa-751cae63ac54/"
+    xmlns:j.4="https://testDomain/connection/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4;"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
-    xmlns:j.3="https://testDomain/JefJansens-11c4e780-758c-4801-af32-bd2566bb62e0/"
-    xmlns:j.4="https://testDomain/connection/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e;JefJansens-11c4e780-758c-4801-af32-bd2566bb62e0/"
-    xmlns:j.5="https://testDomain/connection/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e;"
-    xmlns:j.6="http://www.w3.org/ns/dcat#"
-    xmlns:j.7="https://testDomain/"
-    xmlns:j.8="https://testDomain/companyName-f35d40dd-ef0d-4619-9a48-21e26827c2b5/"
-    xmlns:j.9="http://xmlns.com/foaf/0.1/"
-    xmlns:j.10="https://testDomain/connection/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e;RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee/"
-    xmlns:j.11="https://testDomain/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e/">
-  <rdf:Description rdf:about="https://testDomain/JefJansens-11c4e780-758c-4801-af32-bd2566bb62e0">
-    <j.5:JefJansens-11c4e780-758c-4801-af32-bd2566bb62e0>
-      <rdf:Description rdf:about="https://testDomain/JefJansens-11c4e780-758c-4801-af32-bd2566bb62e0/connections">
+    xmlns:j.5="https://testDomain/connection/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4;RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056/"
+    xmlns:j.6="https://testDomain/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4jobsjobName/"
+    xmlns:j.7="https://testDomain/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4/"
+    xmlns:j.8="http://www.w3.org/ns/dcat#"
+    xmlns:j.9="https://testDomain/companyName-56bb742b-517a-4dea-acfa-751cae63ac54/jobs/"
+    xmlns:j.10="https://testDomain/"
+    xmlns:j.11="http://xmlns.com/foaf/0.1/">
+  <rdf:Description rdf:about="https://testDomain/JefJansens-1b0c69e3-3117-4a83-8e91-a3b99bfc5bb6">
+    <j.4:JefJansens-1b0c69e3-3117-4a83-8e91-a3b99bfc5bb6>
+      <rdf:Description rdf:about="https://testDomain/JefJansens-1b0c69e3-3117-4a83-8e91-a3b99bfc5bb6/connections">
         <rdf:li>
-          <rdf:Description rdf:about="https://testDomain/connection/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e;JefJansens-11c4e780-758c-4801-af32-bd2566bb62e0">
+          <rdf:Description rdf:about="https://testDomain/connection/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4;JefJansens-1b0c69e3-3117-4a83-8e91-a3b99bfc5bb6">
             <rdf:type>https://testDomain/type/connection</rdf:type>
-            <j.4:type>friend</j.4:type>
-            <j.4:status>accepted</j.4:status>
+            <j.1:type>friend</j.1:type>
+            <j.1:status>accepted</j.1:status>
           </rdf:Description>
         </rdf:li>
       </rdf:Description>
-    </j.5:JefJansens-11c4e780-758c-4801-af32-bd2566bb62e0>
+    </j.4:JefJansens-1b0c69e3-3117-4a83-8e91-a3b99bfc5bb6>
     <rdf:type>https://testDomain/type/user</rdf:type>
-    <j.3:looking-for-job>false</j.3:looking-for-job>
-    <j.9:based_near>Agoralaan 11 Diepenbeek</j.9:based_near>
-    <j.9:homepage>https://jefjansens</j.9:homepage>
-    <j.9:mbox>Jefjansens@mail.com</j.9:mbox>
+    <j.0:looking-for-job>false</j.0:looking-for-job>
+    <j.11:based_near>Agoralaan 11 Diepenbeek</j.11:based_near>
+    <j.11:homepage>https://jefjansens</j.11:homepage>
+    <j.11:mbox>Jefjansens@mail.com</j.11:mbox>
     <vcard:N rdf:parseType="Resource">
-      <j.9:familyName>Jansens</j.9:familyName>
-      <j.9:firstName>Jef</j.9:firstName>
+      <j.11:familyName>Jansens</j.11:familyName>
+      <j.11:firstName>Jef</j.11:firstName>
     </vcard:N>
     <vcard:FN>Jef Jansens</vcard:FN>
   </rdf:Description>
-  <rdf:Description rdf:about="https://testDomain/companyName-f35d40dd-ef0d-4619-9a48-21e26827c2b5">
-    <j.8:employees>
-      <rdf:Description rdf:about="https://testDomain/companyName-f35d40dd-ef0d-4619-9a48-21e26827c2b5/employees">
+  <rdf:Description rdf:about="https://testDomain/companyName-56bb742b-517a-4dea-acfa-751cae63ac54">
+    <j.3:employees>
+      <rdf:Description rdf:about="https://testDomain/companyName-56bb742b-517a-4dea-acfa-751cae63ac54/employees">
         <rdf:li>
-          <rdf:Description rdf:about="https://testDomain/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e">
-            <j.11:professional-experiences>
-              <rdf:Description rdf:about="https://testDomain/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e/professional-experience">
+          <rdf:Description rdf:about="https://testDomain/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4">
+            <j.11:homepage>https://johnsmiths</j.11:homepage>
+            <j.7:looking-for-job>false</j.7:looking-for-job>
+            <j.4:RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056>
+              <rdf:Description rdf:about="https://testDomain/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4/connections">
                 <rdf:li>
-                  <rdf:Description rdf:about="https://testDomain/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e/professional-experiences/{professional-experience1}">
+                  <rdf:Description rdf:about="https://testDomain/connection/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4;RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056">
+                    <rdf:type>https://testDomain/type/connection</rdf:type>
+                    <j.5:type>coworker</j.5:type>
+                    <j.5:status>pending</j.5:status>
+                  </rdf:Description>
+                </rdf:li>
+                <rdf:li rdf:resource="https://testDomain/connection/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4;JefJansens-1b0c69e3-3117-4a83-8e91-a3b99bfc5bb6"/>
+              </rdf:Description>
+            </j.4:RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056>
+            <j.11:based_near>Agoralaan 13 Diepenbeek</j.11:based_near>
+            <j.7:professional-experiences>
+              <rdf:Description rdf:about="https://testDomain/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4/professional-experience">
+                <rdf:li>
+                  <rdf:Description rdf:about="https://testDomain/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4/professional-experiences/{professional-experience1}">
                     <rdf:type>https://testDomain/type/professional-experience</rdf:type>
                     <dc:description>this is a description</dc:description>
-                    <j.6:endDate>Fri Mar 01 00:00:00 CET 3901</j.6:endDate>
-                    <j.6:startDate>Thu Feb 01 00:00:00 CET 3900</j.6:startDate>
+                    <j.8:endDate>Fri Mar 01 00:00:00 CET 3901</j.8:endDate>
+                    <j.8:startDate>Thu Feb 01 00:00:00 CET 3900</j.8:startDate>
                   </rdf:Description>
                 </rdf:li>
               </rdf:Description>
-            </j.11:professional-experiences>
-            <j.9:homepage>https://johnsmiths</j.9:homepage>
-            <j.5:RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee>
-              <rdf:Description rdf:about="https://testDomain/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e/connections">
-                <rdf:li>
-                  <rdf:Description rdf:about="https://testDomain/connection/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e;RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee">
-                    <rdf:type>https://testDomain/type/connection</rdf:type>
-                    <j.10:type>coworker</j.10:type>
-                    <j.10:status>pending</j.10:status>
-                  </rdf:Description>
-                </rdf:li>
-                <rdf:li rdf:resource="https://testDomain/connection/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e;JefJansens-11c4e780-758c-4801-af32-bd2566bb62e0"/>
-              </rdf:Description>
-            </j.5:RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee>
-            <j.11:potential-jobs>
-              <rdf:Description rdf:about="https://testDomain/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e/potential-jobs">
+            </j.7:professional-experiences>
+            <rdf:type>https://testDomain/type/user</rdf:type>
+            <j.11:mbox>johnsmith@mail.com</j.11:mbox>
+            <j.7:potential-jobs>
+              <rdf:Description rdf:about="https://testDomain/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4/potential-jobs">
                 <rdf:li rdf:parseType="Resource">
-                  <j.11:potential-job>
-                    <rdf:Description rdf:about="https://testDomain/companyName-f35d40dd-ef0d-4619-9a48-21e26827c2b5/jobsjobName">
+                  <j.7:potential-job>
+                    <rdf:Description rdf:about="https://testDomain/companyName-56bb742b-517a-4dea-acfa-751cae63ac54/jobsjobName">
                       <rdf:type>https://testDomain/type/job</rdf:type>
-                      <j.7:job-types>ICT</j.7:job-types>
-                      <j.2:status>hired</j.2:status>
+                      <j.10:job-types>ICT</j.10:job-types>
+                      <j.9:status>hired</j.9:status>
                       <dc:description>Maken webpagina (job description)</dc:description>
-                      <j.2:diploma-type>general</j.2:diploma-type>
+                      <j.9:diploma-type>general</j.9:diploma-type>
                       <dc:description>this is a description of the work experience</dc:description>
-                      <j.9:based_near>Agoralaan Gebouw D, 3590 Diepenbeek</j.9:based_near>
+                      <j.11:based_near>Agoralaan Gebouw D, 3590 Diepenbeek</j.11:based_near>
                       <dc:title>jobName</dc:title>
                     </rdf:Description>
-                  </j.11:potential-job>
-                  <j.1:isAccepted>false</j.1:isAccepted>
+                  </j.7:potential-job>
+                  <j.6:isAccepted>false</j.6:isAccepted>
                 </rdf:li>
               </rdf:Description>
-            </j.11:potential-jobs>
+            </j.7:potential-jobs>
             <vcard:FN>John Smith</vcard:FN>
-            <j.9:based_near>Agoralaan 13 Diepenbeek</j.9:based_near>
             <vcard:N rdf:parseType="Resource">
-              <j.9:familyName>Smith</j.9:familyName>
-              <j.9:firstName>John</j.9:firstName>
+              <j.11:familyName>Smith</j.11:familyName>
+              <j.11:firstName>John</j.11:firstName>
             </vcard:N>
-            <j.5:JefJansens-11c4e780-758c-4801-af32-bd2566bb62e0 rdf:resource="https://testDomain/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e/connections"/>
-            <rdf:type>https://testDomain/type/user</rdf:type>
-            <j.11:looking-for-job>false</j.11:looking-for-job>
-            <j.9:mbox>johnsmith@mail.com</j.9:mbox>
-            <j.11:diplomas>
-              <rdf:Description rdf:about="https://testDomain/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e/diplomas">
+            <j.4:JefJansens-1b0c69e3-3117-4a83-8e91-a3b99bfc5bb6 rdf:resource="https://testDomain/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4/connections"/>
+            <j.7:diplomas>
+              <rdf:Description rdf:about="https://testDomain/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4/diplomas">
                 <rdf:li>
-                  <rdf:Description rdf:about="https://testDomain/diplomas/{diploma1}-d8bb12c1-d1fb-4478-a6b9-8a8cf2b1ad68">
+                  <rdf:Description rdf:about="https://testDomain/diplomas/{diploma1}-ff971800-ef0b-4ffc-a1a5-9b4e48959709">
                     <rdf:type>https://testDomain/type/diploma</rdf:type>
-                    <j.9:based_near>Uhasselt</j.9:based_near>
-                    <j.7:job-types>general</j.7:job-types>
-                    <dc:date>Tue Nov 22 15:50:20 CET 2022</dc:date>
+                    <j.11:based_near>Uhasselt</j.11:based_near>
+                    <j.10:job-types>general</j.10:job-types>
+                    <dc:date>Sat Nov 26 16:07:44 CET 2022</dc:date>
                   </rdf:Description>
                 </rdf:li>
               </rdf:Description>
-            </j.11:diplomas>
+            </j.7:diplomas>
           </rdf:Description>
         </rdf:li>
         <rdf:li>
-          <rdf:Description rdf:about="https://testDomain/RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee">
-            <j.5:RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee>
-              <rdf:Description rdf:about="https://testDomain/RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee/connections">
-                <rdf:li rdf:resource="https://testDomain/connection/JohnSmith-617f7952-51ff-4821-a712-f8a6fe45e13e;RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee"/>
+          <rdf:Description rdf:about="https://testDomain/RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056">
+            <j.4:RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056>
+              <rdf:Description rdf:about="https://testDomain/RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056/connections">
+                <rdf:li rdf:resource="https://testDomain/connection/JohnSmith-88b584c5-b244-467c-9598-72caa7175cb4;RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056"/>
               </rdf:Description>
-            </j.5:RebeccaSmith-7daea50d-b1a0-458e-ad68-e4c765dbaaee>
+            </j.4:RebeccaSmith-e800276d-ba09-4875-86ec-c2390591e056>
             <rdf:type>https://testDomain/type/user</rdf:type>
-            <j.0:looking-for-job>true</j.0:looking-for-job>
-            <j.9:based_near>Agoralaan 13 Diepenbeek</j.9:based_near>
-            <j.9:homepage>https://johnsmiths</j.9:homepage>
-            <j.9:mbox>Rebeccasmith@mail.com</j.9:mbox>
+            <j.2:looking-for-job>true</j.2:looking-for-job>
+            <j.11:based_near>Agoralaan 13 Diepenbeek</j.11:based_near>
+            <j.11:homepage>https://johnsmiths</j.11:homepage>
+            <j.11:mbox>Rebeccasmith@mail.com</j.11:mbox>
             <vcard:N rdf:parseType="Resource">
-              <j.9:familyName>Smith</j.9:familyName>
-              <j.9:firstName>Rebecca</j.9:firstName>
+              <j.11:familyName>Smith</j.11:familyName>
+              <j.11:firstName>Rebecca</j.11:firstName>
             </vcard:N>
             <vcard:FN>Rebecca Smith</vcard:FN>
           </rdf:Description>
         </rdf:li>
       </rdf:Description>
-    </j.8:employees>
-    <j.7:companyName-f35d40dd-ef0d-4619-9a48-21e26827c2b5 rdf:resource="https://testDomain/companyName-f35d40dd-ef0d-4619-9a48-21e26827c2b5/jobsjobName"/>
-    <j.8:jobs>
-      <rdf:Description rdf:about="https://testDomain/companyName-f35d40dd-ef0d-4619-9a48-21e26827c2b5/jobs">
-        <rdf:li rdf:resource="https://testDomain/companyName-f35d40dd-ef0d-4619-9a48-21e26827c2b5/jobsjobName"/>
+    </j.3:employees>
+    <j.10:companyName-56bb742b-517a-4dea-acfa-751cae63ac54 rdf:resource="https://testDomain/companyName-56bb742b-517a-4dea-acfa-751cae63ac54/jobsjobName"/>
+    <j.3:jobs>
+      <rdf:Description rdf:about="https://testDomain/companyName-56bb742b-517a-4dea-acfa-751cae63ac54/jobs">
+        <rdf:li rdf:resource="https://testDomain/companyName-56bb742b-517a-4dea-acfa-751cae63ac54/jobsjobName"/>
       </rdf:Description>
-    </j.8:jobs>
+    </j.3:jobs>
     <rdf:type>https://testDomain/type/company</rdf:type>
-    <j.9:homepage>https://company.com</j.9:homepage>
-    <j.9:based_near>Agoralaan Gebouw D, 3590 Diepenbeek</j.9:based_near>
+    <j.11:homepage>https://company.com</j.11:homepage>
+    <j.11:based_near>Agoralaan Gebouw D, 3590 Diepenbeek</j.11:based_near>
     <vcard:FN>companyName</vcard:FN>
-    <j.9:mbox>company.sowewhere@gmail.com</j.9:mbox>
+    <j.11:mbox>company.sowewhere@gmail.com</j.11:mbox>
   </rdf:Description>
 </rdf:RDF>
