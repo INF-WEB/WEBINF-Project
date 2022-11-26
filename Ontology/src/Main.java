@@ -1,6 +1,4 @@
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.reasoner.ValidityReport;
-import org.apache.jena.reasoner.ValidityReport.Report;
 import org.apache.jena.sparql.vocabulary.FOAF;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCAT;
@@ -9,7 +7,6 @@ import org.apache.jena.vocabulary.VCARD;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.UUID;
 
 import static tests.TestInference.testInferenceValidity;
@@ -21,14 +18,12 @@ public class Main {
     private static Property jobTypeProperty;
 
     public static void main(String[] args) throws IOException {
-//        main1(args);
+        main1(args);
 //        Rdfs.rdfs();
 //        Rdfs.rdfsExample();
 //        Owl.owl();
 //        Wikidata.wikidata();
     }
-
-
 
     // TODO: add types to ≠ object types
     // f.e. nstype user voor een user resource

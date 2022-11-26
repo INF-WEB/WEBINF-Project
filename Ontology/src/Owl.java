@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -9,18 +7,20 @@ import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.vocabulary.RDF;
 
+import java.io.IOException;
 
 import static tests.TestInference.testInferenceValidity;
-import static utils.Constants.*;
+import static utils.Constants.DATA_LOC;
+import static utils.Constants.EG;
 import static utils.Prints.printStatements;
 import static utils.Prints.printToFile;
 
 public class Owl {
   /**
    * Example from
-   * https://jena.apache.org/documentation/inference/index.html#OWLexamples
+   * <a href="https://jena.apache.org/documentation/inference/index.html#OWLexamples">OWL Example</a>
    *
-   * @throws IOException
+   * @throws IOException If the file exists but is a directory rather than a regular file, does not exist but cannot be created, or cannot be opened for any other reason.
    */
   public static void owl() throws IOException {
     Model schema = RDFDataMgr.loadModel(DATA_LOC + "owlDemoSchema.rdf");
@@ -50,6 +50,5 @@ public class Owl {
     printToFile(schema, "owlschema.rdf");
 
   }
-
 }
 

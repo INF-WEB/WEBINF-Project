@@ -4,7 +4,6 @@ import org.apache.jena.sparql.exec.QueryExecDatasetBuilder;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,27 +18,25 @@ public class Wikidata {
      *
      * @param filename Filename containing SPARQL query
      * @return SPARQL query as string
-     * @throws IOException
+     * @throws IOException If an I/O error occurs.
      */
     private static String readQueryString(String filename) throws IOException {
         DataInputStream dis = new DataInputStream(new FileInputStream(DATA_LOC + filename));
 
-        byte[] datainBytes = new byte[dis.available()];
-        dis.readFully(datainBytes);
+        byte[] dataInBytes = new byte[dis.available()];
+        dis.readFully(dataInBytes);
         dis.close();
 
-        String queryString = new String(datainBytes, 0, datainBytes.length);
-
-        return queryString;
+        return new String(dataInBytes, 0, dataInBytes.length);
     }
 
     /**
      * Example from
-     * https://www.youtube.com/watch?v=q3T1T51cH3A&ab_channel=MarcLieber
-     *
-     * @throws FileNotFoundException
+     * <a href=
+     * "https://www.youtube.com/watch?v=q3T1T51cH3A&ab_channel=MarcLieber">Wikidata
+     * on Apache Jena and Fuseki</a>
      */
-    public static void wikidata() throws FileNotFoundException {
+    public static void wikidata() {
         String queryString = "";
         try {
             queryString = readQueryString("wikidata_profession.rq");
@@ -54,16 +51,16 @@ public class Wikidata {
         QueryExecDatasetBuilder.create().context(null);
 
         String serviceURI = "https://query.wikidata.org/sparql";
-        try (QueryExecution qexec = QueryExecutionFactory.create(query, ModelFactory.createDefaultModel())) {
+        try (QueryExecution qExec = QueryExecutionFactory.create(query, ModelFactory.createDefaultModel())) {
             Map<String, Map<String, List<String>>> serviceParams = new HashMap<>();
             Map<String, List<String>> params = new HashMap<>();
             List<String> values = new ArrayList<>();
             values.add("2000");
             params.put("timeout", values);
             serviceParams.put(serviceURI, params);
-            qexec.getContext().set(ARQ.serviceParams, serviceParams);
+            qExec.getContext().set(ARQ.serviceParams, serviceParams);
 
-            ResultSet rs = qexec.execSelect();
+            ResultSet rs = qExec.execSelect();
             ResultSetFormatter.out(System.out, rs, query);
         }
     }

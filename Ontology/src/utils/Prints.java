@@ -10,8 +10,15 @@ import java.io.IOException;
 import static utils.Constants.DATA_LOC;
 
 public class Prints {
-    public static void printStatements(Model m, Resource s, Property p, Resource o) {
-        for (StmtIterator i = m.listStatements(s, p, o); i.hasNext();) {
+    /**
+     *
+     * @param model RDFs model
+     * @param s     The subject sought
+     * @param p     The predicate sought
+     * @param o     The value sought
+     */
+    public static void printStatements(Model model, Resource s, Property p, Resource o) {
+        for (StmtIterator i = model.listStatements(s, p, o); i.hasNext();) {
             Statement stmt = i.nextStatement();
             System.out.println(" - " + PrintUtil.print(stmt));
         }
@@ -21,16 +28,14 @@ public class Prints {
      * Logs the produced schema to an output file.
      *
      * @param model    Produced schema
-     * @param fileName Name of outout file, without file location
-     * @throws IOException
+     * @param fileName Name of output file, without file location (e.g. "model.rdf")
+     * @throws IOException If the file exists but is a directory rather than a
+     *                     regular file, does not exist but cannot be created, or
+     *                     cannot be opened for any other reason.
      */
     public static void printToFile(Model model, String fileName) throws IOException {
         File file = new File(DATA_LOC + fileName);
 
-        // creates the file
-        file.createNewFile();
-
-        // creates a FileWriter Object
         FileWriter writer = new FileWriter(file);
 
         try {

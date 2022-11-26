@@ -14,9 +14,9 @@ import static utils.Prints.printToFile;
 public class Rdfs {
     /**
      * Example from
-     * https://jena.apache.org/documentation/inference/index.html#RDFSexamples
+     * <a href="https://jena.apache.org/documentation/inference/index.html#RDFSexamples">RDFS Example</a>
      *
-     * @throws IOException
+     * @throws IOException If the file exists but is a directory rather than a regular file, does not exist but cannot be created, or cannot be opened for any other reason.
      */
     public static void rdfsExample() throws IOException {
         Model schema = RDFDataMgr.loadModel(DATA_LOC + "rdfsDemoSchema.rdf");
@@ -38,14 +38,14 @@ public class Rdfs {
 
     /**
      * Example from
-     * https://jena.apache.org/documentation/inference/index.html#generalExamples
+     * <a href="https://jena.apache.org/documentation/inference/index.html#generalExamples">Some small inference API examples</a>
      *
-     * @throws IOException
+     * @throws IOException If the file exists but is a directory rather than a regular file, does not exist but cannot be created, or cannot be opened for any other reason.
      */
     public static void rdfs() throws IOException {
-        /**
+        /*
          * Create a Jena model containing the statements that some property "p" is a
-         * subproperty of another property "q" and that we have a resource "a" with
+         * subProperty of another property "q" and that we have a resource "a" with
          * value "foo" for "p".
          */
         String NS = "urn:x-hp-jena:eg/";
@@ -70,7 +70,7 @@ public class Rdfs {
         model.write(System.out);
         // Access raw data
         inf.getRawModel().write(System.out);
-        // Access decuted statements
+        // Access deducted statements
         inf.getDeductionsModel().write(System.out);
 
         printToFile(model, "rdfschema.rdf");
