@@ -23,9 +23,8 @@ public class Ontology {
      *                     regular file, does not exist but cannot be created, or
      *                     cannot be opened for any other reason.
      */
-    public static void ontology() throws IOException {
-        // TODO: add types to ≠ object types
-        // f.e. nstype user voor een user resource
+    public static void generateModel() throws IOException {
+        // TODO: add types to ≠ object types. e.g. nstype user voor een user resource
 
         // create an empty Model
         model = ModelFactory.createDefaultModel();

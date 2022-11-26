@@ -4,7 +4,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            Ontology.ontology(); // Create RDFs with project data
+            Ontology.generateModel(); // Create RDFs with project data
 
             /// Examples
             Rdfs.rdfs();
