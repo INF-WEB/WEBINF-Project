@@ -1,2 +1,5 @@
+# Fuseki
+fuseki-server --update --mem /ds
+
 rsparql --service=https://query.wikidata.org/sparql --query=data/wikidata_profession.rq
 rsparql --results=JSON --service=https://query.wikidata.org/sparql --query=data/wikidata_profession.rq
