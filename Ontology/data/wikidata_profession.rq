@@ -4,15 +4,16 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX bd: <http://www.bigdata.com/rdf#>
 
-SELECT *
-WHERE {
-  SERVICE <https://query.wikidata.org/sparql> 
-  {
-    SELECT ?item ?itemLabel
-    WHERE
-    {
-      ?item wdt:P31 wd:Q28640. # <span lang="en" dir="ltr" class="mw-content-ltr">Must be of a profession</span>
-      SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". } # <span lang="en" dir="ltr" class="mw-content-ltr">Helps get the label in your language, if not, then en language</span>
-    }
+SELECT * WHERE {
+  SERVICE <https://query.wikidata.org/sparql> {
+    SELECT ?professionLabel WHERE {
+      {
+        SELECT ?profession ?professionLabel WHERE {
+          SERVICE wikibase:label { bd:serviceParam wikibase:language 'nl'. }
+          ?profession wdt:P31 wd:Q28640.
+        }
+      }
+      FILTER(LANG(?professionLabel))
+    } ORDER BY ASC(?professionLabel)
   }
 }
