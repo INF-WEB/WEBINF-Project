@@ -1,255 +1,34 @@
-import org.apache.jena.query.ARQ;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.reasoner.Reasoner;
-import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.reasoner.ValidityReport;
 import org.apache.jena.reasoner.ValidityReport.Report;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.util.PrintUtil;
-import org.apache.jena.sparql.exec.QueryExecDatasetBuilder;
 import org.apache.jena.sparql.vocabulary.FOAF;
-import org.apache.jena.vocabulary.*;
+import org.apache.jena.vocabulary.DC;
+import org.apache.jena.vocabulary.DCAT;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.VCARD;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+
+import static tests.TestInference.testInferenceValidity;
+import static utils.Constants.WEB_DOMAIN;
+import static utils.Prints.printToFile;
 
 public class Main {
     private static Model model;
-    private final static String WEB_DOMAIN = "https://testDomain/";
     private static Property jobTypeProperty;
 
-    private final static String EG = "urn:x-hp:eg/";
-    private final static String DATA_LOC = "Ontology/data/";
-
     public static void main(String[] args) throws IOException {
-        // main1(args);
-        // rdfs();
-        // rdfsExample();
-        // owl();
-        wikidata();
+//        main1(args);
+//        Rdfs.rdfs();
+//        Rdfs.rdfsExample();
+//        Owl.owl();
+//        Wikidata.wikidata();
     }
 
-    /**
-     * Reads and returns the SPARQL query from given file.
-     * 
-     * @param filename Filename containing SPARQL query
-     * @return SPARQL query as string
-     * @throws IOException
-     */
-    private static String readQueryString(String filename) throws IOException {
-        DataInputStream dis = new DataInputStream(new FileInputStream(DATA_LOC + filename));
 
-        byte[] datainBytes = new byte[dis.available()];
-        dis.readFully(datainBytes);
-        dis.close();
-
-        String queryString = new String(datainBytes, 0, datainBytes.length);
-
-        return queryString;
-    }
-
-    /**
-     * Example from
-     * https://www.youtube.com/watch?v=q3T1T51cH3A&ab_channel=MarcLieber
-     * 
-     * @throws FileNotFoundException
-     */
-    public static void wikidata() throws FileNotFoundException {
-        String queryString = new String();
-        try {
-            queryString = readQueryString("wikidata_profession.rq");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        System.out.println(queryString);
-        Query query = QueryFactory.create(queryString);
-
-        // Local execution which uses SERVICE for remote access.
-        QueryExecDatasetBuilder.create().context(null);
-
-        String serviceURI = "https://query.wikidata.org/sparql";
-        try (QueryExecution qexec = QueryExecutionFactory.create(query, ModelFactory.createDefaultModel())) {
-            Map<String, Map<String, List<String>>> serviceParams = new HashMap<>();
-            Map<String, List<String>> params = new HashMap<>();
-            List<String> values = new ArrayList<>();
-            values.add("2000");
-            params.put("timeout", values);
-            serviceParams.put(serviceURI, params);
-            qexec.getContext().set(ARQ.serviceParams, serviceParams);
-
-            ResultSet rs = qexec.execSelect();
-            ResultSetFormatter.out(System.out, rs, query);
-        }
-    }
-
-    /**
-     * Example from
-     * https://jena.apache.org/documentation/inference/index.html#OWLexamples
-     *
-     * @throws IOException
-     */
-    public static void owl() throws IOException {
-        Model schema = RDFDataMgr.loadModel(DATA_LOC + "owlDemoSchema.rdf");
-        Model data = RDFDataMgr.loadModel(DATA_LOC + "owlDemoData.rdf");
-
-        Reasoner reasoner = ReasonerRegistry.getOWLReasoner();
-        reasoner = reasoner.bindSchema(schema);
-        InfModel infModel = ModelFactory.createInfModel(reasoner, data);
-
-        // find out all we know about a specific instance
-        Resource nForce = infModel.getResource(EG + "nForce");
-        System.out.println("nForce *:");
-        printStatements(infModel, nForce, null, null);
-
-        /// instance recognition
-        // Testing if an individual is an instance of a class expression.
-        Resource gamingComputer = infModel.getResource(EG + "GamingComputer");
-        Resource whiteBox = infModel.getResource(EG + "whiteBoxZX");
-        if (infModel.contains(whiteBox, RDF.type, gamingComputer)) {
-            System.out.println("White box recognized as gaming computer");
-        } else {
-            System.out.println("Failed to recognize white box correctly");
-        }
-
-        testInferenceValidity(infModel);
-
-        printToFile(schema, "owlschema.rdf");
-
-    }
-
-    public static void printStatements(Model m, Resource s, Property p, Resource o) {
-        for (StmtIterator i = m.listStatements(s, p, o); i.hasNext();) {
-            Statement stmt = i.nextStatement();
-            System.out.println(" - " + PrintUtil.print(stmt));
-        }
-    }
-
-    /**
-     * Example from
-     * https://jena.apache.org/documentation/inference/index.html#RDFSexamples
-     *
-     * @throws IOException
-     */
-    public static void rdfsExample() throws IOException {
-        Model schema = RDFDataMgr.loadModel(DATA_LOC + "rdfsDemoSchema.rdf");
-        Model data = RDFDataMgr.loadModel(DATA_LOC + "rdfsDemoData.rdf");
-        InfModel infmodel = ModelFactory.createRDFSModel(schema, data);
-
-        Resource colin = infmodel.getResource(EG + "colin");
-        System.out.println("colin has types:");
-        printStatements(infmodel, colin, RDF.type, null);
-
-        Resource Person = infmodel.getResource(EG + "Person");
-        System.out.println("\nPerson has types:");
-        printStatements(infmodel, Person, RDF.type, null);
-
-        testInferenceValidity(infmodel);
-
-        printToFile(schema, "rdfsExample.rdf");
-    }
-
-    /**
-     * Example from
-     * https://jena.apache.org/documentation/inference/index.html#generalExamples
-     *
-     * @throws IOException
-     */
-    public static void rdfs() throws IOException {
-        /**
-         * Create a Jena model containing the statements that some property "p" is a
-         * subproperty of another property "q" and that we have a resource "a" with
-         * value "foo" for "p".
-         */
-        String NS = "urn:x-hp-jena:eg/";
-
-        // Build a trivial example data set
-        Model model = ModelFactory.createDefaultModel();
-        Property p = model.createProperty(NS, "p");
-        Property q = model.createProperty(NS, "q");
-
-        model.add(p, RDFS.subPropertyOf, q);
-        model.createResource(NS + "a").addProperty(p, "foo");
-
-        // Create an inference model which performs RDFS inference over this data
-        InfModel inf = ModelFactory.createRDFSModel(model); // [1]
-
-        // Check the resulting model
-        Resource a = inf.getResource(NS + "a");
-        System.out.println("Statement: " + a.getProperty(q));
-
-        testInferenceValidity(inf);
-
-        model.write(System.out);
-        // Access raw data
-        inf.getRawModel().write(System.out);
-        // Access decuted statements
-        inf.getDeductionsModel().write(System.out);
-
-        printToFile(model, "rdfschema.rdf");
-    }
-
-    /**
-     * Logs the produced schema to an output file.
-     *
-     * @param model    Produced schema
-     * @param fileName Name of outout file, without file location
-     * @throws IOException
-     */
-    public static void printToFile(Model model, String fileName) throws IOException {
-        File file = new File(DATA_LOC + fileName);
-
-        // creates the file
-        file.createNewFile();
-
-        // creates a FileWriter Object
-        FileWriter writer = new FileWriter(file);
-
-        try {
-            model.write(writer, "RDF/XML-ABBREV");
-        } finally {
-            try {
-                writer.close();
-                System.out.println("\nFile: '" + fileName + "' made");
-            } catch (IOException closeException) {
-                closeException.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * To test a data set for inconsistencies and list any problems.
-     *
-     * @param inf The schema to check
-     */
-    public static void testInferenceValidity(InfModel inf) {
-        ValidityReport validity = inf.validate();
-        if (validity.isValid()) {
-            System.out.println("\nOK");
-        } else {
-            System.out.println("\nConflicts");
-            for (Iterator<Report> i = validity.getReports(); i.hasNext();) {
-                System.out.println(" - " + i.next());
-            }
-        }
-    }
 
     // TODO: add types to ≠ object types
     // f.e. nstype user voor een user resource
@@ -258,7 +37,7 @@ public class Main {
         model = ModelFactory.createDefaultModel();
 
         jobTypeProperty = model.createProperty(WEB_DOMAIN + "job-types"); // TODO: use a database of jobtypes from
-                                                                          // elsewhere
+        // elsewhere
 
         Resource john = createUser("John", "Smith", "johnsmith@mail.com", "Agoralaan 13 Diepenbeek",
                 "https://johnsmiths", false);
@@ -293,13 +72,13 @@ public class Main {
     }
 
     public static Resource createUser(String firstName,
-            String lastName,
-            String email,
-            String area,
-            String webpage,
-            Boolean lookingForJob) {
+                                      String lastName,
+                                      String email,
+                                      String area,
+                                      String webpage,
+                                      Boolean lookingForJob) {
         String userURI = WEB_DOMAIN + firstName + lastName + "-" + UUID.randomUUID(); // added unique numbers // FIXME:
-                                                                                      // will this always be unique?
+        // will this always be unique?
         String fullName = firstName + " " + lastName;
 
         Property lookingForJobProperty = model.createProperty(userURI + "/looking-for-job");
@@ -322,7 +101,7 @@ public class Main {
     }
 
     public static Resource createDiplomaFor(Resource user, Date graduation, JobType jobType,
-            String educationalInstitute) {
+                                            String educationalInstitute) {
         Property diplomasProperty = model.createProperty(user.getURI() + "/diplomas");
         Bag diplomasBag = model.getBag(user.getURI() + "/diplomas");
         Resource diploma = model.createResource(WEB_DOMAIN + "diplomas/{diploma1}" + "-" + UUID.randomUUID())
@@ -344,7 +123,7 @@ public class Main {
     }
 
     public static Resource createProfessionalExperienceFor(Resource job, Date startDate, Date endDate,
-            String description) {
+                                                           String description) {
         Property professionalExperienceProperty = model.createProperty(job.getURI() + "/professional-experiences");
         Bag professionalExperiencesBag = model.getBag(job.getURI() + "/professional-experience");
         Resource professionalExperience = model
@@ -372,7 +151,7 @@ public class Main {
 
     // TODO: add to bags
     public static void createConnectionWith(Resource user1, Resource user2, ConnectionStatus status,
-            ConnectionType type) {
+                                            ConnectionType type) {
         String connectionURI = WEB_DOMAIN + "connection/" + getLastSubstring(user1.getURI()) + ";"
                 + getLastSubstring(user2.getURI());
         Property connection1Property = model.createProperty(connectionURI);
@@ -385,7 +164,6 @@ public class Main {
                 .addProperty(connectionStatusProperty, status.toString())
                 .addProperty(connectionTypeProperty, type.toString())
                 .addProperty(RDF.type, WEB_DOMAIN + "type/connection");
-        ;
 
         Bag connections1Bag = model.getBag(user1.getURI() + "/connections");
         if (connections1Bag == null) {
@@ -445,7 +223,7 @@ public class Main {
     }
 
     public static Resource createCompany(String email, String companyName, String companyWebsite,
-            String companyHeadQuaters) {
+                                         String companyHeadQuaters) {
         String companyURI = WEB_DOMAIN + companyName + "-" + UUID.randomUUID();
         // make the company resource
         Resource company = model.createResource(companyURI)
@@ -460,7 +238,7 @@ public class Main {
     }
 
     public static Resource createJob(Resource company, String jobName, String area, String workExperience,
-            DiplomaType diploma, String jobDescription, JobStatus status, String type) {
+                                     DiplomaType diploma, String jobDescription, JobStatus status, String type) {
         String uri = company.getURI() + "/jobs";
         Property jobStatus = model.createProperty(uri + "/status");
         Property diplomaTypeProperty = model.createProperty(uri + "/diploma-type");
@@ -492,7 +270,7 @@ public class Main {
     public static void addEmployeeToCompany(Resource employee, Resource company) {
         // Creating a list of employees
         Property employeesProperty = model.createProperty(company.getURI() + "/employees");
-        Bag companyEmployeesBag = (Bag) company.getModel().getBag(company.getURI() + "/employees");
+        Bag companyEmployeesBag = company.getModel().getBag(company.getURI() + "/employees");
         if (companyEmployeesBag == null) {
             Bag employees = model.createBag(company.getURI() + "/employees");
             employees.add(employee);
