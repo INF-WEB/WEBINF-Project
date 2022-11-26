@@ -34,7 +34,10 @@ public class Prints {
      *                     cannot be opened for any other reason.
      */
     public static void printToFile(Model model, String fileName) throws IOException {
-        File file = new File(DATA_LOC + fileName);
+        File file = new File(DATA_LOC + "out/" + fileName);
+
+        // Create new file if it does not exist
+        file.createNewFile();
 
         FileWriter writer = new FileWriter(file);
 
