@@ -14,9 +14,13 @@ import static utils.Prints.printToFile;
 public class Rdfs {
     /**
      * Example from
-     * <a href="https://jena.apache.org/documentation/inference/index.html#RDFSexamples">RDFS Example</a>
+     * <a href=
+     * "https://jena.apache.org/documentation/inference/index.html#RDFSexamples">RDFS
+     * Example</a>
      *
-     * @throws IOException If the file exists but is a directory rather than a regular file, does not exist but cannot be created, or cannot be opened for any other reason.
+     * @throws IOException If the file exists but is a directory rather than a
+     *                     regular file, does not exist but cannot be created, or
+     *                     cannot be opened for any other reason.
      */
     public static void rdfsExample() throws IOException {
         Model schema = RDFDataMgr.loadModel(DATA_LOC + "rdfsDemoSchema.rdf");
@@ -38,9 +42,13 @@ public class Rdfs {
 
     /**
      * Example from
-     * <a href="https://jena.apache.org/documentation/inference/index.html#generalExamples">Some small inference API examples</a>
+     * <a href=
+     * "https://jena.apache.org/documentation/inference/index.html#generalExamples">Some
+     * small inference API examples</a>
      *
-     * @throws IOException If the file exists but is a directory rather than a regular file, does not exist but cannot be created, or cannot be opened for any other reason.
+     * @throws IOException If the file exists but is a directory rather than a
+     *                     regular file, does not exist but cannot be created, or
+     *                     cannot be opened for any other reason.
      */
     public static void rdfs() throws IOException {
         /*

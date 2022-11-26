@@ -18,9 +18,13 @@ import static utils.Prints.printToFile;
 public class Owl {
   /**
    * Example from
-   * <a href="https://jena.apache.org/documentation/inference/index.html#OWLexamples">OWL Example</a>
+   * <a href=
+   * "https://jena.apache.org/documentation/inference/index.html#OWLexamples">OWL
+   * Example</a>
    *
-   * @throws IOException If the file exists but is a directory rather than a regular file, does not exist but cannot be created, or cannot be opened for any other reason.
+   * @throws IOException If the file exists but is a directory rather than a
+   *                     regular file, does not exist but cannot be created, or
+   *                     cannot be opened for any other reason.
    */
   public static void owl() throws IOException {
     Model schema = RDFDataMgr.loadModel(DATA_LOC + "owlDemoSchema.rdf");
@@ -51,4 +55,3 @@ public class Owl {
 
   }
 }
-
