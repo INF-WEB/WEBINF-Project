@@ -57,7 +57,7 @@ public class Ontology {
         addEmployeeToCompany(john, company);
         addEmployeeToCompany(rebecca, company);
 
-//        model.write(System.out);
+        model.write(System.out);
         printToFile(model, "model.rdf");
 
         InfModel inf = ModelFactory.createRDFSModel(model);

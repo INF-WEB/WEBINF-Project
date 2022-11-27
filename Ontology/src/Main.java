@@ -1,4 +1,8 @@
+import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import tests.TestInference;
+import utils.Prints;
 
 import java.io.IOException;
 
@@ -8,7 +12,9 @@ public class Main {
         Model model;
         try {
             model = Ontology.generateModel(); // Create RDFs with project data
-
+            InfModel inf = ModelFactory.createRDFSModel(model);
+            TestInference.testInferenceValidity(inf);
+            Prints.printInfRaw(inf);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
