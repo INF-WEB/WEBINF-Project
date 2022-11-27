@@ -23,7 +23,7 @@ public class Ontology {
      *                     regular file, does not exist but cannot be created, or
      *                     cannot be opened for any other reason.
      */
-    public static void generateModel() throws IOException {
+    public static Model generateModel() throws IOException {
         // TODO: add types to ≠ object types. e.g. nstype user voor een user resource
 
         // create an empty Model
@@ -62,6 +62,8 @@ public class Ontology {
 
         InfModel inf = ModelFactory.createRDFSModel(model);
         testInferenceValidity(inf);
+
+        return model;
     }
 
     public static Resource createUser(String firstName,

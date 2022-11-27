@@ -22,7 +22,7 @@ public class Rdfs {
      *                     regular file, does not exist but cannot be created, or
      *                     cannot be opened for any other reason.
      */
-    public static void rdfsExample() throws IOException {
+    public static void rdfsExample1() throws IOException {
         Model schema = RDFDataMgr.loadModel(DATA_LOC + "rdfsDemoSchema.rdf");
         Model data = RDFDataMgr.loadModel(DATA_LOC + "rdfsDemoData.rdf");
         InfModel infmodel = ModelFactory.createRDFSModel(schema, data);
@@ -50,7 +50,7 @@ public class Rdfs {
      *                     regular file, does not exist but cannot be created, or
      *                     cannot be opened for any other reason.
      */
-    public static void rdfs() throws IOException {
+    public static void rdfsExample2() throws IOException {
         /*
          * Create a Jena model containing the statements that some property "p" is a
          * subProperty of another property "q" and that we have a resource "a" with

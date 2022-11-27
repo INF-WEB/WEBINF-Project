@@ -1,4 +1,5 @@
 import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.sparql.exec.QueryExecDatasetBuilder;
 
@@ -36,7 +37,7 @@ public class Wikidata {
      * "https://www.youtube.com/watch?v=q3T1T51cH3A&ab_channel=MarcLieber">Wikidata
      * on Apache Jena and Fuseki</a>
      */
-    public static void wikidata() {
+    public static void wikidataExample() {
         String queryString = "";
         try {
             queryString = readQueryString("wikidata_profession.rq");
@@ -45,6 +46,7 @@ public class Wikidata {
         }
 
         System.out.println(queryString);
+
         Query query = QueryFactory.create(queryString);
 
         // Local execution which uses SERVICE for remote access.
