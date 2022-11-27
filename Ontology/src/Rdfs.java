@@ -2,6 +2,7 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
+import utils.Prints;
 
 import java.io.IOException;
 
@@ -77,9 +78,9 @@ public class Rdfs {
 
         model.write(System.out);
         // Access raw data
-        inf.getRawModel().write(System.out);
+        Prints.printInfRaw(inf);
         // Access deducted statements
-        inf.getDeductionsModel().write(System.out);
+        Prints.printInfDeducted(inf);
 
         printToFile(model, "rdfschema.rdf");
     }
