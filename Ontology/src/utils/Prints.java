@@ -25,6 +25,22 @@ public class Prints {
     }
 
     /**
+     * Prints the raw RDF model being processed to the standard output stream.
+     * @param inf Inference model of the RDF schema
+     */
+    public static void printInfRaw(InfModel inf) {
+        inf.getRawModel().write(System.out);
+    }
+
+    /**
+     * Prints a derivations model of the RDF model being processed to the standard output stream.
+     * @param inf Inference model of the RDF schema
+     */
+    public static void printInfDeducted(InfModel inf) {
+        inf.getDeductionsModel().write(System.out);
+    }
+
+    /**
      * Logs the produced schema to an output file.
      *
      * @param model    Produced schema
