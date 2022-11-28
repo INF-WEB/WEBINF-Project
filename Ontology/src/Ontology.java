@@ -39,6 +39,7 @@ public class Ontology {
         Resource jef = createUser("Jef", "Jansens", "Jefjansens@mail.com", "Agoralaan 11 Diepenbeek",
                 "https://jefjansens", false);
 
+        // Add properties
         createConnectionWith(john, rebecca, ConnectionStatus.Pending, ConnectionType.Coworker);
         createConnectionWith(john, jef, ConnectionStatus.Accepted, ConnectionType.Friend);
 

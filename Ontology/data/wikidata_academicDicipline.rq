@@ -1,0 +1,19 @@
+PREFIX schema: <http://schema.org/>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX bd: <http://www.bigdata.com/rdf#>
+
+SELECT * WHERE {
+  SERVICE <https://query.wikidata.org/sparql> {
+    SELECT ?disciplineLabel WHERE {
+      {
+        SELECT ?discipline ?disciplineLabel WHERE {
+          SERVICE wikibase:label { bd:serviceParam wikibase:language 'en,nl'. }
+          ?discipline wdt:P31 wd:Q11862829.
+        }
+      }
+      FILTER(LANG(?disciplineLabel))
+    } ORDER BY ASC(?disciplineLabel)
+  }
+}

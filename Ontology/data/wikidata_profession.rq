@@ -4,16 +4,21 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX bd: <http://www.bigdata.com/rdf#>
 
+# Get all professions with dutch title and the field this profession is a subclass of.
+# One profession can have none or multiple superclasses.
 SELECT * WHERE {
   SERVICE <https://query.wikidata.org/sparql> {
-    SELECT ?professionLabel WHERE {
+    SELECT * WHERE {
       {
-        SELECT ?profession ?professionLabel WHERE {
-          SERVICE wikibase:label { bd:serviceParam wikibase:language 'nl'. }
-          ?profession wdt:P31 wd:Q28640.
-        }
+        SELECT ?profession ?professionLabel ?superclassLabel ?disciplineLabel WHERE {
+          SERVICE wikibase:label { bd:serviceParam wikibase:language "nl". }
+          ?profession wdt:P31 wd:Q28640. # profession is a profession
+          OPTIONAL { ?profession wdt:P279 ?superclass. } # profession is subclass of a something
+-        }
       }
       FILTER(LANG(?professionLabel))
-    } ORDER BY ASC(?professionLabel)
+      FILTER(LANG(?superclassLabel))
+    }
+    ORDER BY UCASE(?professionLabel)
   }
 }
