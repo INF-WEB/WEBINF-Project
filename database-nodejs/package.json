@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "express": "^4.18.2",
+    "jena-tdb": "^0.1.0",
+    "sparqljs": "^3.6.1",
+    "typescript": "^4.9.3"
+  }
+}

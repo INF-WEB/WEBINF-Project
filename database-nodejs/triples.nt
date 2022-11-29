@@ -1,0 +1,76 @@
+<https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/connection" .
+<https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f/type> "friend" .
+<https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f/status> "accepted" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/potential-jobs> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> _:B00ca68b5X2Ddb63X2D4799X2Db99aX2D28baa1b1cb77 .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/professional-experience> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/professional-experiences/{professional-experience1}> .
+<https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f/connections> .
+<https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/user" .
+<https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f/looking-for-job> "false" .
+<https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <http://xmlns.com/foaf/0.1/based_near> "Agoralaan 11 Diepenbeek" .
+<https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <http://xmlns.com/foaf/0.1/homepage> "https://jefjansens" .
+<https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <http://xmlns.com/foaf/0.1/mbox> "Jefjansens@mail.com" .
+<https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <http://www.w3.org/2001/vcard-rdf/3.0#N> _:B95c91e7bX2D8d79X2D4974X2D868aX2D59a3637209e8 .
+<https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <http://www.w3.org/2001/vcard-rdf/3.0#FN> "Jef Jansens" .
+_:B95c91e7bX2D8d79X2D4974X2D868aX2D59a3637209e8 <http://xmlns.com/foaf/0.1/familyName> "Jansens" .
+_:B95c91e7bX2D8d79X2D4974X2D868aX2D59a3637209e8 <http://xmlns.com/foaf/0.1/firstName> "Jef" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/employees> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> <https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/employees> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/employees> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/employees> .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs> .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/company" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <http://xmlns.com/foaf/0.1/homepage> "https://company.com" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <http://xmlns.com/foaf/0.1/based_near> "Agoralaan Gebouw D, 3590 Diepenbeek" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <http://www.w3.org/2001/vcard-rdf/3.0#FN> "companyName" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <http://xmlns.com/foaf/0.1/mbox> "company.sowewhere@gmail.com" .
+<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18/connections> .
+<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/user" .
+<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18/looking-for-job> "true" .
+<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://xmlns.com/foaf/0.1/based_near> "Agoralaan 13 Diepenbeek" .
+<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://xmlns.com/foaf/0.1/homepage> "https://johnsmiths" .
+<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://xmlns.com/foaf/0.1/mbox> "Rebeccasmith@mail.com" .
+<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://www.w3.org/2001/vcard-rdf/3.0#N> _:B100626a2X2Debe5X2D451aX2Dbeb5X2Df26eda852ebb .
+<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://www.w3.org/2001/vcard-rdf/3.0#FN> "Rebecca Smith" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <http://www.w3.org/2001/vcard-rdf/3.0#FN> "John Smith" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/diplomas> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/diplomas> .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/connections> .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/potential-jobs> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/potential-jobs> .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <http://xmlns.com/foaf/0.1/mbox> "johnsmith@mail.com" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/connections> .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <http://www.w3.org/2001/vcard-rdf/3.0#N> _:B8ccda1ddX2Daed1X2D40a6X2D8d00X2D9e45a9e49fcf .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <http://xmlns.com/foaf/0.1/homepage> "https://johnsmiths" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <http://xmlns.com/foaf/0.1/based_near> "Agoralaan 13 Diepenbeek" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/professional-experiences> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/professional-experience> .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/user" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/looking-for-job> "false" .
+<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18/connections> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> .
+<https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/connection" .
+<https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18/type> "coworker" .
+<https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18/status> "pending" .
+<https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f/connections> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> .
+_:B00ca68b5X2Ddb63X2D4799X2Db99aX2D28baa1b1cb77 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/potential-job> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> .
+_:B00ca68b5X2Ddb63X2D4799X2Db99aX2D28baa1b1cb77 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71bejobsjobName/isAccepted> "false" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/job" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <https://testDomain/job-types> "ICT" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/status> "hired" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://purl.org/dc/elements/1.1/description> "Maken webpagina (job description)" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/diploma-type> "general" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://purl.org/dc/elements/1.1/description> "this is a description of the work experience" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://xmlns.com/foaf/0.1/based_near> "Agoralaan Gebouw D, 3590 Diepenbeek" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://purl.org/dc/elements/1.1/title> "jobName" .
+_:B100626a2X2Debe5X2D451aX2Dbeb5X2Df26eda852ebb <http://xmlns.com/foaf/0.1/familyName> "Smith" .
+_:B100626a2X2Debe5X2D451aX2Dbeb5X2Df26eda852ebb <http://xmlns.com/foaf/0.1/firstName> "Rebecca" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/professional-experiences/{professional-experience1}> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/professional-experience" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/professional-experiences/{professional-experience1}> <http://purl.org/dc/elements/1.1/description> "this is a description" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/professional-experiences/{professional-experience1}> <http://www.w3.org/ns/dcat#endDate> "Fri Mar 01 00:00:00 CET 3901" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/professional-experiences/{professional-experience1}> <http://www.w3.org/ns/dcat#startDate> "Thu Feb 01 00:00:00 CET 3900" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/diplomas> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/diplomas/{diploma1}-49a37905-e7ee-4713-89ba-723609eea135> .
+<https://testDomain/diplomas/{diploma1}-49a37905-e7ee-4713-89ba-723609eea135> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/diploma" .
+<https://testDomain/diplomas/{diploma1}-49a37905-e7ee-4713-89ba-723609eea135> <http://xmlns.com/foaf/0.1/based_near> "Uhasselt" .
+<https://testDomain/diplomas/{diploma1}-49a37905-e7ee-4713-89ba-723609eea135> <https://testDomain/job-types> "general" .
+<https://testDomain/diplomas/{diploma1}-49a37905-e7ee-4713-89ba-723609eea135> <http://purl.org/dc/elements/1.1/date> "Tue Nov 29 10:45:08 CET 2022" .
+_:B8ccda1ddX2Daed1X2D40a6X2D8d00X2D9e45a9e49fcf <http://xmlns.com/foaf/0.1/familyName> "Smith" .
+_:B8ccda1ddX2Daed1X2D40a6X2D8d00X2D9e45a9e49fcf <http://xmlns.com/foaf/0.1/firstName> "John" .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/connections> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> .
+<https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/connections> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> .
