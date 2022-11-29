@@ -1,4 +1,3 @@
-<https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/connection" .
 <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f/type> "friend" .
 <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f/status> "accepted" .
 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/potential-jobs> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> _:B00ca68b5X2Ddb63X2D4799X2Db99aX2D28baa1b1cb77 .
@@ -30,7 +29,7 @@ _:B95c91e7bX2D8d79X2D4974X2D868aX2D59a3637209e8 <http://xmlns.com/foaf/0.1/first
 <https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://xmlns.com/foaf/0.1/homepage> "https://johnsmiths" .
 <https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://xmlns.com/foaf/0.1/mbox> "Rebeccasmith@mail.com" .
 <https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://www.w3.org/2001/vcard-rdf/3.0#N> _:B100626a2X2Debe5X2D451aX2Dbeb5X2Df26eda852ebb .
-<https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://www.w3.org/2001/vcard-rdf/3.0#FN> "Rebecca Smith" .
+<https://testDom<https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/connection" .ain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <http://www.w3.org/2001/vcard-rdf/3.0#FN> "Rebecca Smith" .
 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <http://www.w3.org/2001/vcard-rdf/3.0#FN> "John Smith" .
 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/diplomas> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/diplomas> .
 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/connections> .
