@@ -1,10 +1,9 @@
-const workingDir : string = ".."
+const workingDir : string = "..";
+
 const { v4: uuidv4 } = require(workingDir+'/node_modules/uuid');
 const DataFactory = require(workingDir+'/node_modules/rdf');
 const Client = require(workingDir+'/node_modules/jena-tdb/ParsingClient');
-import { getDefaultLibFileName } from 'typescript';
-import { jobStatus } from './jobStatus'; //TODO: this one is typescript so should work with import
-//const {jobStatus} = require('./jobStatus.ts'); 
+import { jobStatus } from './jobStatus'; 
 const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
 const dbDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database"; 
 
