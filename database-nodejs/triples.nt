@@ -15,7 +15,7 @@ _:B95c91e7bX2D8d79X2D4974X2D868aX2D59a3637209e8 <http://xmlns.com/foaf/0.1/first
 <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/employees> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> <https://testDomain/RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> .
 <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/employees> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be> .
 <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/employees> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/employees> .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> .
 <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs> .
 <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/company" .
 <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f> <http://xmlns.com/foaf/0.1/homepage> "https://company.com" .
@@ -47,17 +47,17 @@ _:B95c91e7bX2D8d79X2D4974X2D868aX2D59a3637209e8 <http://xmlns.com/foaf/0.1/first
 <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18/type> "coworker" .
 <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;RebeccaSmith-bac706e2-1122-4fcf-8504-3ad67d238f18/status> "pending" .
 <https://testDomain/JefJansens-083917fe-a60d-4993-bfe4-5172222f835f/connections> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/connection/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be;JefJansens-083917fe-a60d-4993-bfe4-5172222f835f> .
-_:B00ca68b5X2Ddb63X2D4799X2Db99aX2D28baa1b1cb77 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/potential-job> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> .
-_:B00ca68b5X2Ddb63X2D4799X2Db99aX2D28baa1b1cb77 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71bejobsjobName/isAccepted> "false" .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/job" .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <https://testDomain/job-types> "ICT" .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/status> "hired" .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://purl.org/dc/elements/1.1/description> "Maken webpagina (job description)" .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/diploma-type> "general" .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://purl.org/dc/elements/1.1/description> "this is a description of the work experience" .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://xmlns.com/foaf/0.1/based_near> "Agoralaan Gebouw D, 3590 Diepenbeek" .
-<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobsjobName> <http://purl.org/dc/elements/1.1/title> "jobName" .
+_:B00ca68b5X2Ddb63X2D4799X2Db99aX2D28baa1b1cb77 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/potential-job> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> .
+_:B00ca68b5X2Ddb63X2D4799X2Db99aX2D28baa1b1cb77 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71bejobs/jobName/isAccepted> "false" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/job" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> <https://testDomain/job-types> "ICT" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/status> "hired" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> <http://purl.org/dc/elements/1.1/description> "Maken webpagina (job description)" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> <https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/diploma-type> "general" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> <http://purl.org/dc/elements/1.1/description> "this is a description of the work experience" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> <http://xmlns.com/foaf/0.1/based_near> "Agoralaan Gebouw D, 3590 Diepenbeek" .
+<https://testDomain/companyName-ffd34f81-02dc-450e-8b54-b197dfee888f/jobs/jobName> <http://purl.org/dc/elements/1.1/title> "jobName" .
 _:B100626a2X2Debe5X2D451aX2Dbeb5X2Df26eda852ebb <http://xmlns.com/foaf/0.1/familyName> "Smith" .
 _:B100626a2X2Debe5X2D451aX2Dbeb5X2Df26eda852ebb <http://xmlns.com/foaf/0.1/firstName> "Rebecca" .
 <https://testDomain/JohnSmith-06a70033-4416-45c1-9fc3-6731035e71be/professional-experiences/{professional-experience1}> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "https://testDomain/type/professional-experience" .
