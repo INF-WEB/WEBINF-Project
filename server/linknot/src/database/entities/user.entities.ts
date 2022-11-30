@@ -19,23 +19,27 @@ export class UserEntity implements UserRecord {
     id!: UserRecord["id"];
     
     @Column("text")
-    @Length(4, 20)
-    firstName!: UserRecord["firstName"];
+    @Length(2, 20)
+    name!: UserRecord["name"];
     
-    @Column("text")
-    @Length(4, 20)
-    lastName: UserRecord["lastName"];
+    @Column("text",  {default: ""})
+    lastName?: UserRecord["lastName"];
 
     @Column("text")
-    @Length(4, 100)
+    @Length(2, 100)
     password!: UserRecord["password"];
     
     @Column("text", {unique: true})
     email!: UserRecord["email"];
 
+    @Column("text")
+    @Length(2, 20)
+    type: UserRecord["type"];
+
+
     @Column("boolean")
     @IsNotEmpty()
-    jobStatus: UserRecord["jobStatus"];
+    search: UserRecord["search"];
     
     @Column()
     @CreateDateColumn()

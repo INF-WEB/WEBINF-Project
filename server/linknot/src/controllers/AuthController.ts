@@ -10,12 +10,12 @@ const session = require("express-session")
 
 
 class AuthController {
-        static login = async (req: Request, res: Response) => {
-            
+    
+    static login = async (req: Request, res: Response) => {
         //Check if username and password are set
-            let { email, password } = req.body;
-            if (!(email && password)) {
-                res.status(400).send();
+        let { email, password } = req.body;
+        if (!(email && password)) {
+            res.status(400).send();
         }
 
         //Get user from database
@@ -34,17 +34,16 @@ class AuthController {
             return;
         }
 
-        //Sing JWT, valid for 1 hour
+        //Sign JWT, valid for 1 hour
         const token = createJWT({email: user.email, id: user.id}, "1h");
-        
-
         req.session = {jwt: token};
-        
+
         res.status(200).send("Logged in");
-        
         };
 
-        static changePassword = async (req: Request, res: Response) => {
+
+    //TODO: not tested/changed yet
+    static changePassword = async (req: Request, res: Response) => {
         //Get ID from JWT
         const id = res.locals.jwtPayload.userId;
 
@@ -76,6 +75,7 @@ class AuthController {
             res.status(400).send(errors);
             return;
         }
+
         //Hash the new password and save
         user.hashPassword();
         userRepository.save(user);
@@ -84,10 +84,17 @@ class AuthController {
         };
 
 
-       static logout = async (req:Request, res:Response) => {
-            req.session = null;
-            res.status(200).send({});
-       };
+    static logout = async (req:Request, res:Response) => {
+        req.session = null;
+        res.status(200).send({});
+    };
+
+
+    //is for debugging
+    static checkSession =async (req:Request, res:Response) => {
+        const id = res.locals.jwtPayload.id;
+        res.status(200).send("still in session: "+id);
+    };
 
 }
 export default AuthController;

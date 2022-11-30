@@ -6,11 +6,12 @@
 
 interface UserRecord {
     id: string,
-    firstName: string,
+    name: string,
     lastName?: string,
     email: string,
     password: string,
-    jobStatus?: boolean,
+    search: boolean,
+    type: string,
 }
 
 export default UserRecord;

@@ -13,15 +13,24 @@ router.post(
     );
 
 //Change my password
+//Not tested 
 router.post(
     "/change-password", 
     [checkJwt], 
     AuthController.changePassword
     );
 
+//Removes session
 router.get(
     "/logout",
     AuthController.logout
     );
+
+
+router.get(
+    "/check",
+    [checkJwt],
+    AuthController.checkSession
+);
 
 export default router;

@@ -2,43 +2,42 @@
 import { Router } from "express";
 import UserController from "../controllers/UserController";
 import { checkJwt } from "../middlewares/checkJwt";
-import { checkRole } from "../middlewares/checkRole";
+import { checkType } from "../middlewares/checkType";
 
 const router = Router();
 
-//Get all users
-router.get("/", [checkJwt, checkRole(["ADMIN"])], UserController.listAll);
 
 // Get one user
 router.get(
-    "/:id([0-9]+)",
-    [checkJwt, checkRole(["ADMIN"])],
-    UserController.getOneById
+    "/accountDetails",
+    [checkJwt, checkType(["Person", "Company", "ADMIN"])],
+    UserController.getAccountDetails
     );
 
 //Create a new user
+//Rest of data by json
 router.post(
-    "/", 
+    "/Create", 
     [], 
     UserController.newUser
     );
 
-//Edit one user
+//Edit logged in user
 router.patch(
-    "/:id([0-9]+)",
-    [checkJwt, checkRole(["ADMIN"])],
+    "/edit",
+    [checkJwt, checkType(["Person", "Company", "ADMIN"])],
     UserController.editUser
     );
 
-//Delete one user
+//Delete logged in user
 router.delete(
-    "/:id([0-9]+)",
-    [checkJwt, checkRole(["ADMIN"])],
+    "/remove",
+    [checkJwt, checkType(["Person", "Company", "ADMIN"])],
     UserController.deleteUser
     );
 
 
-//TEST
+//TEST just debugging, gives back all the users
 router.get(
     "/test",
     [checkJwt],
