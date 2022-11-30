@@ -120,7 +120,7 @@ class UserController{
             return;
         }
         //After all send a 204 (no content, but accepted) response
-        res.status(204).send();
+        res.status(200).send("Values have changed");
     };
     
     static deleteUser = async (req: Request, res: Response) => {

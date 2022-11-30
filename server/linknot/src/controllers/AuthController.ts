@@ -10,7 +10,7 @@ const session = require("express-session")
 
 
 class AuthController {
-    
+
     static login = async (req: Request, res: Response) => {
         //Check if username and password are set
         let { email, password } = req.body;
@@ -45,7 +45,7 @@ class AuthController {
     //TODO: not tested/changed yet
     static changePassword = async (req: Request, res: Response) => {
         //Get ID from JWT
-        const id = res.locals.jwtPayload.userId;
+        const id = res.locals.jwtPayload.id;
 
         //Get parameters from the body
         const { oldPassword, newPassword } = req.body;
@@ -57,7 +57,9 @@ class AuthController {
         const userRepository = getRepository(UserEntity);
         let user: UserEntity;
         try {
-            user = await userRepository.findOneOrFail(id);
+            user = await userRepository.findOneOrFail({
+                                        where:{id:id}
+            });
         } catch (id) {
             res.status(401).send();
         }
@@ -80,7 +82,7 @@ class AuthController {
         user.hashPassword();
         userRepository.save(user);
 
-        res.status(204).send();
+        res.status(200).send("Passwords are different now");
         };
 
 
