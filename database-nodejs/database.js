@@ -43,16 +43,20 @@ var Client = require('./node_modules/jena-tdb/ParsingClient');
 var database = /** @class */ (function () {
     function database() {
         this.client = new Client({
-            bin: '/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin',
-            db: '/Users/matiesclaesen/Documents/WEBINF/nodejs/database'
+            //bin: '/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin',
+            //db: '/Users/matiesclaesen/Documents/WEBINF/nodejs/database'
+            bin: 'C:/Users/Femke/Documents/jena/apache-jena-4.6.1/bin',
+            db: '/Users/Femke/Documents/GIT/WEBINF-Project/database-nodejs/database'
         });
         this.rdf = require('./node_modules/rdf');
         database.foaf = this.rdf.ns('http://xmlns.com/foaf/0.1/');
         database.vCard = this.rdf.ns('http://www.w3.org/2001/vcard-rdf/3.0#');
+        database.dc = this.rdf.ns('');
+        database.dcat = this.rdf.ns('http://www.w3.org/ns/dcat#');
     }
     database.prototype.createUser = function (firstName, lastName, email, area, webpage, lookingForJob) {
         return __awaiter(this, void 0, void 0, function () {
-            var userURI, fullName, _a, NamedNode, BlankNode, Literal, namedNode, typeTriple, fullNameTriple, blankNodeName, blankNode2, nameTriple, firstNameTriple, lastNameTriple, emailTriple, webpageTriple, areaTriple, lookingForJobTriple;
+            var userURI, fullName, _a, NamedNode, BlankNode, Literal, namedNode, typeTriple, fullNameTriple, blankNodeName, nameTriple, firstNameTriple, lastNameTriple, emailTriple, webpageTriple, areaTriple, lookingForJobTriple;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -63,7 +67,6 @@ var database = /** @class */ (function () {
                         typeTriple = new this.rdf.Triple(namedNode, this.rdf.rdfsns('type'), new Literal(database.WEB_DOMAIN + "type/user"));
                         fullNameTriple = new this.rdf.Triple(namedNode, database.vCard('FN'), new Literal(fullName));
                         blankNodeName = new BlankNode();
-                        blankNode2 = new BlankNode();
                         nameTriple = new this.rdf.Triple(namedNode, database.vCard('N'), blankNodeName);
                         firstNameTriple = new this.rdf.Triple(blankNodeName, database.vCard('given-name'), new Literal(firstName));
                         lastNameTriple = new this.rdf.Triple(blankNodeName, database.vCard('family-name'), new Literal(lastName));
@@ -71,38 +74,8 @@ var database = /** @class */ (function () {
                         webpageTriple = new this.rdf.Triple(namedNode, database.foaf('homepage'), new Literal(webpage));
                         areaTriple = new this.rdf.Triple(namedNode, database.foaf('based_near'), new Literal(area));
                         lookingForJobTriple = new this.rdf.Triple(namedNode, this.rdf.rdfsns(userURI + "/looking-for-job"), new Literal(String(lookingForJob), this.rdf.xsdns("boolean")));
-                        //console.log(triple.toNT());
-                        /*Property lookingForJobProperty = model.createProperty(userURI + "/looking-for-job");
-                
-                        Resource johnSmith
-                                = model.createResource(userURI)
-                                .addProperty(VCARD.FN, fullName)
-                                .addProperty(VCARD.N,
-                                        model.createResource()
-                                                .addProperty(FOAF.firstName, firstName)
-                                                .addProperty(FOAF.familyName, lastName))
-                                .addProperty(FOAF.mbox, email)
-                                .addProperty(FOAF.homepage, webpage) //TODO: Syntax for url could be incorrect
-                                .addProperty(FOAF.based_near, area)
-                                .addProperty(lookingForJobProperty, lookingForJob.toString())
-                                .addProperty(RDF.type, WEB_DOMAIN + "type/user");*/
                         return [4 /*yield*/, this.client.query.update("\n        INSERT {" + typeTriple.toNT() + "} WHERE {};\n        INSERT {" + fullNameTriple.toNT() + "} WHERE {};\n        INSERT { \n                    <" + userURI + "> <" + database.vCard("N") + "> \n                        [   \n                            <" + database.vCard("given-name") + "> \"" + firstName + "\"; \n                            <" + database.vCard("family-name") + "> \"" + lastName + "\" \n                        ] \n                } WHERE {};\n        INSERT {" + emailTriple.toNT() + "} WHERE {};\n        INSERT {" + webpageTriple.toNT() + "} WHERE {};\n        INSERT {" + areaTriple.toNT() + "} WHERE {};\n        INSERT {" + lookingForJobTriple.toNT() + "} WHERE {};\n        ")];
                     case 1:
-                        //console.log(triple.toNT());
-                        /*Property lookingForJobProperty = model.createProperty(userURI + "/looking-for-job");
-                
-                        Resource johnSmith
-                                = model.createResource(userURI)
-                                .addProperty(VCARD.FN, fullName)
-                                .addProperty(VCARD.N,
-                                        model.createResource()
-                                                .addProperty(FOAF.firstName, firstName)
-                                                .addProperty(FOAF.familyName, lastName))
-                                .addProperty(FOAF.mbox, email)
-                                .addProperty(FOAF.homepage, webpage) //TODO: Syntax for url could be incorrect
-                                .addProperty(FOAF.based_near, area)
-                                .addProperty(lookingForJobProperty, lookingForJob.toString())
-                                .addProperty(RDF.type, WEB_DOMAIN + "type/user");*/
                         _b.sent();
                         //`+ lookingForJobTriple.toNT() + `;
                         return [2 /*return*/, userURI];
@@ -129,6 +102,22 @@ var database = /** @class */ (function () {
                         result = _b.sent();
                         return [2 /*return*/, companyURI];
                 }
+            });
+        });
+    };
+    database.prototype.createJob = function (companyURI, jobName, area, workExperience, diploma, jobDescription, status, type) {
+        return __awaiter(this, void 0, void 0, function () {
+            var jobURI, _a, NamedNode, BlankNode, Literal, jobNameURI, jobType, jobStatusType, diplomaType, titleTriple, areaTriple;
+            return __generator(this, function (_b) {
+                jobURI = companyURI + "/jobs";
+                _a = this.rdf, NamedNode = _a.NamedNode, BlankNode = _a.BlankNode, Literal = _a.Literal;
+                jobNameURI = new NamedNode(jobURI + jobName);
+                jobType = new this.rdf.Triple(jobNameURI, this.rdf.rdfsns('type'), new Literal(database.WEB_DOMAIN + "/type/job"));
+                jobStatusType = new this.rdf.Triple(jobNameURI, jobURI + "/status", new Literal(String(status)));
+                diplomaType = new this.rdf.Triple(jobNameURI, jobURI + "/diploma-type", new Literal(String(diploma)));
+                titleTriple = new this.rdf.Triple(jobNameURI, database.dc('title'), new Literal(jobName));
+                areaTriple = new this.rdf.Triple(jobNameURI, database.vCard('ADR'), new Literal(area));
+                return [2 /*return*/];
             });
         });
     };
@@ -186,17 +175,20 @@ function main() {
             switch (_a.label) {
                 case 0:
                     client = new Client({
-                        bin: '/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin',
-                        db: '/Users/matiesclaesen/Documents/WEBINF/nodejs/database'
+                        //bin: '/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin',
+                        //db: '/Users/matiesclaesen/Documents/WEBINF/nodejs/database'
+                        bin: 'C:/Users/Femke/Documents/jena/apache-jena-4.6.1/bin',
+                        db: '/Users/Femke/Documents/GIT/WEBINF-Project/database-nodejs/database'
                     });
-                    return [4 /*yield*/, client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')])];
-                case 1:
-                    _a.sent();
+                    //await client.endpoint.importFiles([require.resolve('/Users/Femke/Documents/GIT/WEBINF-Project/database-nodejs/triples.nt')])
+                    //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')])
                     return [4 /*yield*/, insertUser(client)];
-                case 2:
+                case 1:
+                    //await client.endpoint.importFiles([require.resolve('/Users/Femke/Documents/GIT/WEBINF-Project/database-nodejs/triples.nt')])
+                    //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')])
                     _a.sent();
                     return [4 /*yield*/, insertCompany(client)];
-                case 3:
+                case 2:
                     _a.sent();
                     return [2 /*return*/];
             }
