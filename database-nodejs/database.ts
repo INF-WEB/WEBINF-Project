@@ -9,6 +9,8 @@ import { connectionStatus } from './connectionStatus';
 const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
 const dbDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database"; 
 
+import * as moment from 'moment';
+
 export class database {
 
     static readonly WEB_DOMAIN: string = "https://testDomain/";
@@ -588,58 +590,128 @@ export class database {
         this.addEmployeeToCompany(companyURI, employeeURI);
         this.addJobToEmployee(employeeURI, jobURI);
     }
+
+    /**
+     * get all directly associated data from a user in a json object 
+     * !does not return baglists
+     * @param userURI 
+     * TODO: limit: number
+     * @returns json object with the results
+     */
+    public async selectUser(userURI: string) : Promise<Object> {
+        // get first result again
+        const result : Object = await this.client.query.select(`
+            SELECT * WHERE {
+                {
+                    <`+ userURI + `> ?pred ?obj .
+                } UNION {
+                    <`+ userURI + `> ?pred _:blankNode1 .
+                    _:blankNode1 <`+ database.vCard('given-name') + `> ?obj .
+                } UNION {
+                    <`+ userURI + `> ?pred _:blankNode2 .
+                    _:blankNode2 <`+ database.vCard('family-name') + `> ?obj .
+                }
+            }
+        `);
+        return result;
+    }
+
+    /**
+     * get all directly associated data from a company in a json object
+     * !does not return baglists 
+     * @param companyURI 
+     * TODO: limit: number
+     * @returns json object with the results
+     */
+    public async selectCompany(companyURI: string) : Promise<Object> {
+        const result = await this.client.query.select(`
+            SELECT * WHERE {
+                <`+ companyURI + `> ?pred ?obj .
+            } LIMIT 20
+        `);
+        return result;
+    }
+
+    /**
+     * get all directly associated data from a job in a json object
+     * !does not return baglists 
+     * @param jobURI 
+     * TODO: limit: number
+     * @returns json object with the results
+     */
+    public async selectJob(jobURI: string) : Promise<Object> {
+        // get first result again
+        const result : Object = await this.client.query.select(`
+            SELECT * WHERE {
+                <`+ jobURI + `> ?pred ?obj .
+            } LIMIT 20
+        `);   
+        return result;
+    }
+
+    /**
+     * in a pinch, simple SPARQL Query 
+     * if any parameter is left empty, it'll transform into a variable ?subj, ?pred? obj respectively
+     * f.e. leaving every parameter blank returns every entry
+     * @param subj the subject (auto receives <>)
+     * @param pred the predicate (auto receives <>)
+     * @param obj the object (!does not auto receive <>!)
+     * @returns json object with the results
+     */
+    public async sparqlQuery(subj: string = "?subj", pred: string = "?pred", obj: string = "?obj") : Promise<Object> {
+        if (subj !== "?subj") 
+            subj = "<"+subj+">";
+        if (pred !== "?pred")
+            pred = "<"+pred+">";
+        if (obj !== "?obj")
+            obj = "<"+obj+">";
+        const result : Object = await this.client.query.select(`
+            SELECT * WHERE {
+                `+subj+` `+pred+` `+obj+` .
+            }
+        `);
+
+        return result;
+    }
+
+    /**
+     * in a pinch, low level SPARQL Query
+     * @param queryString the SPARQL Query to be executed
+     * @returns json object with the results
+     */
+    public async sparqlQueryString(queryString: string = "") : Promise<Object> {
+        const result : Object = await this.client.query.select(queryString);
+        return result;
+    }
+
+
 }
 
-// === MAIN ===
-
+// -- TEST FUNCNTIONS -- 
 // Insert User
-async function insertUser(client: any): Promise<string> {
+async function TESTinsertUser(client: any) {
     var db: database = new database();
 
     let URI: string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Belgie", "maties.blog.com", false);
 
+    let result : Object = await  db.selectUser(URI);
     console.log("user: after insert");
-
-    // get first result again
-    const getResult2 = await client.query.select(`
-        SELECT * WHERE {
-            {
-                <`+ URI + `> ?pred ?obj .
-            } UNION {
-                <`+ URI + `> ?pred _:blankNode1 .
-                _:blankNode1 <`+ database.vCard('given-name') + `> ?obj .
-            } UNION {
-                <`+ URI + `> ?pred _:blankNode2 .
-                _:blankNode2 <`+ database.vCard('family-name') + `> ?obj .
-            }
-        } LIMIT 10
-  `);
-
-    console.log(getResult2);
-    return URI;
+    console.log(result);
 }
 
 // Insert Company
-async function insertCompany(client: any) {
-    // get first result from graph
+async function TESTinsertCompany(client: any) {
     let db: database = new database();
 
     let URI: string = await db.createCompany("apple@mail.com", "Apple", "Apple.com", "Cupertino");
 
+    let result : Object = await db.selectCompany(URI);
     console.log("company: after insert");
-
-    // get first result again
-    const getResult2 = await client.query.select(`
-        SELECT * WHERE {
-            <`+ URI + `> ?pred ?obj .
-        } LIMIT 20
-    `);
-
-    console.log(getResult2);
-    return URI;
+    console.log(result);
 }
 
-async function insertJob(companyURI: string, client: any) {
+// Insert Jobs
+async function TESTinsertJobs(companyURI: string, client: any) {
     let db: database = new database();
 
     let URI: string = await db.createJob(
@@ -651,20 +723,32 @@ async function insertJob(companyURI: string, client: any) {
         "borden afwassen 24/7", 
         jobStatus.Pending,
         "TODO:-uit-de-OWL-ofz-krijgen",      
+    );
+    let job1URI = await db.createJob(companyURI, 
+        "tester", 
+        "bij it departement debuggen", 
+        "weten wat een debugger is", 
+        "diploma-ofz", 
+        "langsgaan en de hele tijd op step over klikken", 
+        jobStatus.Pending,
+        "TODO:-uit-de-OWL-ofz-krijgen",      
+        );
+    let job2URI = await db.createJob(companyURI, 
+        "IT", 
+        "Bureau", 
+        "Ge moet al eens een programma hebben gemaakt enz snapje", 
+        "diploma's-ofz", 
+        "programeren 24/7", 
+        jobStatus.Pending,
+        "TODO:-uit-de-OWL-ofz-krijgen",      
         );
     
+    let result : Object = await db.selectJob(URI);
     console.log("company: after job insertion");
-
-    // get first result again
-    const getResult2 = await client.query.select(`
-        SELECT * WHERE {
-            <`+ URI + `> ?pred ?obj .
-        } LIMIT 20
-    `);   
-
-    console.log(getResult2);
+    console.log(result);
 }
 
+// -- TEST MAIN --
 async function main() {
     const client = new Client({
         bin: binDir,
@@ -681,28 +765,6 @@ async function main() {
 
     await db.createConnectionWith(maties, femke, connectionStatus.Accepted, connectionType.Friend);
     await db.createProfessionalExperienceFor(femke, new Date(), new Date(), "IT'er");
-
-
-    let companyURI: string = await insertCompany(client);
-    let job1URI = await db.createJob(companyURI, 
-        "afwasser", 
-        "in de keuken", 
-        "Ge moet al eens een bord vastgehouden hebben enz snapje", 
-        "diploma-ofz", 
-        "borden afwassen 24/7", 
-        jobStatus.Pending,
-        "TODO:-uit-de-OWL-ofz-krijgen",      
-        );
-    let job2URI = await db.createJob(companyURI, 
-        "IT", 
-        "Bureau", 
-        "Ge moet al eens een programma hebben gemaakt enz snapje", 
-        "diploma's-ofz", 
-        "programeren 24/7", 
-        jobStatus.Pending,
-        "TODO:-uit-de-OWL-ofz-krijgen",      
-        );
-
 
 
     console.log("FINAL RESULT");
