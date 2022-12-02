@@ -6,13 +6,13 @@ const Client = require(workingDir+'/node_modules/jena-tdb/ParsingClient');
 import { jobStatus } from './jobStatus'; 
 import { connectionType } from './connectionType';
 import { connectionStatus } from './connectionStatus';
-const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
-const dbDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database"; 
 
-import * as moment from 'moment';
+const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
+const databaseDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database";
+
+var dateFormat = require("dateformat"); 
 
 export class database {
-
     static readonly WEB_DOMAIN: string = "https://testDomain/";
     private rdf;
     static vCard: any;
@@ -20,18 +20,30 @@ export class database {
     static dc: any;
     static dcat: any;
     /* TODO: Add the rest */
-
+    
+    private binDir : string;
+    private databaseDir : string;  
     client;
-    constructor() {
+    constructor(binDir : string, databaseDir : string) {
+        this.binDir = binDir;
+        this.databaseDir = databaseDir;
         this.client = new Client({
-            bin: binDir,
-            db: dbDir
-        })
+            bin: this.binDir,
+            db: this.databaseDir
+        });
+
         this.rdf = require(workingDir+'/node_modules/rdf');
+        this.databaseDir = databaseDir;
+
         database.foaf = this.rdf.ns('http://xmlns.com/foaf/0.1/');
         database.vCard = this.rdf.ns('http://www.w3.org/2001/vcard-rdf/3.0#');
         database.dc = this.rdf.ns('http://purl.org/dc/elements/1.1/');
         database.dcat = this.rdf.ns('http://www.w3.org/ns/dcat#');
+    }
+
+    public async initDatabse() {
+        if (this.databaseDir != "")
+            await this.client.endpoint.importFiles([require.resolve(this.databaseDir)]);
     }
 
     /**
@@ -162,6 +174,10 @@ export class database {
         return userURI;
     };
 
+    private formatToXSDdate(date: Date) : string {
+        return dateFormat(date, 'YYYY-MM-DD');
+    }
+
     /**
      * 
      * @param userURI 
@@ -196,7 +212,7 @@ export class database {
         let dateTriple = new this.rdf.Triple(
             diplomaNode,
             database.dc('date'),
-            new Literal(graduation.toUTCString(), this.rdf.xsdns("date"))
+            new Literal(this.formatToXSDdate(graduation), this.rdf.xsdns("date"))
         );
 
         let adresTriple = new this.rdf.Triple(
@@ -245,13 +261,13 @@ export class database {
         let startDateTriple = new this.rdf.Triple(
             professionalNode,
             database.dcat('startDate'),
-            new Literal(startDate.toUTCString(), this.rdf.xsdns("date"))
+            new Literal(this.formatToXSDdate(startDate), this.rdf.xsdns("date"))
         );
 
         let endDateTriple = new this.rdf.Triple(
             professionalNode,
             database.dcat('endDate'),
-            new Literal(endDate.toUTCString(), this.rdf.xsdns("date"))
+            new Literal(this.formatToXSDdate(endDate), this.rdf.xsdns("date"))
         );
 
         let descriptionTriple = new this.rdf.Triple(
@@ -679,18 +695,19 @@ export class database {
      * @param queryString the SPARQL Query to be executed
      * @returns json object with the results
      */
-    public async sparqlQueryString(queryString: string = "") : Promise<Object> {
+    public async sparqlQueryLowLevel(queryString: string = "") : Promise<Object> {
         const result : Object = await this.client.query.select(queryString);
         return result;
     }
 
+    
 
 }
 
 // -- TEST FUNCNTIONS -- 
 // Insert User
 async function TESTinsertUser(client: any) {
-    var db: database = new database();
+    var db: database = new database(binDir, databaseDir);
 
     let URI: string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Belgie", "maties.blog.com", false);
 
@@ -701,7 +718,7 @@ async function TESTinsertUser(client: any) {
 
 // Insert Company
 async function TESTinsertCompany(client: any) {
-    let db: database = new database();
+    let db: database = new database(binDir, databaseDir);
 
     let URI: string = await db.createCompany("apple@mail.com", "Apple", "Apple.com", "Cupertino");
 
@@ -712,7 +729,7 @@ async function TESTinsertCompany(client: any) {
 
 // Insert Jobs
 async function TESTinsertJobs(companyURI: string, client: any) {
-    let db: database = new database();
+    let db: database = new database(binDir, databaseDir);
 
     let URI: string = await db.createJob(
         companyURI, 
@@ -749,12 +766,12 @@ async function TESTinsertJobs(companyURI: string, client: any) {
 }
 
 // -- TEST MAIN --
-async function main() {
-    const client = new Client({
-        bin: binDir,
-        db: dbDir
-    });
-    var db: database = new database();
+async function tests() {
+    let testing : boolean = false;
+    if (testing)
+        return 1;
+
+    var db: database = new database(binDir, databaseDir);
     
     //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')]);
 
@@ -768,15 +785,9 @@ async function main() {
 
 
     console.log("FINAL RESULT");
-    const everything = await client.query.select(`
-        SELECT * WHERE {
-            ?subj ?pred ?obj
-        } 
-    `);
-
-
+    let everything: Object = await db.sparqlQuery();
 
     console.log(everything);
 }
 
-main();
+tests();
