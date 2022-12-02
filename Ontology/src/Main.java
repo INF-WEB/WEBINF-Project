@@ -2,6 +2,8 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.sparql.vocabulary.FOAF;
 import org.apache.jena.vocabulary.*;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.Date;
 import java.util.UUID;
@@ -13,7 +15,7 @@ public class Main {
 
     //TODO: add types to ≠ object types
     // f.e. nstype user voor een user resource
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // create an empty Model
         model = ModelFactory.createDefaultModel();
         jobTypeProperty = model.createProperty(WEB_DOMAIN + "job-types"); //TODO: use a database of jobtypes from elsewhere
@@ -30,7 +32,21 @@ public class Main {
         addEmployeeToCompany(john, company);
         addEmployeeToCompany(rebecca, company);
 
-        model.write(System.out);
+        //model.write(System.out);
+        String fileName = "trippels.nt";
+        FileWriter out = new FileWriter( fileName );
+        try {
+            model.write( out, "N-TRIPLE" );
+        }
+        finally {
+            try {
+                out.close();
+            }
+            catch (IOException closeException) {
+                // ignore
+            }
+        }
+        //model.write(System.out, "N-TRIPLE");
     }
 
     public static Resource createUser(  String firstName,
