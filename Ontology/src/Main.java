@@ -159,7 +159,7 @@ public class Main {
             blank.addProperty(isAcceptedProperty, isAccepted.toString());
             blank.addProperty(potentialJobProperty, job);
             user.addProperty(jobProperty, potentialJobs);
-        }else{
+        } else {
             blank.addProperty(isAcceptedProperty, isAccepted.toString());
             blank.addProperty(potentialJobProperty, job);
             potentialJobsBag.add(blank);
@@ -240,16 +240,20 @@ public class Main {
     }
 
     public static void addPotentialEmployees(Resource user, Resource job){
-        Property potentialEmployeeProperty = model.createProperty(job.getURI() + "/potential-employees");
-        Property potentialEmployeesProperty = user.getModel().getProperty(potentialEmployeeProperty.getURI());
-        Bag potentialEmployeesBag = model.getBag(user.getURI() + "/potential-jobs");
+        String potentialEmployeesURI = job.getURI() + "/potential-employees";
+
+        Property potentialEmployeeProperty = model.createProperty(potentialEmployeesURI);
+        Property potentialEmployeesProperty = job.getModel().getProperty(potentialEmployeeProperty.getURI());
+        Bag potentialEmployeesBag = model.getBag(potentialEmployeesURI);
         if(potentialEmployeesBag == null) {
             Bag potentialEmployees = model.createBag(user.getURI() + "/potential-jobs");
             potentialEmployees.add(user);
-            user.addProperty(potentialEmployeesProperty, potentialEmployees);
+            job.addProperty(potentialEmployeesProperty, potentialEmployees);
         }else{
             potentialEmployeesBag.add(user);
-            user.addProperty(potentialEmployeesProperty, potentialEmployeesBag);
+            job.addProperty(potentialEmployeesProperty, potentialEmployeesBag);
         }
     }
 }
+
+// company -> job -> * potential employee
