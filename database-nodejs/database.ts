@@ -59,6 +59,16 @@ export class database {
         return max+1;
     }
 
+    /**
+     * Creates a user 
+     * @param firstName 
+     * @param lastName 
+     * @param email 
+     * @param area 
+     * @param webpage 
+     * @param lookingForJob 
+     * @returns URI of newly created user 
+     */
     public async createUser(
         firstName: string,
         lastName: string,
@@ -150,6 +160,14 @@ export class database {
         return userURI;
     };
 
+    /**
+     * 
+     * @param userURI 
+     * @param graduation 
+     * @param jobType 
+     * @param educationalInstitute 
+     * @returns 
+     */
     public async createDiplomaFor(
         userURI: string,
         graduation: Date,
@@ -197,6 +215,13 @@ export class database {
         return userURI;
     }
     
+    /**
+     * 
+     * @param userURI 
+     * @param startDate 
+     * @param endDate 
+     * @param description 
+     */
     public async createProfessionalExperienceFor(
         userURI: string, 
         startDate: Date,
@@ -249,6 +274,12 @@ export class database {
 
     }
 
+    /**
+     * returns the "name" of the URI 
+     * (which is set after last '/' in the URI)
+     * @param URI the URI containing the name
+     * @returns the name of the URI
+     */
     private getLastSubstring(
         URI: string
     ): string{
@@ -256,6 +287,13 @@ export class database {
     };
 
 
+    /**
+     * 
+     * @param userURI1 
+     * @param userURI2 
+     * @param status 
+     * @param type 
+     */
     public async createConnectionWith(
         userURI1: string,
         userURI2: string,
@@ -310,7 +348,7 @@ export class database {
         
     };
 
-    public async addPotentialJob(
+    private async addPotentialJob(
         userURI: string, //Resource user
         jobURI: string, //Resource job
         isAccepted: boolean
@@ -333,9 +371,9 @@ export class database {
         `);
     };
 
-    public async addJob(
+    private async addJobToEmployee(
         userURI: string, //Resourse user
-        jobUri: string //Resourse job
+        jobURI: string //Resourse job
     ): Promise<void>{
         let jobBagURI: string = userURI + "/jobs";
 
@@ -343,11 +381,19 @@ export class database {
         
         const result = await this.client.query.update(`
             INSERT { 
-                <`+ jobBagURI +`> <`+ this.rdf.rdfns('_'+bagIndex) +`> <`+ jobUri +`> 
+                <`+ jobBagURI +`> <`+ this.rdf.rdfns('_'+bagIndex) +`> <`+ jobURI +`> 
             } WHERE {};
         `);
     }
 
+    /**
+     * 
+     * @param companyEmail 
+     * @param companyName 
+     * @param companyWebsite 
+     * @param companyHeadQuaters 
+     * @returns 
+     */
     public async createCompany(
         companyEmail: string,
         companyName: string,
@@ -399,6 +445,18 @@ export class database {
         return companyURI;
     };
 
+    /**
+     * Creates a job instance linked to a company
+     * @param companyURI the job for this company
+     * @param jobName the name of this job
+     * @param area the area where the job is to be performed
+     * @param workExperience the work experience required (textual)
+     * @param diploma the required diploma for this job 
+     * @param jobDescription the job description (textual)
+     * @param status the status of the job (see jobStatus)
+     * @param type the type of job 
+     * @returns 
+     */
     public async createJob(
         companyURI: string,
         jobName: string,
@@ -478,7 +536,7 @@ export class database {
         return jobBagURI;
     };
 
-    public async addEmployeeToCompany(
+    private async addEmployeeToCompany(
         companyURI: string, //Resource employee
         employeeURI: string //Resource company
     ): Promise<void>{
@@ -493,7 +551,7 @@ export class database {
         `);
     };
 
-    public async addPotentialEmployees(
+    private async addPotentialEmployee(
         jobURI: string,
         userURI: string, 
     ): Promise<void>{
@@ -507,6 +565,29 @@ export class database {
             } WHERE {};
         `);
     };
+
+    /**
+     * Adds a potential employee to a job && adds the potential job to the employee's potential jobs list
+     * @param jobURI the job which is going to have a new potential employee
+     * @param userURI the user which is going to get a new potential job
+     * @param isAccepted    the status if the user has accepted a job offer 
+     *                      (the company still has the final say if the user receives the job, via addJob)
+     */
+    public async addPotential(jobURI: string, userURI: string, isAccepted: boolean) {
+        this.addPotentialEmployee(jobURI, userURI);
+        this.addPotentialJob(userURI, jobURI, isAccepted);
+    }
+
+    /**
+     * Adds a new employee to a company && adds the job to the employee's jobs list
+     * @param companyURI the company which is going to have a new employee
+     * @param jobURI the job from the company which nhas a new employee
+     * @param employeeURI the employee which is hired for a ``companyURI`` to do the ``jobURI``
+     */
+    public async addEmployee(companyURI: string, jobURI: string, employeeURI: string) {
+        this.addEmployeeToCompany(companyURI, employeeURI);
+        this.addJobToEmployee(employeeURI, jobURI);
+    }
 }
 
 // === MAIN ===
@@ -622,12 +703,6 @@ async function main() {
         "TODO:-uit-de-OWL-ofz-krijgen",      
         );
 
-    await db.addJob(femke, job1URI);
-    await db.addJob(femke, job2URI);
-    await db.addEmployeeToCompany(companyURI, femke);
-    await db.addPotentialJob(maties, job1URI, false);
-    await db.addPotentialEmployees(job1URI, maties);
-    await db.addPotentialEmployees(job1URI, maties);
 
 
     console.log("FINAL RESULT");
