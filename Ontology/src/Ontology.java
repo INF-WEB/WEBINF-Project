@@ -58,11 +58,11 @@ public class Ontology {
         addEmployeeToCompany(john, company);
         addEmployeeToCompany(rebecca, company);
 
-        model.write(System.out);
-        printToFile(model, "model.rdf");
+//        model.write(System.out);
+//        printToFile(model, "model.rdf");
 
-        InfModel inf = ModelFactory.createRDFSModel(model);
-        testInferenceValidity(inf);
+        // InfModel inf = ModelFactory.createRDFSModel(model);
+        // testInferenceValidity(inf);
 
         return model;
     }
