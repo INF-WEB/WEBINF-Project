@@ -4,16 +4,18 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX bd: <http://www.bigdata.com/rdf#>
 
+# Get all diplomas with Dutch title.
 SELECT * WHERE {
   SERVICE <https://query.wikidata.org/sparql> {
-    SELECT ?disciplineLabel WHERE {
+    SELECT * WHERE {
       {
-        SELECT ?discipline ?disciplineLabel WHERE {
-          SERVICE wikibase:label { bd:serviceParam wikibase:language 'en,nl'. }
-          ?discipline wdt:P31 wd:Q11862829.
+        SELECT ?diploma ?diplomaLabel WHERE {
+          SERVICE wikibase:label { bd:serviceParam wikibase:language "nl". }
+          ?diploma wdt:P31 wd:Q217577. # diploma is a diploma
         }
       }
-      FILTER(LANG(?disciplineLabel))
-    } ORDER BY ASC(?disciplineLabel)
+      FILTER(LANG(?diplomaLabel))
+    }
+    ORDER BY UCASE(?diplomaLabel)
   }
 }

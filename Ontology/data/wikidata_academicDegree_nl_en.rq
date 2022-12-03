@@ -1,0 +1,21 @@
+PREFIX schema: <http://schema.org/>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX bd: <http://www.bigdata.com/rdf#>
+
+# Get all academic degrees with Dutch and English title.
+SELECT * WHERE {
+  SERVICE <https://query.wikidata.org/sparql> {
+    SELECT * WHERE {
+      {
+        SELECT ?academicDegree ?academicDegreeLabel WHERE {
+          SERVICE wikibase:label { bd:serviceParam wikibase:language "nl,en". }
+          ?academicDegree wdt:P31 wd:Q189533. # academicDegree is an academic degree
+        }
+      }
+      FILTER(LANG(?academicDegreeLabel))
+    }
+    ORDER BY UCASE(?academicDegreeLabel)
+  }
+}
