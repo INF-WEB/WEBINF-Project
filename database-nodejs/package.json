@@ -11,5 +11,8 @@
   },
   "scripts": {
     "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/dateformat": "^5.0.0"
   }
 }
