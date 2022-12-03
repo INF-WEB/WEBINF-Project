@@ -3,9 +3,9 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.sparql.exec.QueryExecDatasetBuilder;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+import utils.Prints;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,14 +38,15 @@ public class Wikidata {
      * on Apache Jena and Fuseki</a>
      */
     public static void wikidataExample() {
+        String filename = "wikidata_academicDegree_en.rq";
         String queryString = "";
         try {
-            queryString = readQueryString("wikidata_profession.rq");
+            queryString = readQueryString(filename);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        System.out.println(queryString);
+//        System.out.println(queryString);
 
         Query query = QueryFactory.create(queryString);
 
@@ -63,7 +64,12 @@ public class Wikidata {
             qExec.getContext().set(ARQ.serviceParams, serviceParams);
 
             ResultSet rs = qExec.execSelect();
-            ResultSetFormatter.out(System.out, rs, query);
+
+            Prints.printWikidataToFileAsJSON(rs, filename);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
+
+
 }

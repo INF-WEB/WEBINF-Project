@@ -1,9 +1,12 @@
 package utils;
 
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.util.PrintUtil;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -67,5 +70,28 @@ public class Prints {
                 closeException.printStackTrace();
             }
         }
+    }
+
+    public static void printWikidataToFileAsJSON(ResultSet rs, String queryFileName) throws IOException {
+        String filename = removeExtension(queryFileName);
+
+        File file = new File(DATA_LOC + "out/wikidata/" + filename + ".json");
+
+        // Create new file if it does not exist
+        file.createNewFile();
+
+        FileOutputStream out = new FileOutputStream(file);
+
+        ResultSetFormatter.outputAsJSON(out, rs);
+    }
+
+
+    private static String removeExtension(String fileName) {
+        int extPos = fileName.lastIndexOf(".");
+
+        if(extPos == -1)
+            return fileName;
+
+        return fileName.substring(0, extPos);
     }
 }
