@@ -111,3 +111,7 @@ out
 *.iml
 
 database-nodejs/js
+
+
+#for the db
+*.sqlite
