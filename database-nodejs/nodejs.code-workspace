@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../Ontology/src"
+		},
+		{
+			"path": "../../../WEBINF/geonametest"
 		}
 	],
 	"settings": {}

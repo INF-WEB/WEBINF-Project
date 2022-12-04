@@ -1,19 +1,16 @@
 const workingDir : string = ".";
 
-const { v4: uuidv4 } = require(workingDir+'/node_modules/uuid');
-const DataFactory = require(workingDir+'/node_modules/rdf');
-const Client = require(workingDir+'/node_modules/jena-tdb/ParsingClient');
+const { v4: uuidv4 } = require('uuid');
+const geode = require('geode');
+var geo = new geode('matieke6000', { language: 'en', countryCode: 'BE' })
+//const DataFactory = require(workingDir+'/node_modules/rdf');
+const Client = require('jena-tdb/ParsingClient');
 import { jobStatus } from './jobStatus'; 
 import { connectionType } from './connectionType';
 import { connectionStatus } from './connectionStatus';
-import { collapseTextChangeRangesAcrossMultipleVersions } from './node_modules/typescript/lib/typescript';
-
 
 const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
 const databaseDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database";
-
-
-var dateFormat = require("dateformat"); 
 
 export class database {
     static readonly WEB_DOMAIN: string = "https://testDomain/";
@@ -22,6 +19,7 @@ export class database {
     static foaf: any;
     static dc: any;
     static dcat: any;
+    static gn: any;
     /* TODO: Add the rest */
     
     private binDir : string;
@@ -42,6 +40,7 @@ export class database {
         database.vCard = this.rdf.ns('http://www.w3.org/2001/vcard-rdf/3.0#');
         database.dc = this.rdf.ns('http://purl.org/dc/elements/1.1/');
         database.dcat = this.rdf.ns('http://www.w3.org/ns/dcat#');
+        database.gn = this.rdf.ns('https://www.geonames.org/ontology#');
     }
 
     public async initDatabse() {
@@ -148,7 +147,7 @@ export class database {
 
         let areaTriple = new this.rdf.Triple(
             namedNode,
-            database.foaf('based_near'),
+            database.gn('name'),
             new Literal(area)
         );
 
@@ -179,7 +178,8 @@ export class database {
     };
 
     private formatToXSDdate(date: Date) : string {
-        return dateFormat(date, 'YYYY-MM-DD');
+        let formattedString : string = String(date.getFullYear()) + "-" + String(date.getMonth() + 1) + "-" + String(date.getDay());
+        return formattedString;
     }
 
     /**
@@ -188,7 +188,7 @@ export class database {
      * @param graduation 
      * @param jobType 
      * @param educationalInstitute 
-     * @returns 
+     * @returns diplomas bag uri
      */
     public async createDiplomaFor(
         userURI: string,
@@ -198,7 +198,7 @@ export class database {
     ): Promise<string>{
         const { NamedNode, BlankNode, Literal } = this.rdf;
         let diplomaBagURI: string = userURI + "/diplomas";
-        let diplomaNode = new NamedNode(database.WEB_DOMAIN + "diplomas/diploma1-"+ uuidv4());
+        let diplomaNode = new NamedNode(database.WEB_DOMAIN + "diplomas/diploma-"+ uuidv4());
 
         let bagIndex: number = await this.getBagCount(diplomaBagURI);
         let diplomaInBag = new this.rdf.Triple(
@@ -221,7 +221,7 @@ export class database {
 
         let adresTriple = new this.rdf.Triple(
             diplomaNode,
-            database.vCard('ADR'),
+            database.gn('name'),
             new Literal(educationalInstitute)
         );
 
@@ -234,7 +234,7 @@ export class database {
             INSERT {`+ adresTriple.toNT() + `} WHERE {};
         `);
 
-        return userURI;
+        return diplomaBagURI;
     }
     
     /**
@@ -252,7 +252,7 @@ export class database {
     ): Promise<void>{
         const { NamedNode, BlankNode, Literal } = this.rdf;
         let professionalBagURI : string = userURI + "/professional-experiences";
-        let professionalURI : string = professionalBagURI + "/professionalExperience1";
+        let professionalURI : string = professionalBagURI + "/professionalExperience-"+ uuidv4();
         let professionalNode = new NamedNode(professionalURI);
         
         let bagIndex: number = await this.getBagCount(professionalBagURI);
@@ -376,7 +376,7 @@ export class database {
         isAccepted: boolean
     ): Promise<void>{
         let pojoBagURI: string = userURI + "/potential-jobs";
-        let pojoURI: string = userURI + "/potential-job";
+        let pojoURI: string = userURI + "/potential-job" + uuidv4();
 
         let bagIndex: number = await this.getBagCount(pojoBagURI);
         
@@ -391,6 +391,8 @@ export class database {
                     ] 
             } WHERE {};
         `);
+
+        console.log(result);
     };
 
     private async addJobToEmployee(
@@ -454,7 +456,7 @@ export class database {
 
         let companyTripleHomepage = new this.rdf.Triple(
             companyNode,
-            database.foaf('homepage'),
+            database.gn('name'),
             new Literal(companyWebsite)
         );
 
@@ -471,7 +473,7 @@ export class database {
     /**
      * Creates a job instance linked to a company
      * @param companyURI the job for this company
-     * @param jobName the name of this job
+     * @param jobName the name of this job (MUST BE URL COMPLAINT : no white spaces f.e.)
      * @param area the area where the job is to be performed
      * @param workExperience the work experience required (textual)
      * @param diploma the required diploma for this job 
@@ -528,7 +530,7 @@ export class database {
         
         let areaTriple = new this.rdf.Triple(
             jobNameNode,
-            database.vCard('ADR'),
+            database.gn('name'),
             new Literal(area)
         );
 
@@ -609,8 +611,8 @@ export class database {
      * @param employeeURI the employee which is hired for a ``companyURI`` to do the ``jobURI``
      */
     public async addEmployee(companyURI: string, jobURI: string, employeeURI: string) {
-        this.addEmployeeToCompany(companyURI, employeeURI);
-        this.addJobToEmployee(employeeURI, jobURI);
+        await this.addEmployeeToCompany(companyURI, employeeURI);
+        await this.addJobToEmployee(employeeURI, jobURI);
     }
 
     /**
@@ -706,7 +708,6 @@ export class database {
         return result;
     }
 
-
     public async getBag(bag: string) : Promise<Object> {
         const result = await this.client.query.select(`
             SELECT * WHERE {
@@ -786,9 +787,6 @@ export class database {
             });
         });
         
-                
-
-
         return new Object;
     }
 
@@ -872,18 +870,19 @@ async function TESTinsertJobs(companyURI: string, client: any) {
 // -- TEST MAIN --
 async function tests() {
     let testing : boolean = false;
-    if (testing)
+    if (!testing)
         return 1;
 
     var db: database = new database(binDir, databaseDir);
-    
-    //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')]);
 
-    let maties : string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Belgie", "maties.blog.com", false, uuidv4());
-    let femke : string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "België", "femke.com", false, uuidv4());
+    //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')]);
+    
+    let maties : string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", false, uuidv4());
+    let femke : string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, uuidv4());
+    const diplomasBagURI = await db.createDiplomaFor(maties, new Date(), "nothing", "UHasselt1");
     await db.createDiplomaFor(maties, new Date(), "nothing", "UHasselt");
     await db.createDiplomaFor(maties, new Date(), "nothing2", "UHasselt");
-
+    
     await db.createConnectionWith(maties, femke, connectionStatus.Accepted, connectionType.Friend);
     await db.createProfessionalExperienceFor(femke, new Date(), new Date(), "IT'er");
 
@@ -895,11 +894,15 @@ async function tests() {
     
     //await db.matchForUser(femke, 200);
     await db.matchForCompany(company);
+    await db.matchForUser(femke, 200);
     
     console.log("FINAL RESULT");
     let everything: Object = await db.sparqlQuery();
-
     console.log(everything);
+    
+
+    // const result : Array<Object> = await db.getBagItems(diplomasBagURI);
+    // console.log(result);
 }
 
 tests();

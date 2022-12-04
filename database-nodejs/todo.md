@@ -1,11 +1,11 @@
 # TODO
 
-- [ ] database functies testen
-- [ ] server genereerd 
-- [ ] ids gebruiken ipv namen
-- [ ] zien of die allemaal hebben
+- [x] database functies testen
+- [x] server genereerd 
+- [x] ids gebruiken ipv namen
+- [x] zien of die allemaal hebben
 - [ ] jena eens tegoei nakijken
-- [ ] mergen
+- [x] mergen
 - [ ] demonstration plan
 - [ ] matching algorithm 
 - [ ] verslag
