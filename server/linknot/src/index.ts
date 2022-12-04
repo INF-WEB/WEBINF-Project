@@ -4,8 +4,9 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import helmet from "helmet";
 import routes from "./routes";
-import cors = require("cors");
+//import cors from "./cors" ;
 import * as cookieSession from "cookie-session";
+import * as cors from "cors";
 
 
 //Connects to the Database -> then starts the express

@@ -43,4 +43,11 @@ router.get(
     [checkJwt],
     UserController.listAll
     );
+
+router.get(
+    "/rdfTest",
+    [],
+    UserController.rdfCheck
+    );
+
 export default router;
