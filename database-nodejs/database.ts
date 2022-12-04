@@ -20,6 +20,7 @@ export class database {
     static dc: any;
     static dcat: any;
     static gn: any;
+    static wd: any;
     /* TODO: Add the rest */
     
     private binDir : string;
@@ -41,6 +42,7 @@ export class database {
         database.dc = this.rdf.ns('http://purl.org/dc/elements/1.1/');
         database.dcat = this.rdf.ns('http://www.w3.org/ns/dcat#');
         database.gn = this.rdf.ns('https://www.geonames.org/ontology#');
+        database.wd = this.rdf.ns('http://www.wikidata.org/entity/');
     }
 
     public async initDatabse() {
@@ -193,7 +195,7 @@ export class database {
     public async createDiplomaFor(
         userURI: string,
         graduation: Date,
-        jobType: string,
+        diplomaType: string,
         educationalInstitute: string
     ): Promise<string>{
         const { NamedNode, BlankNode, Literal } = this.rdf;
@@ -225,6 +227,41 @@ export class database {
             new Literal(educationalInstitute)
         );
 
+        let typeOfDiploma : any = await this.sparqlQueryLowLevel(`
+        PREFIX schema: <http://schema.org/>
+        PREFIX wd: <http://www.wikidata.org/entity/>
+        PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+        PREFIX wikibase: <http://wikiba.se/ontology#>
+        PREFIX bd: <http://www.bigdata.com/rdf#>
+        
+        # Get all academic degrees with English title.
+        SELECT * WHERE {
+          SERVICE <https://query.wikidata.org/sparql> {
+            SELECT * WHERE {
+              {
+                SELECT ?academicDegree ?academicDegreeLabel WHERE {
+                  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+                  ?academicDegree wdt:P31 wd:Q189533. # academicDegree is an academic degree
+                }
+              }
+              FILTER(regex(?academicDegreeLabel, \"`+diplomaType+`\", "i") && LANG(?academicDegreeLabel))
+            }
+            order by strlen(str(?academicDegreeLabel))
+          }
+        }
+        `);
+        let firstJobTypeResult : string = "";
+        if (typeOfDiploma.length <= 0) {
+            throw new Error('The type of diploma is not a correct wikidata profession');
+        } else 
+            firstJobTypeResult = typeOfDiploma[0].academicDegreeLabel.value;
+
+        const diplomaTypeTriple = new this.rdf.Triple(
+            diplomaNode,
+            database.wd('Q189533'),
+            new Literal(firstJobTypeResult)
+        );
+
         //TODO: jobTypeproperty
 
         const result = await this.client.query.update(`
@@ -232,6 +269,7 @@ export class database {
             INSERT {`+ typeTriple.toNT() + `} WHERE {};
             INSERT {`+ dateTriple.toNT() + `} WHERE {};
             INSERT {`+ adresTriple.toNT() + `} WHERE {};
+            INSERT {`+ diplomaTypeTriple.toNT() + `} WHERE {};
         `);
 
         return diplomaBagURI;
@@ -480,6 +518,7 @@ export class database {
      * @param jobDescription the job description (textual)
      * @param status the status of the job (see jobStatus)
      * @param type the type of job 
+     * @exception Error : the type of job is not a correct wikidata profession
      * @returns 
      */
     public async createJob(
@@ -490,7 +529,7 @@ export class database {
         diploma: string,
         jobDescription: string,
         status: jobStatus,
-        type: string
+        type: string,
     ): Promise<string>{
         let jobBagURI: string = companyURI + "/jobs";
         const { NamedNode, Literal } = this.rdf;
@@ -504,7 +543,7 @@ export class database {
             jobNameNode
         )
 
-        let jobType = new this.rdf.Triple(
+        let typeOfNode = new this.rdf.Triple(
             jobNameNode,
             this.rdf.rdfsns('type'),
             new Literal(database.WEB_DOMAIN + "type/job")
@@ -545,18 +584,54 @@ export class database {
             database.dc('description'),
             new Literal(jobDescription)
         );
+
+        const typeOfJob : any = await this.sparqlQueryLowLevel(`
+        PREFIX schema: <http://schema.org/>
+        PREFIX wd: <http://www.wikidata.org/entity/>
+        PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+        PREFIX wikibase: <http://wikiba.se/ontology#>
+        PREFIX bd: <http://www.bigdata.com/rdf#>
         
-        //TODO: jobtypeProperty
+        # Get all professions with Dutch title.
+        SELECT * WHERE {
+          SERVICE <https://query.wikidata.org/sparql> {
+            SELECT * WHERE {
+              {
+                SELECT ?profession ?professionLabel WHERE {
+                  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+                  ?profession wdt:P31 wd:Q28640. # profession is a profession
+                }
+              }
+              FILTER(regex(?professionLabel, \"`+type+`\", "i") && LANG(?professionLabel))
+            }
+            order by strlen(str(?professionLabel))
+          }
+        }
+        `);
+
+        let firstJobTypeResult : string = "";
+        if (typeOfJob.length <= 0) {
+            throw new Error('The type of job is not a correct wikidata profession');
+        } else 
+            firstJobTypeResult = typeOfJob[0].professionLabel.value;
+        
+        
+        let jobTypeTriple = new this.rdf.Triple(
+            jobNameNode,
+            database.wd('Q28640'),
+            new Literal(firstJobTypeResult)
+        );
         
         const result = await this.client.query.update(`
         INSERT {`+ jobInBag.toNT() + `} WHERE {};
-        INSERT {`+ jobType.toNT() + `} WHERE {};
+        INSERT {`+ typeOfNode.toNT() + `} WHERE {};
         INSERT {`+ jobStatusType.toNT() + `} WHERE {};
         INSERT {`+ diplomaType.toNT() + `} WHERE {};
         INSERT {`+ titleTriple.toNT() + `} WHERE {};
         INSERT {`+ areaTriple.toNT() + `} WHERE {};
         INSERT {`+ descriptionTriple.toNT() + `} WHERE {};
         INSERT {`+ jobDescriptionTriple.toNT() + `} WHERE {};
+        INSERT {`+ jobTypeTriple.toNT() +`} WHERE {};
       `);
         return jobBagURI;
     };
@@ -682,7 +757,7 @@ export class database {
      * @param obj the object (!does not auto receive <>!)
      * @returns json object with the results
      */
-    public async sparqlQuery(subj: string = "?subj", pred: string = "?pred", obj: string = "?obj") : Promise<Object> {
+    public async sparqlQuery(subj: string = "?subj", pred: string = "?pred", obj: string = "?obj") : Promise<any> {
         if (subj !== "?subj") 
             subj = "<"+subj+">";
         if (pred !== "?pred")
@@ -756,38 +831,44 @@ export class database {
     }
 
 
-    public async matchForUser(userURI: string, maxDistanceKm: number) : Promise<Object> {
+    public async matchForUser(userURI: string, maxDistanceKm: number, jobType: string) : Promise<Object> {
         let userInfo : any = await this.selectUser(userURI);
         let userAddrName : string = userInfo[5].obj.value;
 
-        let jobs : any = await this.sparqlQueryLowLevel(
+        let matchedJobs : any = await this.sparqlQueryLowLevel(
             `SELECT * WHERE {
                 ?job <http://www.w3.org/2000/01/rdf-schema#type> "https://testDomain/type/job" .
-                ?job <https://www.geonames.org/ontology#name> ?jobArea
+                ?job <https://www.geonames.org/ontology#name> ?jobArea .
+                ?job <`+database.wd('Q28640')+`> \"`+jobType+`\"
             }`
         );
 
-        console.log(jobs);
+        console.log(matchedJobs);
         console.log(userAddrName);
 
-        jobs.forEach(async (job : any) => {
-            let jobAddrName : string = job.jobArea.value;
-            console.log(jobAddrName);
+        matchedJobs.forEach(async (job : any) => {
+
+            // let jobAddrName : string = job.jobArea.value;
+            // console.log(jobAddrName);
             
-            geo.search({ name: userAddrName }, async (err: any, results1: any) => {
-                geo.search({ name: jobAddrName }, async (err: any, results2: any) => {
-                    var ResultantDistance = this.calcLongLatDist(results1, results2);
-                    console.log(ResultantDistance);
-                    if(ResultantDistance.kilometers <= maxDistanceKm) {
-                        let jobURI : string = job.job.value;
-                        console.log("added " + jobURI + " to " + userURI);
-                        await this.addPotential(jobURI, userURI, false);
-                    }
-                });
-            });
+            // geo.search({ name: userAddrName }, async (err: any, results1: any) => {
+            //     geo.search({ name: jobAddrName }, async (err: any, results2: any) => {
+            //         var ResultantDistance = this.calcLongLatDist(results1, results2);
+            //         console.log(ResultantDistance);
+            //         if(ResultantDistance.kilometers <= maxDistanceKm) {
+            //             let jobURI : string = job.job.value;
+            //             console.log("added " + jobURI + " to " + userURI);
+            //             await this.addPotential(jobURI, userURI, false);
+            //         }
+            //     });
+            // });
+
+            let jobURI : string = job.job.value;
+            console.log("added " + jobURI + " to " + userURI);
+            await this.addPotential(jobURI, userURI, false);
         });
         
-        return new Object;
+        return matchedJobs;
     }
 
     public async matchForCompany(companyURI: string) : Promise<Object> {
@@ -845,7 +926,7 @@ async function TESTinsertJobs(companyURI: string, client: any) {
         "diploma-ofz", 
         "borden afwassen 24/7", 
         jobStatus.Pending,
-        "TODO:-uit-de-OWL-ofz-krijgen",      
+        "dishwasher",      
     );
     let job1URI = await db.createJob(companyURI, 
         "tester", 
@@ -854,7 +935,7 @@ async function TESTinsertJobs(companyURI: string, client: any) {
         "diploma-ofz", 
         "langsgaan en de hele tijd op step over klikken", 
         jobStatus.Pending,
-        "TODO:-uit-de-OWL-ofz-krijgen",      
+        "programmer",      
         );
     let job2URI = await db.createJob(companyURI, 
         "IT", 
@@ -863,7 +944,7 @@ async function TESTinsertJobs(companyURI: string, client: any) {
         "diploma's-ofz", 
         "programeren 24/7", 
         jobStatus.Pending,
-        "TODO:-uit-de-OWL-ofz-krijgen",      
+        "network engineer",      
         );
     
     let result : Object = await db.selectJob(URI);
@@ -883,25 +964,25 @@ async function tests() {
     
     let maties : string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", true, uuidv4());
     let femke : string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, uuidv4());
-    const diplomasBagURI = await db.createDiplomaFor(maties, new Date(), "nothing", "UHasselt1");
-    await db.createDiplomaFor(maties, new Date(), "nothing", "UHasselt");
-    await db.createDiplomaFor(maties, new Date(), "nothing2", "UHasselt");
+    const diplomasBagURI = await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", "UHasselt1");
+    await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", "UHasselt");
+    await db.createDiplomaFor(maties, new Date(), "Master of Tourism", "UHasselt");
     
     await db.createConnectionWith(maties, femke, connectionStatus.Accepted, connectionType.Friend);
     await db.createProfessionalExperienceFor(femke, new Date(), new Date(), "IT'er");
 
     let company : string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", uuidv4());
     
-    await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", "geen", "Pakjes in de juiste regio zetten", jobStatus.Pending, "Pakjes-verdeler");
-    let callcenterJob : string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", "geen", "24/7 telefoons oppakken", jobStatus.Pending, "service-center-employee");
+    await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", "geen", "Pakjes in de juiste regio zetten", jobStatus.Pending, "dishwasher");
+    let callcenterJob : string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", "geen", "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
     
     
-    await db.matchForUser(femke, 200);
-    await db.matchForJob(company, callcenterJob);
+    await db.matchForUser(femke, 200, "dishwasher");
+    //await db.matchForJob(company, callcenterJob);
     //await db.matchForCompany(company);
     
     console.log("FINAL RESULT");
-    let everything: Object = await db.sparqlQuery();
+    let everything: any = await db.sparqlQuery();
     console.log(everything);
     
 
