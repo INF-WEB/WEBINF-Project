@@ -864,7 +864,7 @@ async function TESTinsertJobs(companyURI: string, client: any) {
 
 // -- TEST MAIN --
 async function tests() {
-    let testing : boolean = true;
+    let testing : boolean = false;
     if (!testing)
         return 1;
 
