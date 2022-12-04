@@ -1,4 +1,4 @@
-const workingDir : string = ".";
+const workingDir : string = ".."; //.. because my compiled .js files are in /js
 
 const { v4: uuidv4 } = require('uuid');
 const geode = require('geode');
@@ -153,7 +153,7 @@ export class database {
 
         let lookingForJobTriple = new this.rdf.Triple(
             namedNode,
-            database.WEB_DOMAIN + "looking-for-job",//userURI + "/looking-for-job",
+            database.WEB_DOMAIN + "looking-for-job",
             new Literal(String(lookingForJob), this.rdf.xsdns("boolean"))
         );
 
@@ -791,18 +791,22 @@ export class database {
     }
 
     public async matchForCompany(companyURI: string) : Promise<Object> {
+        
+        return new Object;
+    }
+
+    public async matchForJob(companyURI : string, jobURI : string) : Promise<Object> {
         let users: any = await this.sparqlQueryLowLevel(
             `SELECT * WHERE {
                 ?user <http://www.w3.org/2000/01/rdf-schema#type> "https://testDomain/type/user".
                 ?user <https://testDomain/looking-for-job> true .
-                 ?user <https://www.geonames.org/ontology#name> ?adr.	
+                ?user <https://www.geonames.org/ontology#name> ?adr.	
             }`
         )
-        console.log(users)
-        return new Object;
-    }
+        console.log(users);
 
-    
+        return ;
+    }
 
 }
 
@@ -869,7 +873,7 @@ async function TESTinsertJobs(companyURI: string, client: any) {
 
 // -- TEST MAIN --
 async function tests() {
-    let testing : boolean = false;
+    let testing : boolean = true;
     if (!testing)
         return 1;
 
@@ -877,7 +881,7 @@ async function tests() {
 
     //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')]);
     
-    let maties : string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", false, uuidv4());
+    let maties : string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", true, uuidv4());
     let femke : string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, uuidv4());
     const diplomasBagURI = await db.createDiplomaFor(maties, new Date(), "nothing", "UHasselt1");
     await db.createDiplomaFor(maties, new Date(), "nothing", "UHasselt");
@@ -892,9 +896,9 @@ async function tests() {
     let callcenterJob : string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", "geen", "24/7 telefoons oppakken", jobStatus.Pending, "service-center-employee");
     
     
-    //await db.matchForUser(femke, 200);
-    await db.matchForCompany(company);
     await db.matchForUser(femke, 200);
+    await db.matchForJob(company, callcenterJob);
+    //await db.matchForCompany(company);
     
     console.log("FINAL RESULT");
     let everything: Object = await db.sparqlQuery();
