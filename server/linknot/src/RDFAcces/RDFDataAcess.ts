@@ -12,11 +12,11 @@ import { jobStatus, connectionStatus, connectionType } from "../Types/enum";
 
 
 //link to right bin file
-const binDir : string = "/usr/local/sbin/src/Libs/apache-jena/bin";
+const binDir: string = "src/apache-jena/bin";
 //const binDir : string = "C:\\Users\\thomi\\Documents\\Master\\web\\project\\git\\WEBINF-Project\\server\\linknot\\src\\Libs\\apache-jena\\bat"
 //const binDir : string = "/mnt/c/Users/thomi/Documents/Master/web/project/git/WEBINF-Project/Server/linknot/src/Libs/apache-jena/bin"
 //link to folder database in node.js
-const databaseDir: string = "../database/rdf";
+const databaseDir: string = "src/database/rdf";
 //const databaseDir : string = "C:\\Users\\thomi\\Documents\\Master\\web\\project\\git\\WEBINF-Project\\server\\linknot\\src\\database\\rdf";
 //const databaseDir: string = "/mnt/c/Users/thomi/Documents/Master/web/project/git/WEBINF-Project/Server/linknot/src/database/rdf"
 
@@ -79,7 +79,6 @@ export class database {
             if (max < currentNumBagURI)
                 max = currentNumBagURI;
         });
-
         return max+1;
     }
 

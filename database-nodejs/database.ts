@@ -10,11 +10,11 @@ import { connectionType } from './connectionType';
 import { connectionStatus } from './connectionStatus';
 
 
-const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
-const databaseDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database";
+// const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
+// const databaseDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database";
 
-const databinaseDir: string = "../apache-jena/bin";
-const dbDir: string = "../database";
+const binDir: string = "../apache-jena/bin";
+const databaseDir: string = "../database";
 
 var dateFormat = require("dateformat");
 
