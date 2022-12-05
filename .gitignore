@@ -111,7 +111,9 @@ out
 *.iml
 
 database-nodejs/js
-**/apache-jena
+
+**/apache-jena/*
+!**/apache-jena/bin/
 
 #for the db
 *.sqlite
