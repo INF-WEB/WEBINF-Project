@@ -12,7 +12,7 @@ import { jobStatus, connectionStatus, connectionType } from "../Types/enum";
 
 
 //link to right bin file
-const binDir: string = "src/apache-jena/bin";
+const binDir: string = "src/Libs/apache-jena/bin"; 
 //const binDir : string = "C:\\Users\\thomi\\Documents\\Master\\web\\project\\git\\WEBINF-Project\\server\\linknot\\src\\Libs\\apache-jena\\bat"
 //const binDir : string = "/mnt/c/Users/thomi/Documents/Master/web/project/git/WEBINF-Project/Server/linknot/src/Libs/apache-jena/bin"
 //link to folder database in node.js
