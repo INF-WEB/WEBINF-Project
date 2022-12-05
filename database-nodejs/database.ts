@@ -1,16 +1,20 @@
-const workingDir : string = "..";
+const workingDir: string = "..";
 
-const { v4: uuidv4 } = require(workingDir+'/node_modules/uuid');
-const DataFactory = require(workingDir+'/node_modules/rdf');
-const Client = require(workingDir+'/node_modules/jena-tdb/ParsingClient');
-import { jobStatus } from './jobStatus'; 
+import { jobStatus } from './jobStatus';
+
 import { connectionType } from './connectionType';
 import { connectionStatus } from './connectionStatus';
 
-const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
-const databaseDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database";
+const { v4: uuidv4 } = require('../node_modules/uuid');
+const DataFactory = require('../node_modules/rdf');
+const Client = require('../node_modules/jena-tdb/ParsingClient');
 
-var dateFormat = require("dateformat"); 
+const atabinaseDir: string = "../apache-jena/bin";
+const dbDir: string = "../database";
+
+var dateFormat = require("dateformat");
+
+
 
 export class database {
     static readonly WEB_DOMAIN: string = "https://testDomain/";
@@ -30,15 +34,15 @@ export class database {
         this.client = new Client({
             bin: this.binDir,
             db: this.databaseDir
-        });
+        });;
 
-        this.rdf = require(workingDir+'/node_modules/rdf');
+        this.rdf = require('../node_modules/rdf');
         this.databaseDir = databaseDir;
 
         database.foaf = this.rdf.ns('http://xmlns.com/foaf/0.1/');
         database.vCard = this.rdf.ns('http://www.w3.org/2001/vcard-rdf/3.0#');
         database.dc = this.rdf.ns('http://purl.org/dc/elements/1.1/');
-        database.dcat = this.rdf.ns('http://www.w3.org/ns/dcat#');
+        database.dcat = this.rdf.ns('http://www.w3.org/ns/dcat#');       
     }
 
     public async initDatabse() {
@@ -111,13 +115,13 @@ export class database {
         );
 
         const blankNodeName = new BlankNode();
-        
+
         let nameTriple = new this.rdf.Triple(
             namedNode,
             database.vCard('N'),
             blankNodeName
         );
-        
+
         let firstNameTriple = new this.rdf.Triple(
             blankNodeName,
             database.vCard('given-name'),
@@ -159,10 +163,10 @@ export class database {
         INSERT {`+ typeTriple.toNT() + `} WHERE {};
         INSERT {`+ fullNameTriple.toNT() + `} WHERE {};
         INSERT { 
-                    <`+ userURI +`> <`+ database.vCard("N") +`> 
+                    <`+ userURI + `> <` + database.vCard("N") + `> 
                         [   
-                            <`+ database.vCard("given-name") +`> \"`+ firstName +`\"; 
-                            <`+ database.vCard("family-name") +`> \"`+ lastName +`\" 
+                            <`+ database.vCard("given-name") + `> \"` + firstName + `\"; 
+                            <`+ database.vCard("family-name") + `> \"` + lastName + `\" 
                         ] 
                 } WHERE {};
         INSERT {`+ emailTriple.toNT() + `} WHERE {};
@@ -170,7 +174,7 @@ export class database {
         INSERT {`+ areaTriple.toNT() + `} WHERE {};
         INSERT {`+ lookingForJobTriple.toNT() + `} WHERE {};
         `);
-        
+
         return userURI;
     };
 
@@ -191,7 +195,7 @@ export class database {
         graduation: Date,
         jobType: string,
         educationalInstitute: string
-    ): Promise<string>{
+    ): Promise<string> {
         const { NamedNode, BlankNode, Literal } = this.rdf;
         let diplomaBagURI: string = userURI + "/diplomas";
         let diplomaNode = new NamedNode(database.WEB_DOMAIN + "diplomas/diploma1-"+ uuidv4());
@@ -245,7 +249,7 @@ export class database {
         startDate: Date,
         endDate: Date,
         description: string
-    ): Promise<void>{
+    ): Promise<void> {
         const { NamedNode, BlankNode, Literal } = this.rdf;
         let professionalBagURI : string = userURI + "/professional-experiences";
         let professionalURI : string = professionalBagURI + "/professionalExperience1";
@@ -300,8 +304,8 @@ export class database {
      */
     private getLastSubstring(
         URI: string
-    ): string{
-        return URI.substring(URI.lastIndexOf("/") + 1)
+    ): string {
+        return URI.substring(URI.lastIndexOf("/") + 1);
     };
 
 
@@ -317,10 +321,10 @@ export class database {
         userURI2: string,
         status: connectionStatus,
         type: connectionType
-    ): Promise<void>{
+    ): Promise<void> {
         let connection1BagURI : string = userURI1 + "/connections";
         let connection2BagURI : string = userURI2 + "/connections";
-        let connectionURI: string = database.WEB_DOMAIN + "connection/" + this.getLastSubstring(userURI1) + ";" + this.getLastSubstring(userURI2)
+        let connectionURI: string = database.WEB_DOMAIN + "connection/" + this.getLastSubstring(userURI1) + ";" + this.getLastSubstring(userURI2);
         const { NamedNode, BlankNode, Literal } = this.rdf;
         let connectionURINode = new NamedNode(connectionURI);
         
@@ -355,7 +359,7 @@ export class database {
             connectionURI + "/type",
             new Literal(type.toString())
         );
-        
+
         const result = await this.client.query.update(`
             INSERT {`+ connectionInBagUser1.toNT() + `} WHERE {};
             INSERT {`+ connectionInBagUser2.toNT() + `} WHERE {};
@@ -428,7 +432,7 @@ export class database {
             this.rdf.rdfsns('type'),
             new Literal(database.WEB_DOMAIN + "type/company")
         );
-        
+
         let companyTripleName = new this.rdf.Triple(
             companyNode,
             database.vCard('FN'),
@@ -495,7 +499,7 @@ export class database {
             jobsNode,
             this.rdf.rdfns('_'+bagIndex),
             jobNameNode
-        )
+        );
 
         let jobType = new this.rdf.Triple(
             jobNameNode,
@@ -520,7 +524,7 @@ export class database {
             database.dc('title'),
             new Literal(jobName)
         );
-        
+
         let areaTriple = new this.rdf.Triple(
             jobNameNode,
             database.vCard('ADR'),
@@ -532,15 +536,15 @@ export class database {
             database.dc('description'),
             new Literal(workExperience)
         );
-        
+
         let jobDescriptionTriple = new this.rdf.Triple(
             jobNameNode,
             database.dc('description'),
             new Literal(jobDescription)
         );
-        
+
         //TODO: jobtypeProperty
-        
+
         const result = await this.client.query.update(`
         INSERT {`+ jobInBag.toNT() + `} WHERE {};
         INSERT {`+ jobType.toNT() + `} WHERE {};
@@ -732,12 +736,12 @@ async function TESTinsertJobs(companyURI: string, client: any) {
     let db: database = new database(binDir, databaseDir);
 
     let URI: string = await db.createJob(
-        companyURI, 
-        "afwasser", 
-        "in de keuken", 
-        "Ge moet al eens een bord vastgehouden hebben enz snapje", 
-        "diploma-ofz", 
-        "borden afwassen 24/7", 
+        companyURI,
+        "afwasser",
+        "in de keuken",
+        "Ge moet al eens een bord vastgehouden hebben enz snapje",
+        "diploma-ofz",
+        "borden afwassen 24/7",
         jobStatus.Pending,
         "TODO:-uit-de-OWL-ofz-krijgen",      
     );
@@ -789,5 +793,7 @@ async function tests() {
 
     console.log(everything);
 }
+
+main();
 
 tests();
