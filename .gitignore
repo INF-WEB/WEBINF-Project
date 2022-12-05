@@ -112,3 +112,6 @@ out
 
 database-nodejs/js
 **/apache-jena
+
+#for the db
+*.sqlite
