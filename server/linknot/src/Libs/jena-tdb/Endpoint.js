@@ -6,9 +6,11 @@ const { tempDir } = require('./lib/temp')
 
 class Endpoint {
   constructor ({ bin, db } = {}) {
+    console.log("normal bin", bin);
     this.bin = bin && path.resolve(bin)
+    console.log("new found bin ", this.bin);
     this.db = db && path.resolve(db)
-
+    console.log("path of db",this.db);
     this.cleanup = null
   }
 
@@ -30,13 +32,13 @@ class Endpoint {
   async exec (tool, ...args) {
     await this.init()
 
+    //const toolPath = this.bin ? `${this.bin}\\${tool}` : tool
     const toolPath = this.bin ? `${this.bin}/${tool}` : tool
-
     // stdout is wrapped, cause the end event is sent before the spawn close is called
     // that prevents emitting errors on the child process streams
     const stream = new PassThrough()
 
-    const proc = spawn(toolPath, ['--loc', this.db, ...args])
+    const proc = spawn(toolPath, ['--loc', this.db, ...args], {shell:true})
 
     let errorMessage = null
 
@@ -44,10 +46,9 @@ class Endpoint {
     getStream(proc.stderr).then(stderr => {
       errorMessage = stderr
     })
-
     proc.on('close', code => {
       if (code) {
-        stream.destroy(new Error(`child process exited with code: ${code} ${errorMessage}`))
+        stream.destroy(new Error(`child process exited with code: ${code} ${errorMessage} ${toolPath} ${this.bin}`))
       } else {
         stream.end()
       }

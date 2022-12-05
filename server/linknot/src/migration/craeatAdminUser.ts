@@ -4,11 +4,13 @@ import { UserEntity } from "../database/entities/user.entities";
 export class CreateAdminUser1547919837483 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
     let user = new UserEntity();
-    user.firstName = "admin";
+    user.name = "admin";
+    user.lastName= "fucker"
     user.email = "admin@admin.com"
     user.password = "admin";
     user.hashPassword();
-    user.role = "ADMIN";
+    user.type = "Person";
+    user.search = false;
     const userRepository = getRepository(UserEntity);
     await userRepository.save(user);
   }

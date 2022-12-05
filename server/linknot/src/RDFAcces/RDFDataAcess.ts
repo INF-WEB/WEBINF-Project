@@ -12,10 +12,12 @@ import { jobStatus, connectionStatus, connectionType } from "../Types/enum";
 
 
 //link to right bin file
-const binDir : string = "../Libs/apache-jena/bin";
+//const binDir : string = "../Libs/apache-jena/bin";
+//const binDir : string = "C:\\Users\\thomi\\Documents\\Master\\web\\project\\git\\WEBINF-Project\\server\\linknot\\src\\Libs\\apache-jena\\bat"
+const binDir : string = "/mnt/c/Users/thomi/Documents/Master/web/project/git/WEBINF-Project/Server/linknot/src/Libs/apache-jena/bin"
 //link to folder database in node.js
-const databaseDir : string = "../database/rdf";
-
+//const databaseDir : string = "C:\\Users\\thomi\\Documents\\Master\\web\\project\\git\\WEBINF-Project\\server\\linknot\\src\\database\\rdf";
+const databaseDir: string = "/mnt/c/Users/thomi/Documents/Master/web/project/git/WEBINF-Project/Server/linknot/src/database/rdf"
 
 export class database {
     static readonly WEB_DOMAIN: string = "https://testDomain/";
@@ -257,7 +259,7 @@ export class database {
     ): Promise<void>{
         const { NamedNode, BlankNode, Literal } = this.rdf;
         let professionalBagURI : string = userURI + "/professional-experiences";
-        let professionalURI : string = professionalBagURI + "/professionalExperience-"+ uuidv4();
+        let professionalURI : string = professionalBagURI + "/professionalExperience-"+ 7777;
         let professionalNode = new NamedNode(professionalURI);
         
         let bagIndex: number = await this.getBagCount(professionalBagURI);
@@ -381,7 +383,7 @@ export class database {
         isAccepted: boolean
     ): Promise<void>{
         let pojoBagURI: string = userURI + "/potential-jobs";
-        let pojoURI: string = userURI + "/potential-job" + uuidv4();
+        let pojoURI: string = userURI + "/potential-job" + 1111;
 
         let bagIndex: number = await this.getBagCount(pojoBagURI);
         
@@ -867,8 +869,8 @@ async function TESTinsertJobs(companyURI: string, client: any) {
 }
 
 // -- TEST MAIN --
-async function tests() {
-    let testing : boolean = false;
+export async function tests() {
+    let testing : boolean = true;
     if (!testing)
         return 1;
 
@@ -876,15 +878,15 @@ async function tests() {
 
     //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')]);
     
-    let maties : string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", false, uuidv4());
-    let femke : string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, uuidv4());
+    let maties : string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", false, 8520);
+    let femke : string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, 888741);
     const diplomasBagURI = await db.createDiplomaFor(maties, new Date(), "nothing", "UHasselt1");
     await db.createDiplomaFor(maties, new Date(), "nothing2", "UHasselt2");
     
     await db.createConnectionWith(maties, femke, connectionStatus.Accepted, connectionType.Friend);
     await db.createProfessionalExperienceFor(femke, new Date(), new Date(), "IT'er");
 
-    let company : string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", uuidv4());
+    let company : string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", 7410852);
     
     await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", "geen", "Pakjes in de juiste regio zetten", jobStatus.Pending, "Pakjes-verdeler");
     let callcenterJob : string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", "geen", "24/7 telefoons oppakken", jobStatus.Pending, "service-center-employee");
@@ -904,4 +906,4 @@ async function tests() {
 
 
 
-tests();
+//tests();

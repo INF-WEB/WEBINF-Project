@@ -5,7 +5,8 @@ import * as bodyParser from "body-parser";
 import helmet from "helmet";
 import routes from "./routes";
 //import cors from "./cors" ;
-import * as cookieSession from "cookie-session";
+//import * as cookieSession from "cookie-session";
+import cookieSession = require("cookie-session");
 import * as cors from "cors";
 
 
