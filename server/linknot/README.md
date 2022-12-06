@@ -10,6 +10,6 @@ Steps to run this project:
 Runnen van de dockerFile
 
 Deze eerst builden via
-docker build --tag rdf-api
+docker build --tag rdf-api .
 
 docker run --publish 3000:3000 rdf-api

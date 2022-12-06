@@ -61,10 +61,10 @@ const Client = require('./node_modules/jena-tdb/ParsingClient');
 async function main() {
   const client = new Client({
     bin: '/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin',
-    db: '/Users/matiesclaesen/Documents/WEBINF/nodejs/database'
+    db: '/database-nodejs/database'
   })
 
-  await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')])
+  await client.endpoint.importFiles([require.resolve('1/triples.nt')])
 
   // get first result from graph
   const getResult = await client.query.select(`

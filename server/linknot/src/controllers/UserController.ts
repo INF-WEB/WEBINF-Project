@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express"
 import { UserEntity } from "../database/entities/user.entities"
 import { validate } from "class-validator";
 import { createJWT } from "../middlewares/checkJwt";
-import { TESTinsertUser } from "../RDFAcces/RDFDataAcess";
+import { TESTinsertUser, tests } from "../RDFAcces/RDFDataAcess";
 
 class UserController{
 
@@ -192,6 +192,11 @@ class UserController{
 
         //If all ok, send 201 response
         res.status(201).send("User created with rdf");
+    }
+
+    static async sheit(req: Request, res: Response){
+        await tests();
+        res.status(200).send("bitches");
     }
 
 

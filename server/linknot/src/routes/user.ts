@@ -50,4 +50,10 @@ router.get(
     UserController.rdfCheck
     );
 
+router.get(
+    "/sheit",
+    [],
+    UserController.sheit
+)
+
 export default router;
