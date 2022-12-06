@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 const workingDir : string = ".."; //.. because my compiled .js files are in /js
-=======
-const workingDir: string = "..";
->>>>>>> 28a82d841ebd250ab0fdb48c8710b1a29a7b81bd
 
 const { v4: uuidv4 } = require('uuid');
 const geode = require('geode');
@@ -594,7 +590,6 @@ export class database {
             new Literal(jobDescription)
         );
 
-<<<<<<< HEAD
         const typeOfJob : any = await this.sparqlQueryLowLevel(`
         PREFIX schema: <http://schema.org/>
         PREFIX wd: <http://www.wikidata.org/entity/>
@@ -632,10 +627,6 @@ export class database {
             new Literal(firstJobTypeResult)
         );
         
-=======
-        //TODO: jobtypeProperty
-
->>>>>>> 28a82d841ebd250ab0fdb48c8710b1a29a7b81bd
         const result = await this.client.query.update(`
         INSERT {`+ jobInBag.toNT() + `} WHERE {};
         INSERT {`+ typeOfNode.toNT() + `} WHERE {};
@@ -1079,7 +1070,5 @@ async function tests() {
     // const result : Array<Object> = await db.getBagItems(diplomasBagURI);
     // console.log(result);
 }
-
-main();
 
 tests();
