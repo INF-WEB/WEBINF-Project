@@ -4,11 +4,11 @@
 - [x] server genereerd 
 - [x] ids gebruiken ipv namen
 - [x] fix het windows
-- [ ] matching algorithm 
+- [x] matching algorithm 
   - [x] jobtypes
-  - [ ] area
-  - [ ] companies
-  - [ ] diploma degree (add to job and user) "diplomaDegree: diplomaDegree"
+  - [x] area
+  - [x] companies
+  - [x] diploma degree (add to job and user) "diplomaDegree: diplomaDegree"
 - [ ] mergen
 - [ ] jena eens tegoei nakijken
 - [ ] demonstration plan
