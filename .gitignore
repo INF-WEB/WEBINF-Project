@@ -119,3 +119,5 @@ database-nodejs/js
 *.sqlite
 server.code-workspace
 *.DS_Store
+
+rmDb.sh

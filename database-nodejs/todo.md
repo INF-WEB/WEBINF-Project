@@ -9,8 +9,9 @@
   - [x] area
   - [x] companies
   - [x] diploma degree (add to job and user) "diplomaDegree: diplomaDegree"
-- [ ] mergen
-- [ ] jena eens tegoei nakijken
+- [x] mergen
+- [ ] delete / insert
+- [ ] <s>jena eens tegoei nakijken</s>
 - [ ] demonstration plan
 - [ ] verslag
 
@@ -22,7 +23,7 @@
   - [ ] Add additional information (hobbies, language skills, competences) -> staan vermeld in projectopgave bij phase 2 opeens
 - [ ] Can you integrate your ontology with the WikiData entities? 
 - [x] Perhaps you can bootstrap your ontology by loading relevant professions and skills from Wikidata ?
-- [ ] Matching algorithm
+- [x] Matching algorithm
     **"using semantic web technologies"**
 
 ## Phase 2 Reporting

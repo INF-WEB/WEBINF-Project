@@ -667,7 +667,15 @@ export class database {
         const result = await this.client.query.update(`
             INSERT { 
                 <`+ companyEmployeesBagURI + `> <` + this.rdf.rdfns('_' + bagIndex) + `> <` + employeeURI + `> 
-            } WHERE {};
+            } WHERE {
+                SELECT * WHERE { 
+                    FILTER NOT EXISTS {
+                        <`+ companyEmployeesBagURI + `>
+                        ?item 
+                        <` + employeeURI + `>
+                    } 
+                }
+            };
         `);
     };
 
@@ -709,34 +717,6 @@ export class database {
     public async addEmployee(companyURI: string, jobURI: string, employeeURI: string) {
         await this.addEmployeeToCompany(companyURI, employeeURI);
         await this.addJobToEmployee(employeeURI, jobURI);
-    }
-
-    private async deletePotentialEmployee(userURI: string) {
-        const deletion = await this.client.query.update(`
-            DELETE {
-                ?potentialEmployees ?item ?user
-            } WHERE {
-                ?potentialEmployees ?item ?user .
-                FILTER (
-                    REGEX(STR(?potentialEmployees), "/potential-employees") &&
-                    ?user = <`+ userURI + `> )
-            }
-        `)
-    }
-
-    private async deletePotentialJob(userURI: string) {
-        let pojoBagURI: string = userURI + "/potential-jobs";
-        const deletion = await this.client.query.update(`
-            DELETE WHERE {
-                <`+ pojoBagURI + `> ?item ?blank .
-                ?blank ?pred ?obj .
-            }
-        `);
-    }
-
-    public async deleteAllPotentials(userURI: string) {
-        await this.deletePotentialEmployee(userURI);
-        await this.deletePotentialJob(userURI);
     }
 
     /**
@@ -1048,7 +1028,153 @@ export class database {
         return result.geonames;
     }
 
-    // -- TEST MAIN --
+    private async deletePotentialEmployee(userURI: string) {
+        const deletion = await this.client.query.update(`
+            DELETE {
+                ?potentialEmployees ?item ?user
+            } WHERE {
+                ?potentialEmployees ?item ?user .
+                FILTER (
+                    REGEX(STR(?potentialEmployees), "/potential-employees") &&
+                    ?user = <`+ userURI + `> )
+            }
+        `)
+    }
+
+    private async deletePotentialJob(userURI: string) {
+        let pojoBagURI: string = userURI + "/potential-jobs";
+        const deletion = await this.client.query.update(`
+            DELETE WHERE {
+                <`+ pojoBagURI + `> ?item ?blank .
+                ?blank ?pred ?obj .
+            }
+        `);
+    }
+
+    public async deleteAllPotentials(userURI: string) {
+        await this.deletePotentialEmployee(userURI);
+        await this.deletePotentialJob(userURI);
+    }
+
+    public async deleteJob(jobURI: string) {
+        let deleteJob = await this.client.query.update(`
+        DELETE{
+            ?jobsBag ?item ?job .
+            ?job ?pred ?obj .
+            ?employeesBag ?item2 ?employee
+        }WHERE {
+            ?jobsBag ?item ?job .
+            ?job ?pred ?obj .
+            ?employeesBag ?item2 ?employee
+            FILTER(
+              ?job = <`+jobURI+`> &&
+              CONTAINS(STR(?jobsBag), "/jobs") && 
+              CONTAINS(STR(?employeesBag), "/employees") &&
+              CONTAINS(STR(?jobsBag), REPLACE(STR(?employeesBag), "/employees", ""))
+            )
+          }
+    `)
+
+    let deleteEmployees = await this.client.query.update(`
+    `);
+    }
+
+    public async deleteAllJobsForUser(userURI: string) {
+        let delEmployees = await this.client.query.update (`
+            DELETE {
+                ?employees ?item ?user
+            } WHERE {
+                ?employees ?item ?user 
+                FILTER(
+                    ?user = <`+userURI+`> &&
+                    CONTAINS(STR(?employees), "/employees")
+                )
+            }
+        `);
+
+        let delJobs = await this.client.query.update(`
+            DELETE {
+                ?jobsBag ?item ?job 
+            } WHERE {
+                ?jobsBag ?item ?job 
+                FILTER(
+                  ?jobsBag = <`+userURI+`/jobs> &&
+                  CONTAINS(STR(?jobsBag), "/jobs")
+                )
+              }
+        `)
+    }
+    
+
+    public async deleteAllProfessionalExperiences(userURI: string) {
+        let del = await this.client.query.update(`
+            DELETE {
+                ?pes ?item ?pe .
+                ?pe ?pred ?obj .
+            } WHERE {
+                ?pes ?item ?pe .
+                ?pe ?pred ?obj .
+                FILTER ( 
+                    ?pes = <`+userURI+`/professional-experiences>
+                )
+            }
+        `);
+    }
+
+    public async deleteDiploma(diplomaURI: string) {
+        let del = await this.client.query.update(`
+            DELETE {
+                ?diplomas ?item ?diploma .
+                ?diploma ?pred ?obj .
+            } WHERE {
+                ?diplomas ?item ?diploma .
+                ?diploma ?pred ?obj .
+                FILTER (
+                ?diploma = <`+diplomaURI+ `> 
+                )
+            }
+        `);
+    }
+
+    public async deleteAllDiplomas(userURI: string) {
+        let del = await this.client.query.update(`
+            DELETE {
+                ?diplomas ?item ?diploma .
+                ?diploma ?pred ?obj .
+            } WHERE {
+                ?diplomas ?item ?diploma .
+                ?diploma ?pred ?obj .
+                FILTER (
+                  ?diplomas = <`+ userURI + `/diplomas> 
+                )
+            }
+        `);
+    }
+
+    public async deleteUser(userURI: string) {
+        await this.deleteAllJobsForUser(userURI);
+        await this.deleteAllPotentials(userURI);
+        await this.deleteAllDiplomas(userURI);
+        await this.deleteAllProfessionalExperiences(userURI);
+        let del = await this.client.query.update(`
+            DELETE {
+                ?user ?pred ?obj .
+                ?obj ?vcard ?name . 
+            } WHERE {
+                ?user ?pred ?obj .
+                OPTIONAL { ?obj ?vcard ?name }
+                FILTER(
+                    ?user = <`+userURI+`>
+                )
+            }
+        `);
+    }
+
+    public async deleteCompany() {
+
+    }
+
+    // -- TEST --
     async tests() {
         let testing : boolean = true;
         if (!testing)
@@ -1063,17 +1189,24 @@ export class database {
         await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", diplomaDegree.Doctorate, "UHasselt1");
         await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", diplomaDegree.Master, "UHasselt");
 
+        //await db.deleteAllDiplomas(maties);
+
+        await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Afwassen");
+        await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Test");
         let company: string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", "3");
-
-        let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
-        let callcenterJob: string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", diplomaDegree.None, "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
         let CEO: string = await db.createJob(company, "CEO-of-Bol.com", "Alken", "He has done a lot of stuff", diplomaDegree.None, "looking at a screen all day", jobStatus.Hired, "chief executive officer");
-
+        let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
+        await db.addEmployee(company, pakjes, maties);
         await db.addEmployee(company, CEO, maties);
+
+        //await db.deleteJob(CEO);
+
+        //let callcenterJob: string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", diplomaDegree.None, "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
+
         //await db.matchForUser({ userURI: femke, maxDistanceKm: 200, checkDegree: true });
         //await db.matchForUser({ userURI: maties, maxDistanceKm: 50,checkDegree: true });
-        await db.matchForJob({jobURI: callcenterJob, checkDegree: true});
-        await db.matchForJob({jobURI: pakjes, checkDegree: true, maxDistanceKm: 100});
+        //await db.matchForJob({jobURI: callcenterJob, checkDegree: true});
+        //await db.matchForJob({jobURI: pakjes, checkDegree: true, maxDistanceKm: 100});
 
         console.log("FINAL RESULT");
         let everything: any = await db.sparqlQuery();
