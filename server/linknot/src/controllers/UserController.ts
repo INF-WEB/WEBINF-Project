@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express"
 import { UserEntity } from "../database/entities/user.entities"
 import { validate } from "class-validator";
 import { createJWT } from "../middlewares/checkJwt";
+import { TESTinsertUser, tests } from "../RDFAcces/RDFDataAcess";
 
 class UserController{
 
@@ -146,6 +147,59 @@ class UserController{
     };
 
 
+    static rdfCheck = async(req: Request, res: Response) => {
+        let { name, lastName, email, password, search, type } = req.body;
+        console.log(req.body);
+        
+        let user = new UserEntity();
+        user.name = name;
+        if(lastName){
+          user.lastName = lastName;
+
+        }
+        user.email = email;
+        user.password = password;
+        user.search = search;
+        user.type = type;
+
+        //Validate if the parameters are ok
+        const errors = await validate(user);
+        if (errors.length > 0) {
+          res.status(400).send(errors);
+          return;
+        }
+      
+        //Hash the password, to securely store on DB
+        user.hashPassword();
+      
+        //Try to save. If fails, the username is already in use
+        const userRepository = getRepository(UserEntity);
+        try {
+            await userRepository.save(user);
+        } catch (e) {
+            res.status(409).send("User already a life");
+            return;
+        }
+        
+		//Also log the user in
+        const token = createJWT({email: user.email, id: user.id}, "1h");
+		req.session = {jwt: token};
+        
+        await TESTinsertUser(name, lastName, email, "Belgie", "ass.Fuck", search, Number(user.id));
+
+
+
+
+        //If all ok, send 201 response
+        res.status(201).send("User created with rdf");
+    }
+
+    static async sheit(req: Request, res: Response){
+        await tests();
+        res.status(200).send("bitches");
+    }
+
+
 	static changeUserValue(user:UserEntity, name:any, lastName:any, search:any) {
 		 //Validate the new values on model
 		 if(name){
@@ -160,7 +214,7 @@ class UserController{
 		return user;
 	}
 
-
+    
 
 };
     

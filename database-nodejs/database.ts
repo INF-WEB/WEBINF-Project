@@ -1,13 +1,11 @@
-const workingDir : string = ".."; //.. because my compiled .js files are in /js
-
 const { v4: uuidv4 } = require('uuid');
-const geode = require('geode');
-var geo = new geode('matieke6000', { language: 'en', countryCode: 'BE' })
-//const DataFactory = require(workingDir+'/node_modules/rdf');
 const Client = require('jena-tdb/ParsingClient');
-import { jobStatus } from './jobStatus'; 
+import { jobStatus } from './jobStatus';
 import { connectionType } from './connectionType';
 import { connectionStatus } from './connectionStatus';
+import { diplomaDegree } from './diplomaDegree';
+
+import { Geonames } from './node_modules/geonames.js';
 
 const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
 const databaseDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database";
@@ -15,6 +13,7 @@ const databaseDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Projec
 export class database {
     static readonly WEB_DOMAIN: string = "https://testDomain/";
     private rdf;
+    private geonames;
     static vCard: any;
     static foaf: any;
     static dc: any;
@@ -22,11 +21,11 @@ export class database {
     static gn: any;
     static wd: any;
     /* TODO: Add the rest */
-    
-    private binDir : string;
-    private databaseDir : string;  
+
+    private binDir: string;
+    private databaseDir: string;
     client;
-    constructor(binDir : string, databaseDir : string) {
+    constructor(binDir: string, databaseDir: string) {
         this.binDir = binDir;
         this.databaseDir = databaseDir;
         this.client = new Client({
@@ -34,8 +33,14 @@ export class database {
             db: this.databaseDir
         });
 
-        this.rdf = require(workingDir+'/node_modules/rdf');
+        this.rdf = require('rdf');
         this.databaseDir = databaseDir;
+
+        this.geonames = Geonames({
+            username: 'matieke6000',
+            lan: 'en',
+            encoding: 'JSON'
+        });
 
         database.foaf = this.rdf.ns('http://xmlns.com/foaf/0.1/');
         database.vCard = this.rdf.ns('http://www.w3.org/2001/vcard-rdf/3.0#');
@@ -55,26 +60,26 @@ export class database {
      * @param bag 
      * @returns 
      */
-     private async getBagCount(bag: string): Promise<number> {
+    private async getBagCount(bag: string): Promise<number> {
         const result = await this.client.query.select(`
             SELECT * WHERE {
-                <`+ bag +`> ?pred ?obj .
+                <`+ bag + `> ?pred ?obj .
             }
         `)
-        
+
         let max: number = 0;
-        result.forEach((element : any) => {
+        result.forEach((element: any) => {
             const outputBagURI: string = element.pred.value.toString();
 
-            const splittedOutputBagURI : string[] = outputBagURI.split(this.rdf.rdfns('_'));
-            const lastIndex : number = 1;
-            const currentNumBagURI : number = Number(splittedOutputBagURI[lastIndex]); 
+            const splittedOutputBagURI: string[] = outputBagURI.split(this.rdf.rdfns('_'));
+            const lastIndex: number = 1;
+            const currentNumBagURI: number = Number(splittedOutputBagURI[lastIndex]);
 
             if (max < currentNumBagURI)
                 max = currentNumBagURI;
         });
 
-        return max+1;
+        return max + 1;
     }
 
     /**
@@ -116,13 +121,13 @@ export class database {
         );
 
         const blankNodeName = new BlankNode();
-        
+
         let nameTriple = new this.rdf.Triple(
             namedNode,
             database.vCard('N'),
             blankNodeName
         );
-        
+
         let firstNameTriple = new this.rdf.Triple(
             blankNodeName,
             database.vCard('given-name'),
@@ -164,10 +169,10 @@ export class database {
         INSERT {`+ typeTriple.toNT() + `} WHERE {};
         INSERT {`+ fullNameTriple.toNT() + `} WHERE {};
         INSERT { 
-                    <`+ userURI +`> <`+ database.vCard("N") +`> 
+                    <`+ userURI + `> <` + database.vCard("N") + `> 
                         [   
-                            <`+ database.vCard("given-name") +`> \"`+ firstName +`\"; 
-                            <`+ database.vCard("family-name") +`> \"`+ lastName +`\" 
+                            <`+ database.vCard("given-name") + `> \"` + firstName + `\"; 
+                            <`+ database.vCard("family-name") + `> \"` + lastName + `\" 
                         ] 
                 } WHERE {};
         INSERT {`+ emailTriple.toNT() + `} WHERE {};
@@ -175,12 +180,12 @@ export class database {
         INSERT {`+ areaTriple.toNT() + `} WHERE {};
         INSERT {`+ lookingForJobTriple.toNT() + `} WHERE {};
         `);
-        
+
         return userURI;
     };
 
-    private formatToXSDdate(date: Date) : string {
-        let formattedString : string = String(date.getFullYear()) + "-" + String(date.getMonth() + 1) + "-" + String(date.getDay());
+    private formatToXSDdate(date: Date): string {
+        let formattedString: string = String(date.getFullYear()) + "-" + String(date.getMonth() + 1) + "-" + String(date.getDay());
         return formattedString;
     }
 
@@ -188,24 +193,26 @@ export class database {
      * 
      * @param userURI 
      * @param graduation 
-     * @param jobType 
+     * @param field 
      * @param educationalInstitute 
      * @returns diplomas bag uri
      */
     public async createDiplomaFor(
         userURI: string,
         graduation: Date,
-        diplomaType: string,
+        field: string,
+        degree: diplomaDegree,
         educationalInstitute: string
-    ): Promise<string>{
+    ): Promise<string> {
         const { NamedNode, BlankNode, Literal } = this.rdf;
         let diplomaBagURI: string = userURI + "/diplomas";
-        let diplomaNode = new NamedNode(database.WEB_DOMAIN + "diplomas/diploma-"+ uuidv4());
+        let diplomaURI: string = database.WEB_DOMAIN + "diplomas/diploma-" + uuidv4();
+        let diplomaNode = new NamedNode(diplomaURI);
 
         let bagIndex: number = await this.getBagCount(diplomaBagURI);
         let diplomaInBag = new this.rdf.Triple(
             diplomaBagURI,
-            this.rdf.rdfns('_'+bagIndex),
+            this.rdf.rdfns('_' + bagIndex),
             diplomaNode
         )
 
@@ -244,22 +251,29 @@ export class database {
                   ?academicDegree wdt:P31 wd:Q189533. # academicDegree is an academic degree
                 }
               }
-              FILTER(regex(?academicDegreeLabel, \"`+diplomaType+`\", "i") && LANG(?academicDegreeLabel))
+              FILTER(regex(?academicDegreeLabel, \"`+ field + `\", "i") && LANG(?academicDegreeLabel))
             }
             order by strlen(str(?academicDegreeLabel))
           }
         }
         `);
-        let firstJobTypeResult : string = "";
+        let firstJobTypeResult: string = "";
         if (typeOfDiploma.length <= 0) {
             throw new Error('The type of diploma is not a correct wikidata profession');
-        } else 
+        } else
             firstJobTypeResult = typeOfDiploma[0].academicDegreeLabel.value;
 
         const diplomaTypeTriple = new this.rdf.Triple(
             diplomaNode,
             database.wd('Q189533'),
             new Literal(firstJobTypeResult)
+        );
+
+
+        let diplomaDegreeTriple = new this.rdf.Triple(
+            diplomaNode,
+            diplomaURI + "/degree", //TODO: type for diploma @Mathias
+            new Literal(degree.toString())
         );
 
         //TODO: jobTypeproperty
@@ -270,11 +284,12 @@ export class database {
             INSERT {`+ dateTriple.toNT() + `} WHERE {};
             INSERT {`+ adresTriple.toNT() + `} WHERE {};
             INSERT {`+ diplomaTypeTriple.toNT() + `} WHERE {};
+            INSERT {`+ diplomaDegreeTriple.toNT() + `} WHERE {};
         `);
 
         return diplomaBagURI;
     }
-    
+
     /**
      * 
      * @param userURI 
@@ -283,23 +298,23 @@ export class database {
      * @param description 
      */
     public async createProfessionalExperienceFor(
-        userURI: string, 
+        userURI: string,
         startDate: Date,
         endDate: Date,
         description: string
-    ): Promise<void>{
+    ): Promise<void> {
         const { NamedNode, BlankNode, Literal } = this.rdf;
-        let professionalBagURI : string = userURI + "/professional-experiences";
-        let professionalURI : string = professionalBagURI + "/professionalExperience-"+ uuidv4();
+        let professionalBagURI: string = userURI + "/professional-experiences";
+        let professionalURI: string = professionalBagURI + "/professionalExperience-" + uuidv4();
         let professionalNode = new NamedNode(professionalURI);
-        
+
         let bagIndex: number = await this.getBagCount(professionalBagURI);
         let professionalInBag = new this.rdf.Triple(
             professionalBagURI,
-            this.rdf.rdfns('_'+bagIndex),
+            this.rdf.rdfns('_' + bagIndex),
             professionalNode
         )
-        
+
         let startDateTriple = new this.rdf.Triple(
             professionalNode,
             database.dcat('startDate'),
@@ -324,8 +339,9 @@ export class database {
             new Literal(database.WEB_DOMAIN + "type/professional-experience")
         )
 
+
         const result = await this.client.query.update(`
-        INSERT {`+ professionalInBag.toNT() +`} WHERE {};
+        INSERT {`+ professionalInBag.toNT() + `} WHERE {};
         INSERT {`+ typeTriple.toNT() + `} WHERE {};
         INSERT {`+ startDateTriple.toNT() + `} WHERE {};
         INSERT {`+ endDateTriple.toNT() + `} WHERE {};
@@ -342,7 +358,7 @@ export class database {
      */
     private getLastSubstring(
         URI: string
-    ): string{
+    ): string {
         return URI.substring(URI.lastIndexOf("/") + 1)
     };
 
@@ -359,24 +375,24 @@ export class database {
         userURI2: string,
         status: connectionStatus,
         type: connectionType
-    ): Promise<void>{
-        let connection1BagURI : string = userURI1 + "/connections";
-        let connection2BagURI : string = userURI2 + "/connections";
+    ): Promise<void> {
+        let connection1BagURI: string = userURI1 + "/connections";
+        let connection2BagURI: string = userURI2 + "/connections";
         let connectionURI: string = database.WEB_DOMAIN + "connection/" + this.getLastSubstring(userURI1) + ";" + this.getLastSubstring(userURI2)
         const { NamedNode, BlankNode, Literal } = this.rdf;
         let connectionURINode = new NamedNode(connectionURI);
-        
+
         let bagIndex: number = await this.getBagCount(connection1BagURI);
         let connectionInBagUser1 = new this.rdf.Triple(
             connection1BagURI,
-            this.rdf.rdfns('_'+bagIndex),
+            this.rdf.rdfns('_' + bagIndex),
             connectionURINode
         );
 
         bagIndex = await this.getBagCount(connection2BagURI);
         let connectionInBagUser2 = new this.rdf.Triple(
             connection2BagURI,
-            this.rdf.rdfns('_'+bagIndex),
+            this.rdf.rdfns('_' + bagIndex),
             connectionURINode
         )
 
@@ -385,7 +401,7 @@ export class database {
             this.rdf.rdfsns('type'),
             new Literal(database.WEB_DOMAIN + "type/connection")
         );
-        
+
         let connectionStatusTriple = new this.rdf.Triple(
             connectionURINode,
             connectionURI + "/status",
@@ -397,7 +413,7 @@ export class database {
             connectionURI + "/type",
             new Literal(type.toString())
         );
-        
+
         const result = await this.client.query.update(`
             INSERT {`+ connectionInBagUser1.toNT() + `} WHERE {};
             INSERT {`+ connectionInBagUser2.toNT() + `} WHERE {};
@@ -405,45 +421,43 @@ export class database {
             INSERT {`+ connectionStatusTriple.toNT() + `} WHERE {};
             INSERT {`+ connectionHasType.toNT() + `} WHERE {};
         `);
-        
+
     };
 
     private async addPotentialJob(
         userURI: string, //Resource user
         jobURI: string, //Resource job
         isAccepted: boolean
-    ): Promise<void>{
+    ): Promise<void> {
         let pojoBagURI: string = userURI + "/potential-jobs";
         let pojoURI: string = userURI + "/potential-job" + uuidv4();
 
         let bagIndex: number = await this.getBagCount(pojoBagURI);
-        
+
         //TODO: jobtypeProperty
-        
+
         const result = await this.client.query.update(`
             INSERT { 
-                <`+ pojoBagURI +`> <`+ this.rdf.rdfns('_'+bagIndex) +`> 
+                <`+ pojoBagURI + `> <` + this.rdf.rdfns('_' + bagIndex) + `> 
                     [   
-                        <`+ pojoURI +`> <`+ jobURI +`>; 
-                        <`+ pojoURI +`/isAccepted> \"`+ String(isAccepted) +`\" 
+                        <`+ pojoURI + `> <` + jobURI + `>; 
+                        <`+ pojoURI + `/isAccepted> \"` + String(isAccepted) + `\" 
                     ] 
             } WHERE {};
         `);
-
-        console.log(result);
     };
 
     private async addJobToEmployee(
         userURI: string, //Resourse user
         jobURI: string //Resourse job
-    ): Promise<void>{
+    ): Promise<void> {
         let jobBagURI: string = userURI + "/jobs";
 
         let bagIndex: number = await this.getBagCount(jobBagURI);
-        
+
         const result = await this.client.query.update(`
             INSERT { 
-                <`+ jobBagURI +`> <`+ this.rdf.rdfns('_'+bagIndex) +`> <`+ jobURI +`> 
+                <`+ jobBagURI + `> <` + this.rdf.rdfns('_' + bagIndex) + `> <` + jobURI + `> 
             } WHERE {};
         `);
     }
@@ -473,7 +487,7 @@ export class database {
             this.rdf.rdfsns('type'),
             new Literal(database.WEB_DOMAIN + "type/company")
         );
-        
+
         let companyTripleName = new this.rdf.Triple(
             companyNode,
             database.vCard('FN'),
@@ -526,20 +540,21 @@ export class database {
         jobName: string,
         area: string,
         workExperience: string,
-        diploma: string,
+        diploma: diplomaDegree,
         jobDescription: string,
         status: jobStatus,
         type: string,
-    ): Promise<string>{
+    ): Promise<string> {
         let jobBagURI: string = companyURI + "/jobs";
         const { NamedNode, Literal } = this.rdf;
         let jobsNode = new NamedNode(jobBagURI);
-        let jobNameNode = new NamedNode(jobBagURI+"/"+jobName); //TODO: add "/"
+        let jobURI: string = jobBagURI + "/" + jobName;
+        let jobNameNode = new NamedNode(jobURI); //TODO: add "/"
 
         let bagIndex: number = await this.getBagCount(jobBagURI);
         let jobInBag = new this.rdf.Triple(
             jobsNode,
-            this.rdf.rdfns('_'+bagIndex),
+            this.rdf.rdfns('_' + bagIndex),
             jobNameNode
         )
 
@@ -557,8 +572,8 @@ export class database {
 
         let diplomaType = new this.rdf.Triple(
             jobNameNode,
-            jobBagURI + "/diploma-type",
-            new Literal(diploma)
+            jobBagURI + "/diploma",
+            new Literal(diploma.toString())
         );
 
         let titleTriple = new this.rdf.Triple(
@@ -566,7 +581,7 @@ export class database {
             database.dc('title'),
             new Literal(jobName)
         );
-        
+
         let areaTriple = new this.rdf.Triple(
             jobNameNode,
             database.gn('name'),
@@ -578,7 +593,7 @@ export class database {
             database.dc('description'),
             new Literal(workExperience)
         );
-        
+
         let jobDescriptionTriple = new this.rdf.Triple(
             jobNameNode,
             database.dc('description'),
@@ -612,10 +627,10 @@ export class database {
         let firstJobTypeResult : string = "";
         if (typeOfJob.length <= 0) {
             throw new Error('The type of job is not a correct wikidata profession');
-        } else 
+        } else
             firstJobTypeResult = typeOfJob[0].professionLabel.value;
-        
-        
+
+
         let jobTypeTriple = new this.rdf.Triple(
             jobNameNode,
             database.wd('Q28640'),
@@ -633,38 +648,40 @@ export class database {
         INSERT {`+ jobDescriptionTriple.toNT() + `} WHERE {};
         INSERT {`+ jobTypeTriple.toNT() +`} WHERE {};
       `);
-        return jobBagURI;
+        return jobURI;
     };
 
     private async addEmployeeToCompany(
         companyURI: string, //Resource employee
         employeeURI: string //Resource company
-    ): Promise<void>{
-        let companyEmployeesBagURI: string = companyURI + "/jobs";
+    ): Promise<void> {
+        let companyEmployeesBagURI: string = companyURI + "/employees";
 
         let bagIndex: number = await this.getBagCount(companyEmployeesBagURI);
-        
+
         const result = await this.client.query.update(`
             INSERT { 
-                <`+ companyEmployeesBagURI +`> <`+ this.rdf.rdfns('_'+bagIndex) +`> <`+ employeeURI +`> 
+                <`+ companyEmployeesBagURI + `> <` + this.rdf.rdfns('_' + bagIndex) + `> <` + employeeURI + `> 
             } WHERE {};
         `);
     };
 
     private async addPotentialEmployee(
         jobURI: string,
-        userURI: string, 
-    ): Promise<void>{
+        userURI: string,
+    ): Promise<void> {
+        //TODO: Check if this user is not already in this list
         let jobPotentialEmployeesBagURI: string = jobURI + "/potential-employees";
 
         let bagIndex: number = await this.getBagCount(jobPotentialEmployeesBagURI);
-        
+
         const result = await this.client.query.update(`
             INSERT { 
-                <`+ jobPotentialEmployeesBagURI +`> <`+ this.rdf.rdfns('_'+bagIndex) +`> <`+ userURI +`> 
+                <`+ jobPotentialEmployeesBagURI + `> <` + this.rdf.rdfns('_' + bagIndex) + `> <` + userURI + `> 
             } WHERE {};
         `);
     };
+
 
     /**
      * Adds a potential employee to a job && adds the potential job to the employee's potential jobs list
@@ -682,12 +699,40 @@ export class database {
     /**
      * Adds a new employee to a company && adds the job to the employee's jobs list
      * @param companyURI the company which is going to have a new employee
-     * @param jobURI the job from the company which nhas a new employee
+     * @param jobURI the job from the company which has a new employee
      * @param employeeURI the employee which is hired for a ``companyURI`` to do the ``jobURI``
      */
     public async addEmployee(companyURI: string, jobURI: string, employeeURI: string) {
         await this.addEmployeeToCompany(companyURI, employeeURI);
         await this.addJobToEmployee(employeeURI, jobURI);
+    }
+
+    private async deletePotentialEmployee(userURI: string) {
+        const deletion = await this.client.query.update(`
+            DELETE {
+                ?potentialEmployees ?item ?user
+            } WHERE {
+                ?potentialEmployees ?item ?user .
+                FILTER (
+                    REGEX(STR(?potentialEmployees), "/potential-employees") &&
+                    ?user = <`+ userURI + `> )
+            }
+        `)
+    }
+
+    private async deletePotentialJob(userURI: string) {
+        let pojoBagURI: string = userURI + "/potential-jobs";
+        const deletion = await this.client.query.update(`
+            DELETE WHERE {
+                <`+ pojoBagURI + `> ?item ?blank .
+                ?blank ?pred ?obj .
+            }
+        `);
+    }
+
+    public async deleteAllPotentials(userURI: string) {
+        await this.deletePotentialEmployee(userURI);
+        await this.deletePotentialJob(userURI);
     }
 
     /**
@@ -697,9 +742,9 @@ export class database {
      * TODO: limit: number
      * @returns json object with the results
      */
-    public async selectUser(userURI: string) : Promise<Object> {
+    public async selectUser(userURI: string): Promise<Object> {
         // get first result again
-        const result : Object = await this.client.query.select(`
+        const result: Object = await this.client.query.select(`
             SELECT * WHERE {
                 {
                     <`+ userURI + `> ?pred ?obj .
@@ -722,7 +767,7 @@ export class database {
      * TODO: limit: number
      * @returns json object with the results
      */
-    public async selectCompany(companyURI: string) : Promise<Object> {
+    public async selectCompany(companyURI: string): Promise<Object> {
         const result = await this.client.query.select(`
             SELECT * WHERE {
                 <`+ companyURI + `> ?pred ?obj .
@@ -738,13 +783,13 @@ export class database {
      * TODO: limit: number
      * @returns json object with the results
      */
-    public async selectJob(jobURI: string) : Promise<Object> {
+    public async selectJob(jobURI: string): Promise<Object> {
         // get first result again
-        const result : Object = await this.client.query.select(`
+        const result: Object = await this.client.query.select(`
             SELECT * WHERE {
                 <`+ jobURI + `> ?pred ?obj .
             } LIMIT 20
-        `);   
+        `);
         return result;
     }
 
@@ -761,12 +806,12 @@ export class database {
         if (subj !== "?subj") 
             subj = "<"+subj+">";
         if (pred !== "?pred")
-            pred = "<"+pred+">";
+            pred = "<" + pred + ">";
         if (obj !== "?obj")
-            obj = "<"+obj+">";
-        const result : Object = await this.client.query.select(`
+            obj = "<" + obj + ">";
+        const result: Object = await this.client.query.select(`
             SELECT * WHERE {
-                `+subj+` `+pred+` `+obj+` .
+                `+ subj + ` ` + pred + ` ` + obj + ` .
             }
         `);
 
@@ -778,23 +823,23 @@ export class database {
      * @param queryString the SPARQL Query to be executed
      * @returns json object with the results
      */
-    public async sparqlQueryLowLevel(queryString: string = "") : Promise<Object> {
-        const result : Object = await this.client.query.select(queryString);
+    public async sparqlQueryLowLevel(queryString: string = ""): Promise<Object> {
+        const result: Object = await this.client.query.select(queryString);
         return result;
     }
 
-    public async getBag(bag: string) : Promise<Object> {
+    public async getBag(bag: string): Promise<Object> {
         const result = await this.client.query.select(`
             SELECT * WHERE {
-                <`+ bag +`> ?pred ?obj .
+                <`+ bag + `> ?pred ?obj .
             }
         `);
 
         return result;
     }
 
-    public async getBagItems(bag: string) : Promise<Array<Object>> {
-        const bagItems : any = await this.getBag(bag);
+    public async getBagItems(bag: string): Promise<Array<Object>> {
+        const bagItems: any = await this.getBag(bag);
 
         // let queryString : string = "SELECT * WHERE {";
         // bagItems.forEach((element : any, index: number) => {
@@ -808,75 +853,126 @@ export class database {
         // });
         // queryString += "}";
 
-        let results : any = new Array<Object>();
-        let i : number;
-        for(i = 0; i < bagItems.length; i++) {
-            let queryString : string = "SELECT * WHERE { <"+bagItems[i].obj.value+"> ?pred ?obj }";
+        let results: any = new Array<Object>();
+        let i: number;
+        for (i = 0; i < bagItems.length; i++) {
+            let queryString: string = "SELECT * WHERE { <" + bagItems[i].obj.value + "> ?pred ?obj }";
             console.log(queryString);
             console.log(bagItems[i]);
-            const result : Object = await this.client.query.select(queryString);
+            const result: Object = await this.client.query.select(queryString);
             console.log(result);
             results.push(result);
         };
-        
+
         return results;
     }
 
     private calcLongLatDist(results1: any, results2: any) {
         var distance = require('geo-dist-calc');
-        var sourcePoints = { latitude: Number(results1.geonames[0].lat), longitude: Number(results1.geonames[0].lng) };
-        var destinationPoints = { latitude: Number(results2.geonames[0].lat), longitude: Number(results2.geonames[0].lng) };
+        var sourcePoints = { latitude: Number(results1[0].lat), longitude: Number(results1[0].lng) };
+        var destinationPoints = { latitude: Number(results2[0].lat), longitude: Number(results2[0].lng) };
         var ResultantDistance = distance.discal(sourcePoints, destinationPoints);
         return ResultantDistance;
     }
 
 
-    public async matchForUser(userURI: string, maxDistanceKm: number, jobType: string) : Promise<Object> {
-        let userInfo : any = await this.selectUser(userURI);
-        let userAddrName : string = userInfo[5].obj.value;
+    public async matchForUser({
+        userURI,
+        jobType,
+        maxDistanceKm,
+        companyURI,
+        checkDegree = false,
+    }: NamedMatchForUser): Promise<Object> {
+        let userInfo: any = await this.selectUser(userURI);
+        let userAddrName: string = userInfo[5].obj.value;
 
-        let matchedJobs : any = await this.sparqlQueryLowLevel(
-            `SELECT * WHERE {
-                ?job <http://www.w3.org/2000/01/rdf-schema#type> "https://testDomain/type/job" .
-                ?job <https://www.geonames.org/ontology#name> ?jobArea .
-                ?job <`+database.wd('Q28640')+`> \"`+jobType+`\"
-            }`
-        );
+        let queryJobType: string;
+        let queryCompanyName: string;
+        let queryDegree: string;
+
+        await this.deleteAllPotentials(userURI);
+
+        //set job type query string
+        if (jobType != null) {
+            queryJobType = `?job <` + database.wd('Q28640') + `> \"` + jobType + `\" .`
+        } else {
+            queryJobType = `OPTIONAL{ 
+                                <`+ userURI + `/jobs> ?jobs ?currentJob .
+                                ?currentJob <http://www.wikidata.org/entity/Q28640> ?currentJobType .
+                                FILTER (?jobType = ?currentJobType)
+                            }`;
+        }
+
+        //set area query string
+        if (maxDistanceKm == null) {
+            maxDistanceKm = -1;
+        }
+
+
+        //set company name query string
+        if (companyURI != null) {
+            queryCompanyName = `<` + companyURI + `/jobs> ?item ?job .`;
+        } else {
+            queryCompanyName = "";
+        }
+
+        if (checkDegree) {
+            queryDegree = `OPTIONAL{ 
+                                <`+ userURI + `/diplomas> ?item ?currentDiploma . 
+                                ?currentDiploma ?diploma ?currentDegree . 
+                                FILTER(REGEX(STR(?diploma), "/degree"))
+                            }
+                            ?job ?jobDiploma ?jobDegree .
+                            FILTER (?jobDegree = ?currentDegree || ?jobDegree = "none")`;
+        } else {
+            queryDegree = "";
+        }
+
+        const completeQueryString: string = `SELECT DISTINCT ?job ?jobArea ?jobType WHERE {
+            `+ queryCompanyName + `
+            `+ queryJobType + `
+            `+ queryDegree + `
+            ?job ?status "pending" .
+            ?job <http://www.w3.org/2000/01/rdf-schema#type> "https://testDomain/type/job" .
+            ?job <https://www.geonames.org/ontology#name> ?jobArea .
+            ?job <http://www.wikidata.org/entity/Q28640> ?jobType .
+            FILTER(REGEX(STR(?status), "/status"))
+        }`
+
+        console.log(completeQueryString);
+
+        let matchedJobs: any = await this.sparqlQueryLowLevel(completeQueryString);
 
         console.log(matchedJobs);
         console.log(userAddrName);
 
-        matchedJobs.forEach(async (job : any) => {
+        const userAddrResult = await this.geo(userAddrName);
 
-            // let jobAddrName : string = job.jobArea.value;
-            // console.log(jobAddrName);
-            
-            // geo.search({ name: userAddrName }, async (err: any, results1: any) => {
-            //     geo.search({ name: jobAddrName }, async (err: any, results2: any) => {
-            //         var ResultantDistance = this.calcLongLatDist(results1, results2);
-            //         console.log(ResultantDistance);
-            //         if(ResultantDistance.kilometers <= maxDistanceKm) {
-            //             let jobURI : string = job.job.value;
-            //             console.log("added " + jobURI + " to " + userURI);
-            //             await this.addPotential(jobURI, userURI, false);
-            //         }
-            //     });
-            // });
+        for (const job of matchedJobs) {
 
-            let jobURI : string = job.job.value;
-            console.log("added " + jobURI + " to " + userURI);
-            await this.addPotential(jobURI, userURI, false);
-        });
-        
+            let jobAddrName: string = job.jobArea.value;
+            console.log(jobAddrName);
+            const jobAddrResult: any = await this.geo(jobAddrName);
+            console.log(jobAddrResult[0]);
+
+            let distance: any = this.calcLongLatDist(userAddrResult, jobAddrResult);
+            console.log("Distance km: " + distance.kilometers);
+            if (maxDistanceKm == -1 || distance.kilometers <= maxDistanceKm) {
+                let jobURI: string = job.job.value;
+                console.log("added " + jobURI + " to " + userURI);
+                await this.addPotential(jobURI, userURI, false);
+            }
+        };
+
         return matchedJobs;
     }
 
-    public async matchForCompany(companyURI: string) : Promise<Object> {
-        
+    public async matchForCompany(companyURI: string): Promise<Object> {
+
         return new Object;
     }
 
-    public async matchForJob(companyURI : string, jobURI : string) : Promise<Object> {
+    public async matchForJob(companyURI: string, jobURI: string): Promise<Object> {
         let users: any = await this.sparqlQueryLowLevel(
             `SELECT * WHERE {
                 ?user <http://www.w3.org/2000/01/rdf-schema#type> "https://testDomain/type/user".
@@ -889,6 +985,15 @@ export class database {
         return Object;
     }
 
+    private async geo(location: string): Promise<any> {
+        let result: any;
+        try{
+            result = await this.geonames.search({q: location}) //get location
+          }catch(err){
+            console.error(err);
+          }
+        return result.geonames;
+    }
 }
 
 // -- TEST FUNCNTIONS -- 
@@ -898,7 +1003,7 @@ async function TESTinsertUser(client: any) {
 
     let URI: string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Belgie", "maties.blog.com", false, uuidv4());
 
-    let result : Object = await  db.selectUser(URI);
+    let result: Object = await db.selectUser(URI);
     console.log("user: after insert");
     console.log(result);
 }
@@ -909,7 +1014,7 @@ async function TESTinsertCompany(client: any) {
 
     let URI: string = await db.createCompany("apple@mail.com", "Apple", "Apple.com", "Cupertino", uuidv4());
 
-    let result : Object = await db.selectCompany(URI);
+    let result: Object = await db.selectCompany(URI);
     console.log("company: after insert");
     console.log(result);
 }
@@ -919,35 +1024,35 @@ async function TESTinsertJobs(companyURI: string, client: any) {
     let db: database = new database(binDir, databaseDir);
 
     let URI: string = await db.createJob(
-        companyURI, 
-        "afwasser", 
-        "in de keuken", 
-        "Ge moet al eens een bord vastgehouden hebben enz snapje", 
-        "diploma-ofz", 
-        "borden afwassen 24/7", 
+        companyURI,
+        "afwasser",
+        "in de keuken",
+        "Ge moet al eens een bord vastgehouden hebben enz snapje",
+        diplomaDegree.Elementary,
+        "borden afwassen 24/7",
         jobStatus.Pending,
         "dishwasher",      
     );
-    let job1URI = await db.createJob(companyURI, 
-        "tester", 
-        "bij it departement debuggen", 
-        "weten wat een debugger is", 
-        "diploma-ofz", 
-        "langsgaan en de hele tijd op step over klikken", 
+    let job1URI = await db.createJob(companyURI,
+        "tester",
+        "bij it departement debuggen",
+        "weten wat een debugger is",
+        diplomaDegree.Bachelor,
+        "langsgaan en de hele tijd op step over klikken",
         jobStatus.Pending,
-        "programmer",      
-        );
-    let job2URI = await db.createJob(companyURI, 
-        "IT", 
-        "Bureau", 
-        "Ge moet al eens een programma hebben gemaakt enz snapje", 
-        "diploma's-ofz", 
-        "programeren 24/7", 
+        "programmer",
+    );
+    let job2URI = await db.createJob(companyURI,
+        "IT",
+        "Bureau",
+        "Ge moet al eens een programma hebben gemaakt enz snapje",
+        diplomaDegree.Bachelor,
+        "programeren 24/7",
         jobStatus.Pending,
-        "network engineer",      
-        );
-    
-    let result : Object = await db.selectJob(URI);
+        "network engineer",
+    );
+
+    let result: Object = await db.selectJob(URI);
     console.log("company: after job insertion");
     console.log(result);
 }
@@ -961,33 +1066,26 @@ async function tests() {
     var db: database = new database(binDir, databaseDir);
 
     //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')]);
-    
-    let maties : string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", true, uuidv4());
-    let femke : string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, uuidv4());
-    const diplomasBagURI = await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", "UHasselt1");
-    await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", "UHasselt");
-    await db.createDiplomaFor(maties, new Date(), "Master of Tourism", "UHasselt");
-    
-    await db.createConnectionWith(maties, femke, connectionStatus.Accepted, connectionType.Friend);
-    await db.createProfessionalExperienceFor(femke, new Date(), new Date(), "IT'er");
 
-    let company : string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", uuidv4());
-    
-    await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", "geen", "Pakjes in de juiste regio zetten", jobStatus.Pending, "dishwasher");
-    let callcenterJob : string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", "geen", "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
-    
-    
-    await db.matchForUser(femke, 200, "dishwasher");
-    //await db.matchForJob(company, callcenterJob);
-    //await db.matchForCompany(company);
-    
+    let maties: string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", true, uuidv4());
+    let femke: string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, uuidv4());
+    await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", diplomaDegree.Doctorate, "UHasselt1");
+    await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", diplomaDegree.Master, "UHasselt");
+
+    let company: string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", uuidv4());
+
+    await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
+    let callcenterJob: string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", diplomaDegree.None, "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
+    let CEO: string = await db.createJob(company, "CEO-of-Bol.com", "Alken", "He has done a lot of stuff", diplomaDegree.None, "looking at a screen all day", jobStatus.Hired, "chief executive officer");
+
+    await db.addEmployee(company, CEO, femke);
+    await db.matchForUser({ userURI: femke, maxDistanceKm: 200, checkDegree: true });
+    await db.matchForUser({ userURI: maties, maxDistanceKm: 50,checkDegree: true });
+
     console.log("FINAL RESULT");
     let everything: any = await db.sparqlQuery();
     console.log(everything);
-    
 
-    // const result : Array<Object> = await db.getBagItems(diplomasBagURI);
-    // console.log(result);
 }
 
 tests();

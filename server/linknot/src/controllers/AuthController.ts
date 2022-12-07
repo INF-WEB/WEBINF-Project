@@ -6,7 +6,8 @@ import { validate } from "class-validator";
 import { UserEntity } from "../database/entities/user.entities";
 import config from "../config/config";
 import { createJWT } from "../middlewares/checkJwt";
-const session = require("express-session")
+import * as session from "express-session";
+//const session = require("express-session")
 
 
 class AuthController {
