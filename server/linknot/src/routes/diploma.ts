@@ -34,4 +34,9 @@ router.delete("/deleteSingle",
     DiplomaController.deleteDiplomaSingle
     );
 
+router.put("/edit",
+    [checkJwt, checkType(["Person"])],
+    DiplomaController.editDiploma
+    );
+
 export default router;
