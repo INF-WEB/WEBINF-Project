@@ -5,21 +5,21 @@ export enum jobStatus {
     Retired = "retired",
     Fired = "fired" ,
     OnLeave = "onleave",
-}
+};
 
 export enum connectionType {
     Friend = "friend",
     Acquaintance = "acquaintance",
     Coworker = "coworker",
     ExCoworker = "excoworker",
-}
+};
 
 export enum connectionStatus {
     Pending = "pending",
     Cancelled = "cancelled",
     Declined = "declined",
     Accepted = "accepted",
-}
+};
 
 export enum diplomaDegree {
     None = "none",
@@ -28,7 +28,7 @@ export enum diplomaDegree {
     Bachelor = "bachelor",
     Master = "master",
     Doctorate = "doctorate"
-}
+};
 
 export interface NamedMatchForUser {
     userURI : string;

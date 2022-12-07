@@ -22,9 +22,9 @@ class ConnController {
             //
             //rdfDatabase.
 
-
+            res.status(200).send();
         }catch (error){
-            res.status(404).send("User not found")
+            res.status(404).send("User not found");
         }
 
     };
@@ -46,7 +46,7 @@ class ConnController {
             });
 
             //rdf function to call
-
+            res.status(200).send();
         }catch (error){
             res.status(404).send("User not found")
         }
@@ -73,18 +73,97 @@ class ConnController {
 
             //
             //rdfDatabase.
-            rdfDatabase.createConnectionWith(user.userURI, connUser.userURI, connStatus, connType);
+            await rdfDatabase.createConnectionWith(user.userURI, connUser.userURI, connStatus, connType);
 
-
+            res.status(200).send("Connection is changed");
         }catch (error){
-            res.status(404).send("User not found")
+            res.status(404).send("User not found");
         }
     };
 
 
-    static getUserConnections = async(req: Request, res: Response) => {
+    static createConnection =async (req:Request, res:Response) => {
+        const id = res.locals.jwtPayload.id;
+        let {UserConnectId, connectionStat, connectionType} = req.body;
 
-    };
+        let connStatus: connectionStatus = connectionStat;
+        let connType: connectionType = connectionType;
+        const userRepository = getRepository(UserEntity);
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:id},
+                select: ["userURI"]
+            });
+
+            const connUser = await userRepository.findOneOrFail({
+                where: {id:UserConnectId},
+                select: ["userURI"]
+            });
+
+            if(connStatus === connectionStatus.Pending){
+                await rdfDatabase.createConnectionWith(user.userURI, connUser.userURI, connStatus, connType);
+            }else{
+                res.status(400).send("Need to be Pending");
+            }
+            res.status(200).send("Connection is Pending");
+
+            //
+            //rdfDatabase.
+            
+
+        }catch (error){
+            res.status(404).send("User not found");
+        }
+    }
+
+
+    static deleteConnection = async (req:Request, res:Response) => {
+        const id = res.locals.jwtPayload.id;
+        let {UserConnectId} = req.body;
+
+        const userRepository = getRepository(UserEntity);
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:id},
+                select: ["userURI"]
+            });
+
+            const connUser = await userRepository.findOneOrFail({
+                where: {id:UserConnectId},
+                select: ["userURI"]
+            });
+
+            //rdfdatabase remove user
+
+            res.status(200).send("Connection is Pending");
+        }catch(error){
+            res.status(404).send("User not found");
+        }
+
+    }
+
+    
+    static deleteConnectionAll = async (req:Request, res:Response) => {
+        const id = res.locals.jwtPayload.id;
+        
+
+        const userRepository = getRepository(UserEntity);
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:id},
+                select: ["userURI"]
+            });
+
+            
+
+            //rdfdatabase remove all user
+
+            res.status(200).send("Connection is Pending");
+        }catch(error){
+            res.status(404).send("User not found");
+        }
+
+    }
 }
 
 export default ConnController;
