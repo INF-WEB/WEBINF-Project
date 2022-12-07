@@ -193,6 +193,10 @@ class UserController{
 		return user;
 	}
 
+    static testDatabase() {
+        rdfDatabase.tests();
+    }
+
     
 
 };

@@ -30,10 +30,16 @@ export enum diplomaDegree {
     Doctorate = "doctorate"
 };
 
-export interface NamedMatchForUser {
+export interface MatchForUser {
     userURI : string;
     checkDegree? : boolean;
     jobType? : string;
     maxDistanceKm? : number;
     companyURI? : string;
+};
+
+export interface MatchForJob {
+    jobURI : string;
+    checkDegree? : boolean;
+    maxDistanceKm? : number;
 };

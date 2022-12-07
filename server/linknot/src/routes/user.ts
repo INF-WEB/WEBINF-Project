@@ -44,6 +44,10 @@ router.get(
     UserController.listAll
     );
 
-
+router.get(
+    "/database-tests",
+    [], 
+    UserController.testDatabase
+)
 
 export default router;
