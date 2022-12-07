@@ -5,7 +5,7 @@ import { connectionType } from './connectionType';
 import { connectionStatus } from './connectionStatus';
 import { diplomaDegree } from './diplomaDegree';
 
-import { Geonames } from './node_modules/geonames.js';
+import { Geonames } from './geonames'
 
 const binDir : string = "/Users/matiesclaesen/Documents/WEBINF/apache-jena-4.6.1/bin";
 const databaseDir : string = "/Users/matiesclaesen/Documents/repos/WEBINF-Project/database-nodejs/database";
@@ -693,7 +693,6 @@ export class database {
     public async addPotential(jobURI: string, userURI: string, isAccepted: boolean) {
         await this.addPotentialEmployee(jobURI, userURI);
         await this.addPotentialJob(userURI, jobURI, isAccepted);
-        console.log("Done")
     }
 
     /**
@@ -879,10 +878,10 @@ export class database {
     public async matchForUser({
         userURI,
         jobType,
-        maxDistanceKm,
         companyURI,
+        maxDistanceKm = -1,
         checkDegree = false,
-    }: NamedMatchForUser): Promise<Object> {
+    }: MatchForUser): Promise<Object> {
         let userInfo: any = await this.selectUser(userURI);
         let userAddrName: string = userInfo[5].obj.value;
 
@@ -901,11 +900,6 @@ export class database {
                                 ?currentJob <http://www.wikidata.org/entity/Q28640> ?currentJobType .
                                 FILTER (?jobType = ?currentJobType)
                             }`;
-        }
-
-        //set area query string
-        if (maxDistanceKm == null) {
-            maxDistanceKm = -1;
         }
 
 
@@ -968,21 +962,75 @@ export class database {
     }
 
     public async matchForCompany(companyURI: string): Promise<Object> {
-
+        //Optional EXTRA:
         return new Object;
     }
 
-    public async matchForJob(companyURI: string, jobURI: string): Promise<Object> {
+    public async matchForJob({
+        jobURI,
+        checkDegree = false,
+        maxDistanceKm = -1,
+    }: MatchForJob): Promise<any> {
+        let queryDegree : string;
+        if (checkDegree) {
+            queryDegree = 
+            `OPTIONAL{ 
+                ?userDiplomasBag ?diplomas ?currentDiploma . 
+                ?currentDiploma ?hasDegree ?currentDegree . 
+                FILTER(
+                    CONTAINS(STR(?hasDegree), "/degree") &&
+                    CONTAINS(STR(?userJobsBag), STR(?user)) 
+                )
+            }
+            FILTER (?jobDegree = ?currentDegree || ?jobDegree = "none")`;
+        } else {
+            queryDegree = "";
+        }
+
         let users: any = await this.sparqlQueryLowLevel(
-            `SELECT * WHERE {
-                ?user <http://www.w3.org/2000/01/rdf-schema#type> "https://testDomain/type/user".
-                ?user <https://testDomain/looking-for-job> true .
-                ?user <https://www.geonames.org/ontology#name> ?adr.	
+            `SELECT DISTINCT ?user ?userArea ?jobArea WHERE { 
+                ?user 	<http://www.w3.org/2000/01/rdf-schema#type> "https://testDomain/type/user" ;
+                        <https://testDomain/looking-for-job> true ;
+                        <https://www.geonames.org/ontology#name> ?userArea .
+                ?userJobsBag ?jobs ?currentJob .
+                ?currentJob <http://www.wikidata.org/entity/Q28640> ?currentJobType . 
+                FILTER ( 
+                    ?jobType = ?currentJobType && 
+                    CONTAINS( REPLACE(STR(?userJobsBag), ">", ""), REPLACE(STR(?user), ">", "")) 
+                )
+                                      
+                `+queryDegree+`
+            
+                <`+jobURI+`>    <http://www.wikidata.org/entity/Q28640> ?jobType ;
+                                ?jobDiploma ?jobDegree ;
+                                <https://www.geonames.org/ontology#name> ?jobArea .
+                FILTER(CONTAINS(STR(?jobDiploma), "/diploma"))
             }`
-        )
+        );
         console.log(users);
 
-        return Object;
+        if (users.length == 0) { //no users found
+            return new Array();
+        }
+        const jobAddrResult = await this.geo(users[0].jobArea.value);
+
+        let matchedUsers : Array<string> = new Array();
+        for (const user of users) {
+            let userAddrName: string = user.userArea.value;
+            console.log(userAddrName);
+            const userAddrResult: any = await this.geo(userAddrName);
+            console.log(userAddrResult[0]);
+
+            let distance: any = this.calcLongLatDist(jobAddrResult, userAddrResult);
+            console.log("Distance km: " + distance.kilometers);
+            if (maxDistanceKm == -1 || distance.kilometers <= maxDistanceKm) {
+                let userURI: string = user.user.value;
+                console.log("added " + userURI);
+                matchedUsers.push(userURI);
+            }
+        };
+
+        return matchedUsers;
     }
 
     private async geo(location: string): Promise<any> {
@@ -1074,13 +1122,15 @@ async function tests() {
 
     let company: string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", uuidv4());
 
-    await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
+    let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
     let callcenterJob: string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", diplomaDegree.None, "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
     let CEO: string = await db.createJob(company, "CEO-of-Bol.com", "Alken", "He has done a lot of stuff", diplomaDegree.None, "looking at a screen all day", jobStatus.Hired, "chief executive officer");
 
-    await db.addEmployee(company, CEO, femke);
-    await db.matchForUser({ userURI: femke, maxDistanceKm: 200, checkDegree: true });
-    await db.matchForUser({ userURI: maties, maxDistanceKm: 50,checkDegree: true });
+    await db.addEmployee(company, CEO, maties);
+    //await db.matchForUser({ userURI: femke, maxDistanceKm: 200, checkDegree: true });
+    //await db.matchForUser({ userURI: maties, maxDistanceKm: 50,checkDegree: true });
+    await db.matchForJob({jobURI: callcenterJob, checkDegree: true});
+    await db.matchForJob({jobURI: pakjes, checkDegree: true, maxDistanceKm: 100});
 
     console.log("FINAL RESULT");
     let everything: any = await db.sparqlQuery();
