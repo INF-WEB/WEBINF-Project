@@ -44,16 +44,6 @@ router.get(
     UserController.listAll
     );
 
-router.get(
-    "/rdfTest",
-    [],
-    UserController.rdfCheck
-    );
 
-router.get(
-    "/sheit",
-    [],
-    UserController.sheit
-)
 
 export default router;

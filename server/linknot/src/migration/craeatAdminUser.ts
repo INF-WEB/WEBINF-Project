@@ -10,7 +10,7 @@ export class CreateAdminUser1547919837483 implements MigrationInterface {
     user.password = "admin";
     user.hashPassword();
     user.type = "Person";
-    user.search = false;
+    user.userURI = "values.fmqsl.kjsqfd";
     const userRepository = getRepository(UserEntity);
     await userRepository.save(user);
   }

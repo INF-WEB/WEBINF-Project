@@ -20,3 +20,20 @@ export enum connectionStatus {
     Declined = "declined",
     Accepted = "accepted",
 }
+
+export enum diplomaDegree {
+    None = "none",
+    Elementary = "elementary",
+    HighSchool = "highschool",
+    Bachelor = "bachelor",
+    Master = "master",
+    Doctorate = "doctorate"
+}
+
+export interface NamedMatchForUser {
+    userURI : string;
+    checkDegree? : boolean;
+    jobType? : string;
+    maxDistanceKm? : number;
+    companyURI? : string;
+};

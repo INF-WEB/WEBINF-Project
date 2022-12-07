@@ -3,7 +3,8 @@ import { NextFunction, Request, Response } from "express"
 import { UserEntity } from "../database/entities/user.entities"
 import { validate } from "class-validator";
 import { createJWT } from "../middlewares/checkJwt";
-import { TESTinsertUser, tests } from "../RDFAcces/RDFDataAcess";
+import { database } from "../RDFAcces/RDFDataAcess";
+import { rdfDatabase } from "..";
 
 class UserController{
 
@@ -11,7 +12,7 @@ class UserController{
       //Get users from database
       const userRepository = getRepository(UserEntity);
       const users = await userRepository.find({
-        select: ["id", "email", "lastName", "name", "search", "type" ] //We dont want to send the passwords on response
+        select: ["id", "email", "lastName", "name", "type" ] //We dont want to send the passwords on response
       });
     
       //Send the users object
@@ -28,9 +29,16 @@ class UserController{
         try {
             const user = await userRepository.findOneOrFail({
                 where: {id:id}, 
-                select: ["email","name", "lastName" ,"search", "type", ]
+                select: ["email","name", "lastName" , "type", "userURI"]
             });
-			res.status(200).send(user)
+            let result: object;
+            if(user.type === "Person"){
+                result = await rdfDatabase.selectUser(user.userURI);
+            }else{
+                result = await rdfDatabase.selectCompany(user.userURI);
+            }
+           
+			res.status(200).send({user, result});
 
         } catch (error) {
             res.status(404).send("User not found");
@@ -41,7 +49,7 @@ class UserController{
     //Need to be extended to working with all specs
     static newUser = async (req: Request, res: Response) => {
       	//Get parameters from the body
-        let { name, lastName, email, password, search, type } = req.body;
+        let { name, lastName, email, area, webpage, password, search, type } = req.body;
         console.log(req.body);
         
         let user = new UserEntity();
@@ -49,11 +57,18 @@ class UserController{
         if(lastName){
           user.lastName = lastName;
 
+        }else{
+            lastName = "";
         }
         user.email = email;
         user.password = password;
-        user.search = search;
         user.type = type;
+        if(!webpage){
+            webpage = "";
+        }
+        if(!area){
+            area = "";
+        }
 
         //Validate if the parameters are ok
         const errors = await validate(user);
@@ -61,19 +76,34 @@ class UserController{
           res.status(400).send(errors);
           return;
         }
-      
-        //Hash the password, to securely store on DB
-        user.hashPassword();
-      
-        //Try to save. If fails, the username is already in use
+
+        // Saves user for first time and creates primary key
         const userRepository = getRepository(UserEntity);
         try {
             await userRepository.save(user);
         } catch (e) {
-            res.status(409).send("User already a life");
+            res.status(409).send("User already a life 1");
             return;
         }
-        
+        //Hash the password, to securely store on DB
+        user.hashPassword();
+     
+        if(type === "Person"){
+            let userURI= await rdfDatabase.createUser(name, lastName, email, area, webpage, Boolean(search), user.id);
+            user.userURI = userURI;
+        }else{
+            let userURI = await rdfDatabase.createCompany(email, name, webpage, area, user.id);
+            user.userURI = userURI;
+        }
+
+        //Update user and add userURI 
+        try {
+            await userRepository.save(user);
+        } catch (e) {
+            res.status(409).send("User already a life 2");
+            return;
+        }
+
 		//Also log the user in
         const token = createJWT({email: user.email, id: user.id}, "1h");
 		req.session = {jwt: token};
@@ -82,6 +112,7 @@ class UserController{
         res.status(201).send("User created");
     };
     
+    // TODO: moet nog met rdf werken
 	//Can change values of search, name, lastname 
     static editUser = async (req: Request, res: Response) => {
         //Get the ID from the url
@@ -105,7 +136,7 @@ class UserController{
         }
         
         //Validate the new values on model
-		user = UserController.changeUserValue(user, name, lastName, search);
+		user = UserController.changeUserValue(user, name, lastName);
         
         const errors = await validate(user);
         if (errors.length > 0) {
@@ -124,6 +155,7 @@ class UserController{
         res.status(200).send("Values have changed");
     };
     
+    //TODO: moet nog werken met rdf
     static deleteUser = async (req: Request, res: Response) => {
     //Get the ID from the sesssion jwt token
     const id = res.locals.jwtPayload.id;
@@ -147,60 +179,9 @@ class UserController{
     };
 
 
-    static rdfCheck = async(req: Request, res: Response) => {
-        let { name, lastName, email, password, search, type } = req.body;
-        console.log(req.body);
-        
-        let user = new UserEntity();
-        user.name = name;
-        if(lastName){
-          user.lastName = lastName;
-
-        }
-        user.email = email;
-        user.password = password;
-        user.search = search;
-        user.type = type;
-
-        //Validate if the parameters are ok
-        const errors = await validate(user);
-        if (errors.length > 0) {
-          res.status(400).send(errors);
-          return;
-        }
-      
-        //Hash the password, to securely store on DB
-        user.hashPassword();
-      
-        //Try to save. If fails, the username is already in use
-        const userRepository = getRepository(UserEntity);
-        try {
-            await userRepository.save(user);
-        } catch (e) {
-            res.status(409).send("User already a life");
-            return;
-        }
-        
-		//Also log the user in
-        const token = createJWT({email: user.email, id: user.id}, "1h");
-		req.session = {jwt: token};
-        
-        await TESTinsertUser(name, lastName, email, "Belgie", "ass.Fuck", search, Number(user.id));
 
 
-
-
-        //If all ok, send 201 response
-        res.status(201).send("User created with rdf");
-    }
-
-    static async sheit(req: Request, res: Response){
-        await tests();
-        res.status(200).send("bitches");
-    }
-
-
-	static changeUserValue(user:UserEntity, name:any, lastName:any, search:any) {
+	static changeUserValue(user:UserEntity, name:any, lastName:any) {
 		 //Validate the new values on model
 		 if(name){
 			user.name = name;
@@ -208,9 +189,7 @@ class UserController{
 		if(lastName){
 			user.lastName = lastName;
 		}
-		if(typeof search === "boolean"){
-			user.search = search;
-		}
+		
 		return user;
 	}
 
