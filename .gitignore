@@ -117,4 +117,4 @@ database-nodejs/js
 
 #for the db
 *.sqlite
-server.code-workspace`
+server.code-workspace
