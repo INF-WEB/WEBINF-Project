@@ -6,7 +6,7 @@ import {
     CreateDateColumn,
     UpdateDateColumn
   } from "typeorm";
-  import { Length, IsNotEmpty } from "class-validator";
+  import { Length, IsNotEmpty, length } from "class-validator";
   import * as bcrypt from "bcryptjs";
   import UserRecord from "../records/user.record";
 //Store for userdata
@@ -36,10 +36,8 @@ export class UserEntity implements UserRecord {
     @Length(2, 20)
     type: UserRecord["type"];
 
-
-    @Column("boolean")
-    @IsNotEmpty()
-    search: UserRecord["search"];
+    @Column("text", {default: ""})
+    userURI: UserRecord["userURI"];
     
     @Column()
     @CreateDateColumn()

@@ -10,7 +10,7 @@ interface UserRecord {
     lastName?: string,
     email: string,
     password: string,
-    search: boolean,
+    userURI?: string,
     type: string,
 }
 

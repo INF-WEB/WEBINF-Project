@@ -8,8 +8,9 @@ import routes from "./routes";
 //import * as cookieSession from "cookie-session";
 import cookieSession = require("cookie-session");
 import * as cors from "cors";
+import { binDir, database, databaseDir } from "./RDFAcces/RDFDataAcess";
 
-
+export let rdfDatabase: database;
 //Connects to the Database -> then starts the express
 
 //possible need to be changed depricated
@@ -17,6 +18,8 @@ createConnection()
     .then(async connection => {
     // Create a new express application instance
     const app = express();
+
+    rdfDatabase = new database(binDir,databaseDir);
 
     // Call midlewares
     app.use(cors());

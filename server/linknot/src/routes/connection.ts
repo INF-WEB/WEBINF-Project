@@ -5,10 +5,23 @@ import { checkType } from "../middlewares/checkType";
 
 const router = Router();
 
-router.get("/",
+//gives back all the persons connections
+router.get("/Connections",
     [checkJwt, checkType(["Person"])],
-    ConnController.getUserConnections
+    ConnController.getAllConnections
     );
 
+
+//Check connection with user
+router.get("/Connection",
+    [checkJwt, checkType(["Person"])],
+    ConnController.getConnection
+    );
+
+//Create,update connection with other person
+router.put("/Connection",
+    [checkJwt, checkType(["Person"])],
+    ConnController.answerConnection
+);
 
 export default router;
