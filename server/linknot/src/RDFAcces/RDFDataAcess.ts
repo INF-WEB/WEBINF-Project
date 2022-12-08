@@ -415,7 +415,7 @@ export class database {
 
         let connectionHasType = new this.rdf.Triple(
             connectionURINode,
-            connectionURI + "/type",
+            database.WEB_DOMAIN + "connection-type",
             new Literal(type.toString())
         );
 
@@ -1056,26 +1056,28 @@ export class database {
         await this.deletePotentialJob(userURI);
     }
 
+    //TODO: delete from bag does not change the index!
+    //EXTRA: do not delete employee from employeebag when 2 jobs for same company
     public async deleteJob(jobURI: string) {
         let deleteJob = await this.client.query.update(`
-        DELETE{
-            ?jobsBag ?item ?job .
+        DELETE {
+            ?jobsBagUser ?item ?job .
+  			?jobsBagCompany ?item3 ?job .
             ?job ?pred ?obj .
             ?employeesBag ?item2 ?employee
-        }WHERE {
-            ?jobsBag ?item ?job .
+        } WHERE {
+            ?jobsBagUser ?item ?job .
+  			?jobsBagCompany ?item3 ?job .
             ?job ?pred ?obj .
             ?employeesBag ?item2 ?employee
             FILTER(
-              ?job = <`+jobURI+`> &&
-              CONTAINS(STR(?jobsBag), "/jobs") && 
+                ?job = <`+jobURI+`> &&
+  			  CONTAINS(STR(?jobsBagUser), "/jobs") && 
+              CONTAINS(STR(?jobsBagCompany), "/jobs") && 
               CONTAINS(STR(?employeesBag), "/employees") &&
-              CONTAINS(STR(?jobsBag), REPLACE(STR(?employeesBag), "/employees", ""))
+              CONTAINS(STR(?jobsBagCompany), REPLACE(STR(?employeesBag), "/employees", ""))
             )
           }
-    `)
-
-    let deleteEmployees = await this.client.query.update(`
     `);
     }
 
@@ -1151,11 +1153,30 @@ export class database {
         `);
     }
 
+    public async deleteAllConnections(userURI: string) {
+        let del = await this.client.query.update(`
+        DELETE {
+            ?connectionBag1 ?item ?conn .
+            ?conn ?pred ?obj .
+            ?connectionBag2 ?item2 ?conn.
+          } WHERE { 
+            ?connectionBag1 ?item ?conn .
+            ?conn ?pred ?obj .
+            ?connectionBag2 ?item2 ?conn.
+            FILTER (
+              STR(?connectionBag1) = \"`+userURI+`\"+"/connections"
+            )
+          }
+          
+        `);
+    }
+
     public async deleteUser(userURI: string) {
         await this.deleteAllJobsForUser(userURI);
         await this.deleteAllPotentials(userURI);
         await this.deleteAllDiplomas(userURI);
         await this.deleteAllProfessionalExperiences(userURI);
+        await this.deleteAllConnections(userURI);
         let del = await this.client.query.update(`
             DELETE {
                 ?user ?pred ?obj .
@@ -1171,7 +1192,9 @@ export class database {
     }
 
     public async deleteCompany() {
-
+        let del = await this.client.query.update(`
+            
+        `)
     }
 
     // -- TEST --
@@ -1186,20 +1209,28 @@ export class database {
 
         let maties: string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", true, "1");
         let femke: string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, "2");
+        let tijl: string = await db.createUser("Tijl", "Elens", "tijl.elens@ergens.com", "Zonhoven", "tijl-elens@blog.com", true, "15");
         await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", diplomaDegree.Doctorate, "UHasselt1");
         await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", diplomaDegree.Master, "UHasselt");
 
         //await db.deleteAllDiplomas(maties);
 
+        await db.createConnectionWith(maties, femke, connectionStatus.Accepted, connectionType.Friend);
+        await db.createConnectionWith(tijl, femke, connectionStatus.Accepted, connectionType.Friend);
+        await db.createConnectionWith(tijl, maties, connectionStatus.Pending, connectionType.Friend);
+
+
         await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Afwassen");
         await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Test");
         let company: string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", "3");
+        let edm: string = await db.createCompany("EDM@gmail.com", "EDM", "EDM.com", "Diepenbeek", "4");
         let CEO: string = await db.createJob(company, "CEO-of-Bol.com", "Alken", "He has done a lot of stuff", diplomaDegree.None, "looking at a screen all day", jobStatus.Hired, "chief executive officer");
         let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
-        await db.addEmployee(company, pakjes, maties);
         await db.addEmployee(company, CEO, maties);
+        await db.addEmployee(company, pakjes, maties);
 
         //await db.deleteJob(CEO);
+        await db.deleteUser(maties);
 
         //let callcenterJob: string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", diplomaDegree.None, "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
 
