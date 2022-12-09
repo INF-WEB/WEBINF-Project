@@ -46,6 +46,31 @@ class UserController{
 
     };
 
+
+    //For asking details from body userid
+    static getDetails =async (req:Request, res: Response) => {
+        let {userId} = req.body;
+        const userRepository = getRepository(UserEntity);
+        try {
+            const user = await userRepository.findOneOrFail({
+                where: {id:userId}, 
+                select: ["email","name", "lastName" , "type", "userURI"]
+            });
+            let result: object;
+            if(user.type === "Person"){
+                result = await rdfDatabase.selectUser(user.userURI);
+            }else{
+                result = await rdfDatabase.selectCompany(user.userURI);
+            }
+           
+			res.status(200).send({user, result});
+
+        } catch (error) {
+            res.status(404).send("User not found");
+        }
+
+    }
+
     //Need to be extended to working with all specs
     static newUser = async (req: Request, res: Response) => {
       	//Get parameters from the body
@@ -112,14 +137,13 @@ class UserController{
         res.status(201).send("User created");
     };
     
-    // TODO: moet nog met rdf werken
 	//Can change values of search, name, lastname 
     static editUser = async (req: Request, res: Response) => {
         //Get the ID from the url
         const id = res.locals.jwtPayload.id;
         
         //Get values from the body
-        const { name, lastName, search } = req.body;
+        const { name, lastName, search, webpage, area } = req.body;
         
         //Try to find user on database
         const userRepository = getRepository(UserEntity);
@@ -151,11 +175,15 @@ class UserController{
             res.status(409).send("username already in use");
             return;
         }
+        if(user.type === "Person"){
+            await rdfDatabase.updateUser(user.userURI, {firstname: name, lastname: lastName, webpage: webpage, lookingForJob: Boolean(search)});
+        }else{
+            await rdfDatabase.updateCompany(user.userURI, {name: name, webpage: webpage, headquaters: area});
+        }
         //After all send a 204 (no content, but accepted) response
         res.status(200).send("Values have changed");
     };
     
-    //TODO: moet nog werken met rdf
     static deleteUser = async (req: Request, res: Response) => {
     //Get the ID from the sesssion jwt token
     const id = res.locals.jwtPayload.id;
@@ -170,8 +198,15 @@ class UserController{
         res.status(404).send("User not found");
         return;
     }
-    userRepository.delete(id);
-    
+    const uri = user.userURI;
+    const type = user.type;
+    await userRepository.delete(id);
+    if(type === "Person"){
+        await rdfDatabase.deleteUser(uri);
+    }else{
+        await rdfDatabase.deleteCompany(uri);
+    }
+
 	//Also log the user out 
 	req.session = null;
     //After all send a 204 (no content, but accepted) response
