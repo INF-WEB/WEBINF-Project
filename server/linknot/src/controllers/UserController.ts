@@ -49,25 +49,30 @@ class UserController{
 
     //For asking details from body userid
     static getDetails =async (req:Request, res: Response) => {
-        let {userId} = req.body;
+        let {userID} = req.body;
         const userRepository = getRepository(UserEntity);
-        try {
-            const user = await userRepository.findOneOrFail({
-                where: {id:userId}, 
-                select: ["email","name", "lastName" , "type", "userURI"]
-            });
-            let result: object;
-            if(user.type === "Person"){
-                result = await rdfDatabase.selectUser(user.userURI);
-            }else{
-                result = await rdfDatabase.selectCompany(user.userURI);
+        if(userID){
+            try {
+                const user = await userRepository.findOneOrFail({
+                    where: {id:userID}, 
+                    select: ["email","name", "lastName" , "type", "userURI"]
+                });
+                let result: object;
+                if(user.type === "Person"){
+                    result = await rdfDatabase.selectUser(user.userURI);
+                }else{
+                    result = await rdfDatabase.selectCompany(user.userURI);
+                }
+               
+                res.status(200).send({user, result});
+    
+            } catch (error) {
+                res.status(404).send("User not found");
             }
-           
-			res.status(200).send({user, result});
-
-        } catch (error) {
-            res.status(404).send("User not found");
+        }else{
+            res.status(404).send("No user specified");
         }
+        
 
     }
 

@@ -95,7 +95,7 @@ class DiplomaController {
             //via userURI en diplomaNumber
             //rdfDatabase
             rdfDatabase.deleteDiploma(diplomaURI);
-            res.status(200).send("Diplomas are removed");
+            res.status(200).send("Diplomas is removed");
 
         }catch (error){
             res.status(404).send("User not found");
@@ -120,7 +120,7 @@ class DiplomaController {
             //via userURI en diplomaNumber
             //rdfDatabase
             await rdfDatabase.updateDiploma(diplomaURI, {graduation: grad, field: field, degree: degreeEnum, educationalInstitute: educationalInstitute})
-            res.status(200).send("Diplomas are removed");
+            res.status(200).send("Diploma updated");
 
         }catch (error){
             res.status(404).send("User not found");
