@@ -50,6 +50,10 @@ class UserController{
     //For asking details from body userid
     static getDetails =async (req:Request, res: Response) => {
         let {userID} = req.body;
+        if (!userID) {
+            res.status(400).send("userID is needed!!");
+            return;
+        }
         const userRepository = getRepository(UserEntity);
         if(userID){
             try {
@@ -80,7 +84,12 @@ class UserController{
     static newUser = async (req: Request, res: Response) => {
       	//Get parameters from the body
         let { name, lastName, email, area, webpage, password, search, type } = req.body;
-        console.log(req.body);
+        // console.log(req.body);
+        if(!(name && email && password && search && type)){
+            let temp = "area, webpage, lastName(Person only) are optionel!";
+            res.status(400).send("Name and email and password and search and type (Person or Company) are needed!\n"+temp);
+            return;
+        }
         
         let user = new UserEntity();
         user.name = name;
@@ -150,6 +159,10 @@ class UserController{
         //Get values from the body
         const { name, lastName, search, webpage, area } = req.body;
         
+        if (!(name || lastName || search || webpage || area)) {
+            res.status(400).send("name or lastname (if person) or search (boolean looking for job) or webpage or area needed!!");
+            return;
+        }
         //Try to find user on database
         const userRepository = getRepository(UserEntity);
         let user: UserEntity;
@@ -190,32 +203,33 @@ class UserController{
     };
     
     static deleteUser = async (req: Request, res: Response) => {
-    //Get the ID from the sesssion jwt token
-    const id = res.locals.jwtPayload.id;
-	
-    const userRepository = getRepository(UserEntity);
-    let user: UserEntity;
-    try {
-        user = await userRepository.findOneOrFail({
-                        where: {id:id},     
-                        });
-    } catch (error) {
-        res.status(404).send("User not found");
-        return;
-    }
-    const uri = user.userURI;
-    const type = user.type;
-    await userRepository.delete(id);
-    if(type === "Person"){
-        await rdfDatabase.deleteUser(uri);
-    }else{
-        await rdfDatabase.deleteCompany(uri);
-    }
+        //Get the ID from the sesssion jwt token
+        const id = res.locals.jwtPayload.id;
+        
+        const userRepository = getRepository(UserEntity);
+        let user: UserEntity;
+        try {
+            user = await userRepository.findOneOrFail({
+                            where: {id:id},     
+                            });
+        } catch (error) {
+            res.status(404).send("User not found");
+            return;
+        }
+        
+        const uri = user.userURI;
+        const type = user.type;
+        await userRepository.delete(id);
+        if(type === "Person"){
+            await rdfDatabase.deleteUser(uri);
+        }else{
+            await rdfDatabase.deleteCompany(uri);
+        }
 
-	//Also log the user out 
-	req.session = null;
-    //After all send a 204 (no content, but accepted) response
-    res.status(204).send();
+        //Also log the user out 
+        req.session = null;
+        //After all send a 204 (no content, but accepted) response
+        res.status(204).send();
     };
 
 

@@ -28,7 +28,10 @@ class JobExperienceController {
     static getExpr =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
         let {ExprURI} = req.body;
-
+        if(!ExprURI){
+            res.status(400).send("ExprURI is needed!!");
+            return;
+        }
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
@@ -48,6 +51,10 @@ class JobExperienceController {
     static createExpr =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
         let {startDate, endDate, description} = req.body;
+        if(!(startDate && endDate && description)){
+            res.status(400).send("startDate (date form) and endDate (date form) and description are needed!!");
+            return;
+        }
         const sDate:Date = startDate;
         const eDate:Date = endDate;
 
@@ -87,6 +94,11 @@ class JobExperienceController {
     static deleteExprSingle =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
         let {exprURI} = req.body;
+        if(!exprURI){
+            res.status(400).send("exprURI is needed!!");
+            return;
+        }
+
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
@@ -109,6 +121,14 @@ class JobExperienceController {
         let {exprURI, startDate, endDate, description} = req.body;
         let sDate: Date = startDate;
         let eDate: Date = endDate;
+        if(!exprURI){
+            res.status(400).send("exprURI needed!!\n startDate (date form) or endDate (date form) or description are optionel\ one is well needed");
+            return;
+        }
+        if(! (startDate|| endDate || description)){
+            res.status(400).send("exprURI needed!!\n startDate (date form) or endDate (date form) or description are optionel\n one is well needed");
+            return;
+        }
 
         const userRepository = getRepository(UserEntity);
         try{

@@ -27,7 +27,10 @@ class DiplomaController {
     static getDiploma = async (req:Request, res: Response) => {
         const id = res.locals.jwtPayload.id;
         let {diplomaURI} = req.body;
-
+        if (!(diplomaURI)) {
+            res.status(400).send("diplomaURI are needed!!");
+            return;
+        }
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
@@ -47,6 +50,10 @@ class DiplomaController {
     static createDiploma =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
         let {graduation, field, educationalInstitute, degree} = req.body;
+        if (!(graduation && field && educationalInstitute && degree)) {
+            res.status(400).send("graduation (date) and field and educationalInstitute and degree (right form) are needed!!");
+            return;
+        }
         let grad: Date = graduation;
         let degreeEnum: diplomaDegree = degree;
 
@@ -86,6 +93,10 @@ class DiplomaController {
     static deleteDiplomaSingle =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
         let {diplomaURI} = req.body;
+        if (!(diplomaURI)) {
+            res.status(400).send("diplomaURI are needed!!");
+            return;
+        }
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
@@ -108,6 +119,14 @@ class DiplomaController {
         const id = res.locals.jwtPayload.id;
 
         let {diplomaURI, graduation, field, educationalInstitute, degree} = req.body;
+        if(!diplomaURI){
+            res.status(400).send("diplomaURI is needed, graduation or field or educationalInstitute or degree optional");
+            return;
+        }
+        if (!(graduation || field || educationalInstitute || degree )) {
+            res.status(400).send("diplomaURI is needed, graduation or field or educationalInstitute or degree optional");
+            return;
+        }
         let grad: Date = graduation;
         let degreeEnum: diplomaDegree = degree;
 

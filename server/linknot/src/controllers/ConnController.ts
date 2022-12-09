@@ -35,6 +35,11 @@ class ConnController {
     static getConnection = async(req:Request, res: Response) => {
         const id = res.locals.jwtPayload.id;
         let {userConnectId, connectionURI} = req.body;
+        if (!(userConnectId && connectionURI)) {
+            res.status(400).send("userConnectId and connectionURI are needed!!");
+            return;
+        }
+
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
@@ -59,7 +64,10 @@ class ConnController {
     static answerConnection = async(req:Request, res: Response) => {
         const id = res.locals.jwtPayload.id;
         let {userConnectId, connectionStatus, connectionType, connectionURI} = req.body;
-
+        if (!(userConnectId && connectionStatus && connectionType && connectionURI)) {
+            res.status(400).send("userConnectId and connectionStatus (right form) and connctionType (righform) and connectionURI are needed!!");
+            return;
+        }
         let connStatus: connectionStatus = connectionStatus;
         let connType: connectionType = connectionType;
         const userRepository = getRepository(UserEntity);
@@ -88,7 +96,10 @@ class ConnController {
     static createConnection =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
         let {userConnectId, connectionStat, connectionType} = req.body;
-
+        if (!(userConnectId && connectionStat && connectionType )) {
+            res.status(400).send("userConnectId and connectionStat (right form) and connctionType (righform) are needed!!");
+            return;
+        }
         let connStatus: connectionStatus = connectionStat;
         let connType: connectionType = connectionType;
         const userRepository = getRepository(UserEntity);
@@ -123,7 +134,10 @@ class ConnController {
     static deleteConnection = async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
         let {userConnectId, connectionURI} = req.body;
-
+        if (!(userConnectId && connectionURI)) {
+            res.status(400).send("userConnectId and connectionURI are needed!!");
+            return;
+        }
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
