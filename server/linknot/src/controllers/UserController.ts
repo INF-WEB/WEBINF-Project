@@ -95,7 +95,6 @@ class UserController{
         user.name = name;
         if(lastName){
           user.lastName = lastName;
-
         }else{
             lastName = "";
         }
@@ -120,20 +119,21 @@ class UserController{
         const userRepository = getRepository(UserEntity);
         try {
             await userRepository.save(user);
+            user.hashPassword();
+     
+            if(type === "Person"){
+                let userURI= await rdfDatabase.createUser(name, lastName, email, area, webpage, Boolean(search), user.id);
+                user.userURI = userURI;
+            }else{
+                let userURI = await rdfDatabase.createCompany(email, name, webpage, area, user.id);
+                user.userURI = userURI;
+            }
         } catch (e) {
             res.status(409).send("User already a life 1");
             return;
         }
         //Hash the password, to securely store on DB
-        user.hashPassword();
-     
-        if(type === "Person"){
-            let userURI= await rdfDatabase.createUser(name, lastName, email, area, webpage, Boolean(search), user.id);
-            user.userURI = userURI;
-        }else{
-            let userURI = await rdfDatabase.createCompany(email, name, webpage, area, user.id);
-            user.userURI = userURI;
-        }
+        
 
         //Update user and add userURI 
         try {
@@ -189,15 +189,16 @@ class UserController{
         //Try to safe, if fails, that means username already in use
         try {
             await userRepository.save(user);
+            if(user.type === "Person"){
+                await rdfDatabase.updateUser(user.userURI, {firstname: name, lastname: lastName, webpage: webpage, adres:area, lookingForJob: Boolean(search)});
+            }else{
+                await rdfDatabase.updateCompany(user.userURI, {name: name, webpage: webpage, headquaters: area});
+            }
         } catch (e) {
             res.status(409).send("username already in use");
             return;
         }
-        if(user.type === "Person"){
-            await rdfDatabase.updateUser(user.userURI, {firstname: name, lastname: lastName, webpage: webpage, lookingForJob: Boolean(search)});
-        }else{
-            await rdfDatabase.updateCompany(user.userURI, {name: name, webpage: webpage, headquaters: area});
-        }
+       
         //After all send a 204 (no content, but accepted) response
         res.status(200).send("Values have changed");
     };
@@ -212,22 +213,23 @@ class UserController{
             user = await userRepository.findOneOrFail({
                             where: {id:id},     
                             });
+
+            const uri = user.userURI;
+            const type = user.type;
+            await userRepository.delete(id);
+            if(type === "Person"){
+                await rdfDatabase.deleteUser(uri);
+            }else{
+                await rdfDatabase.deleteCompany(uri);
+            }
+            //Also log the user out 
+            req.session = null;
         } catch (error) {
             res.status(404).send("User not found");
             return;
         }
         
-        const uri = user.userURI;
-        const type = user.type;
-        await userRepository.delete(id);
-        if(type === "Person"){
-            await rdfDatabase.deleteUser(uri);
-        }else{
-            await rdfDatabase.deleteCompany(uri);
-        }
-
-        //Also log the user out 
-        req.session = null;
+        
         //After all send a 204 (no content, but accepted) response
         res.status(204).send();
     };

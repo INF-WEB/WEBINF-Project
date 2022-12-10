@@ -25,8 +25,30 @@ class JobExperienceController {
         }
     }
 
+    static getDetails =async (req:Request, res:Response) => {
+        const userRepository = getRepository(UserEntity);
+        let {userID} = req.body;
+        if (!(userID)) {
+            res.status(400).send("userID are needed!!");
+            return;
+        }
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:userID},
+                select: ["userURI"]
+            });
+            //
+            //rdfDatabase.
+            const result = await rdfDatabase.selectProfessionalExperiences(user.userURI);
+            res.status(200).send(result);
+
+        }catch (error){
+            res.status(404).send("User not found")
+        }
+    }
+
     static getExpr =async (req:Request, res:Response) => {
-        const id = res.locals.jwtPayload.id;
+        //const id = res.locals.jwtPayload.id;
         let {ExprURI} = req.body;
         if(!ExprURI){
             res.status(400).send("ExprURI is needed!!");
@@ -34,10 +56,10 @@ class JobExperienceController {
         }
         const userRepository = getRepository(UserEntity);
         try{
-            const user = await userRepository.findOneOrFail({
-                where: {id:id},
-                select: ["userURI"]
-            });
+            // const user = await userRepository.findOneOrFail({
+            //     where: {id:id},
+            //     select: ["userURI"]
+            // });
             //via userURI en ExprURI
             //rdfDatabase.
             const result = await rdfDatabase.selectProfessionalExperience(ExprURI);
@@ -107,11 +129,11 @@ class JobExperienceController {
             });
             //via userURI en diplomaNumber
             //rdfDatabase
-            rdfDatabase.deleteProfessionalExperience(exprURI);
+            rdfDatabase.deleteProfessionalExperience(user.userURI, exprURI);
             res.status(200).send("Expr is removed");
 
         }catch (error){
-            res.status(404).send("User not found");
+            res.status(404).send("User or Experience not found! Possible not right permissions!");
         }
     }
 
@@ -138,11 +160,11 @@ class JobExperienceController {
             });
             //via userURI en diplomaNumber
             //rdfDatabase
-            await rdfDatabase.updateProfessionalExperience(exprURI, {startDate: sDate, endDate: eDate, description: description});
+            await rdfDatabase.updateProfessionalExperience(user.userURI, exprURI, {startDate: sDate, endDate: eDate, description: description});
             res.status(200).send("expr updated");
 
         }catch (error){
-            res.status(404).send("User not found");
+            res.status(404).send("User or Experience not found! Possible don't have permission!");
         }
     }
 }

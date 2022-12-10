@@ -11,8 +11,12 @@ router.get("/all",
     JobExperienceController.getAllExpr
 );
 
+router.get("/detail",
+    [checkJwt],
+    JobExperienceController.getDetails)
+
 router.get("/single",
-    [checkJwt, checkType(["Person"])],
+    [checkJwt],
     JobExperienceController.getExpr
     );
     
