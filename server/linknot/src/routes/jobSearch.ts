@@ -57,4 +57,18 @@ router.put("/answer",
     JobSearchController.answerPotJob
 );
 
+router.delete("/removeJob",
+    [checkJwt, checkType(["Company"])],
+    JobSearchController.removeJob  
+);
+
+router.get("/matchJobs",
+    [checkJwt, checkType(["Person"])],
+    JobSearchController.getmatchJobs
+);
+
+router.get("/matchCanidates",
+    [checkJwt, checkType(["Company"])],
+    JobSearchController.getmatchCanidates  
+);
 export default router;

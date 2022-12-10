@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
 import auth from "./auth";
-import candidates from "./candidates";
 import connection from "./connection";
 import jobSearch from "./jobSearch";
 import user from "./user";
@@ -16,7 +15,6 @@ routes.use("/auth", auth);
 routes.use("/user", user);
 routes.use("/connection", connection);
 routes.use("/job", jobSearch);
-routes.use("/candidates", candidates);
 routes.use("/diploma", diploma);
 router.use("/jobExpr", jobExperience);
 

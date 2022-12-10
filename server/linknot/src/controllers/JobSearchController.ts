@@ -178,7 +178,7 @@ class JobSearchController {
             });
             //via userURI en diplomaNumber
             //rdfDatabase
-            await rdfDatabase.updateJob(jobURI, {jobName:jobName, area:area, workexperience:workExpr, diploma: diplDegree, jobdescription: jobDescr, status: jobStat, type: type});
+            await rdfDatabase.updateJob(user.userURI, jobURI, {jobName:jobName, area:area, workexperience:workExpr, diploma: diplDegree, jobdescription: jobDescr, status: jobStat, type: type});
             res.status(200).send("job updated");
 
         }catch (error){
@@ -207,7 +207,93 @@ class JobSearchController {
         }catch (error){
             res.status(404).send("User not found");
         }
+    }
 
+    static removeJob =async (req:Request, res:Response) => {
+        const id = res.locals.jwtPayload.id;
+        let {jobURI} = req.body;
+        if(!(jobURI)){
+            res.status(400).send("jobURI is needed !!");
+            return;
+        }
+        const userRepository = getRepository(UserEntity);
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:id},
+                select: ["userURI"]
+            });
+            //via userURI en diplomaNumber
+            //rdfDatabase
+            await rdfDatabase.deleteJob(user.userURI, jobURI);
+            res.status(200).send("potenial job updated");
+
+        }catch (error){
+            res.status(404).send("Job or Company not found! Or don't have permission");
+        }
+    }
+
+    static getmatchJobs =async (req:Request, res:Response) => {
+        const id = res.locals.jwtPayload.id;
+        let {jobType, companyURI, maxDistance, checkDegree} = req.body;
+        let degree: boolean = false;
+        if(maxDistance){
+            if(isNaN(maxDistance)){
+                res.status(400).send("maxDistance is a number (km)!\n other possible values jobType, companyURI and checkDegree (boolean)");
+                return;
+            }
+        }
+        if(checkDegree){
+            if(checkDegree == "true"){
+                degree = true;
+            }
+        }
+
+        const userRepository = getRepository(UserEntity);
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:id},
+                select: ["userURI"]
+            });
+            //via userURI en diplomaNumber
+            //rdfDatabase
+            const result = await rdfDatabase.matchForUser({userURI:user.userURI, jobType:jobType, companyURI:companyURI, maxDistanceKm: maxDistance, checkDegree: degree});
+            res.status(200).send(result);
+
+        }catch (error){
+            res.status(404).send("Job or Company not found! Or don't have permission");
+        }
+    }
+
+    static getmatchCanidates =async (req:Request, res:Response) => {
+        const id = res.locals.jwtPayload.id;
+        let {jobURI, maxDistance, checkDegree} = req.body;
+        let degree: boolean = false;
+        if(maxDistance){
+            if(isNaN(maxDistance)){
+                res.status(400).send("maxDistance is a number (km)!\n other possible values jobType, companyURI and checkDegree (boolean)");
+                return;
+            }
+        }
+        if(checkDegree){
+            if(checkDegree == "true"){
+                degree = true;
+            }
+        }
+
+        const userRepository = getRepository(UserEntity);
+        try{
+            // const user = await userRepository.findOneOrFail({
+            //     where: {id:id},
+            //     select: ["userURI"]
+            // });
+            //via userURI en diplomaNumber
+            //rdfDatabase
+            const result = await rdfDatabase.matchForJob({jobURI:jobURI, maxDistanceKm: maxDistance, checkDegree: degree});
+            res.status(200).send(result);
+
+        }catch (error){
+            res.status(404).send("Job or Company not found! Or don't have permission");
+        }
     }
 
 }

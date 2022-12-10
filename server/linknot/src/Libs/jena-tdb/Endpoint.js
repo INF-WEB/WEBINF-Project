@@ -6,11 +6,8 @@ const { tempDir } = require('./lib/temp')
 
 class Endpoint {
   constructor ({ bin, db } = {}) {
-    console.log("normal bin", bin);
     this.bin = bin && path.resolve(bin)
-    console.log("new found bin ", this.bin);
     this.db = db && path.resolve(db)
-    console.log("path of db",this.db);
     this.cleanup = null
   }
 

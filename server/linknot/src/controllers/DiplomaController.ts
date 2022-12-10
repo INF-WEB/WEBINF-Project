@@ -48,7 +48,7 @@ class DiplomaController {
     }
 
     static getDiploma = async (req:Request, res: Response) => {
-        const id = res.locals.jwtPayload.id;
+        //const id = res.locals.jwtPayload.id;
         let {diplomaURI} = req.body;
         if (!(diplomaURI)) {
             res.status(400).send("diplomaURI are needed!!");
@@ -56,10 +56,10 @@ class DiplomaController {
         }
         const userRepository = getRepository(UserEntity);
         try{
-            const user = await userRepository.findOneOrFail({
-                where: {id:id},
-                select: ["userURI"]
-            });
+            // const user = await userRepository.findOneOrFail({
+            //     where: {id:id},
+            //     select: ["userURI"]
+            // });
             //via userURI en diplomaNumber
             //rdfDatabase.
             const result = await rdfDatabase.selectDiploma(diplomaURI);
@@ -128,11 +128,11 @@ class DiplomaController {
             });
             //via userURI en diplomaNumber
             //rdfDatabase
-            rdfDatabase.deleteDiploma(diplomaURI);
+            rdfDatabase.deleteDiploma(user.userURI, diplomaURI);
             res.status(200).send("Diplomas is removed");
 
         }catch (error){
-            res.status(404).send("User not found");
+            res.status(404).send("User or diploma not found! Possible don't have permissions!");
         }
     }
 
@@ -161,11 +161,11 @@ class DiplomaController {
             });
             //via userURI en diplomaNumber
             //rdfDatabase
-            await rdfDatabase.updateDiploma(diplomaURI, {graduation: grad, field: field, degree: degreeEnum, educationalInstitute: educationalInstitute})
+            await rdfDatabase.updateDiploma(user.userURI, diplomaURI, {graduation: grad, field: field, degree: degreeEnum, educationalInstitute: educationalInstitute})
             res.status(200).send("Diploma updated");
 
         }catch (error){
-            res.status(404).send("User not found");
+            res.status(404).send("user or diploma not found! Possible don't have right permissions!");
         }
 
     }
