@@ -3,6 +3,8 @@ const workingDir: string = "..";
 const { v4: uuidv4 } = require('uuid');
 const Client = require('../Libs/jena-tdb/ParsingClient');
 
+import { userInfo } from "os";
+import { stringify } from "querystring";
 import { jobStatus, connectionStatus, connectionType, diplomaDegree, MatchForUser, MatchForJob, UpdateUser, UpdateCompany, UpdateJob, UpdateDiploma, UpdateProfessionalExperience, UpdateConnection } from "../Types/enum";
 import { Geonames } from "./geonames";
 
@@ -1573,11 +1575,18 @@ WHERE {
         return new Object;
     }
 
-    public async matchForJob({
-        jobURI,
-        checkDegree = false,
-        maxDistanceKm = -1,
-    }: MatchForJob): Promise<any> {
+    public async matchForJob(
+        companyURI: string,
+        {
+            jobURI,
+            checkDegree = false,
+            maxDistanceKm = -1,
+        }: MatchForJob
+    ): Promise<any> {
+        let job: any = await this.checkOwner(companyURI, jobURI, "jobs");
+        if (!job)
+            throw new Error(companyURI+" is not the owner of the object "+jobURI);
+
         let queryDegree: string;
         if (checkDegree) {
             queryDegree =
@@ -1638,6 +1647,18 @@ WHERE {
         };
 
         return matchedUsers;
+    }
+
+    private async sendJobApplicationToUser(
+        companyURI: string,
+        jobURI: string,
+        userURI: string,
+    ) {
+        let job: any = await this.checkOwner(companyURI, jobURI, "jobs");
+        if (!job)
+            throw new Error(companyURI+" is not the owner of the object "+jobURI);
+        await this.deleteAllPotentials(userURI);
+        await this.addPotential(jobURI, userURI, false);
     }
 
     private async addJobToEmployee(
