@@ -50,6 +50,7 @@ export interface UpdateUser {
     firstname?: string;
     lastname?: string;
     webpage?: string;
+    adres?: string;
     lookingForJob?: boolean;
 }
 

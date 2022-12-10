@@ -973,6 +973,7 @@ export class database {
             firstname,
             lastname,
             webpage,
+            adres,
             lookingForJob
         }: UpdateUser){
         let updateFirstName: string = "";
@@ -980,6 +981,8 @@ export class database {
         let updateWebpage: string = "";
         let updateLookingForJob: string = "";
         let updateFullName: string = "";
+        let updateAdres: string = "";
+
         let fullName = "";
         if (firstname != undefined) 
             updateFirstName = this.getUpdateBlankString(database.vCard('N'), database.vCard('given-name'), firstname, userURI);
@@ -1018,7 +1021,8 @@ WHERE {
     ?user foaf:FN ?item .
   	FILTER( ?user = <https://testDomain/MatiesClaesen-1> ) 
 }; */
-
+        if(adres != null)
+            updateAdres = this.getUpdateString(database.gn('name'), adres, userURI);
         if (webpage != null) 
             updateWebpage = this.getUpdateString(database.foaf('homepage'), webpage, userURI);
         if (lookingForJob != null) 
@@ -1028,6 +1032,7 @@ WHERE {
             `+updateLastName+`
             `+updateFullName+`
             `+updateWebpage+`
+            `+updateAdres+`
             `+updateLookingForJob+`
         `);
     }
