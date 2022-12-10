@@ -1760,6 +1760,7 @@ WHERE {
     public async addEmployee(companyURI: string, jobURI: string, employeeURI: string) {
         await this.addEmployeeToCompany(companyURI, employeeURI);
         await this.addJobToEmployee(employeeURI, jobURI);
+        await this.updateJob(companyURI, jobURI, {status: jobStatus.Hired});
     }
 
     // -- TESTS --
