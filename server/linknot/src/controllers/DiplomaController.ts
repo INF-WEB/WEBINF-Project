@@ -16,7 +16,8 @@ class DiplomaController {
             });
             //
             //rdfDatabase.
-
+            const result = await rdfDatabase.selectDiplomas(user.userURI);
+            res.status(200).send(result);
 
         }catch (error){
             res.status(404).send("User not found")
@@ -25,8 +26,11 @@ class DiplomaController {
 
     static getDiploma = async (req:Request, res: Response) => {
         const id = res.locals.jwtPayload.id;
-        let {diplomaNumber} = req.body;
-
+        let {diplomaURI} = req.body;
+        if (!(diplomaURI)) {
+            res.status(400).send("diplomaURI are needed!!");
+            return;
+        }
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
@@ -35,8 +39,8 @@ class DiplomaController {
             });
             //via userURI en diplomaNumber
             //rdfDatabase.
-
-            res.status(200).send();
+            const result = await rdfDatabase.selectDiploma(diplomaURI);
+            res.status(200).send(result);
 
         }catch (error){
             res.status(404).send("User not found");
@@ -46,6 +50,10 @@ class DiplomaController {
     static createDiploma =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
         let {graduation, field, educationalInstitute, degree} = req.body;
+        if (!(graduation && field && educationalInstitute && degree)) {
+            res.status(400).send("graduation (date) and field and educationalInstitute and degree (right form) are needed!!");
+            return;
+        }
         let grad: Date = graduation;
         let degreeEnum: diplomaDegree = degree;
 
@@ -56,8 +64,8 @@ class DiplomaController {
                 select: ["userURI"]
             });
             //via userURI en diplomaNumber
-            await rdfDatabase.createDiplomaFor(user.userURI, grad, field, degreeEnum, educationalInstitute);
-            res.status(200).send("Created Diploma");
+            const diplomaURI = await rdfDatabase.createDiplomaFor(user.userURI, grad, field, degreeEnum, educationalInstitute);
+            res.status(200).send("Created Diploma " + diplomaURI);
 
         }catch (error){
             res.status(404).send("User not found");
@@ -74,7 +82,7 @@ class DiplomaController {
                 select: ["userURI"]
             });
             //via userURI en diplomaNumber
-            
+            await rdfDatabase.deleteAllDiplomas(user.userURI);
             res.status(200).send("Diplomas are removed");
 
         }catch (error){
@@ -84,7 +92,11 @@ class DiplomaController {
 
     static deleteDiplomaSingle =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
-        let {diplomaNumber} = req.body;
+        let {diplomaURI} = req.body;
+        if (!(diplomaURI)) {
+            res.status(400).send("diplomaURI are needed!!");
+            return;
+        }
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
@@ -93,8 +105,8 @@ class DiplomaController {
             });
             //via userURI en diplomaNumber
             //rdfDatabase
-
-            res.status(200).send("Diplomas are removed");
+            rdfDatabase.deleteDiploma(diplomaURI);
+            res.status(200).send("Diplomas is removed");
 
         }catch (error){
             res.status(404).send("User not found");
@@ -106,7 +118,15 @@ class DiplomaController {
     static editDiploma = async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
 
-        let {diplomaNumber, graduation, field, educationalInstitute, degree} = req.body;
+        let {diplomaURI, graduation, field, educationalInstitute, degree} = req.body;
+        if(!diplomaURI){
+            res.status(400).send("diplomaURI is needed, graduation or field or educationalInstitute or degree optional");
+            return;
+        }
+        if (!(graduation || field || educationalInstitute || degree )) {
+            res.status(400).send("diplomaURI is needed, graduation or field or educationalInstitute or degree optional");
+            return;
+        }
         let grad: Date = graduation;
         let degreeEnum: diplomaDegree = degree;
 
@@ -118,8 +138,8 @@ class DiplomaController {
             });
             //via userURI en diplomaNumber
             //rdfDatabase
-
-            res.status(200).send("Diplomas are removed");
+            await rdfDatabase.updateDiploma(diplomaURI, {graduation: grad, field: field, degree: degreeEnum, educationalInstitute: educationalInstitute})
+            res.status(200).send("Diploma updated");
 
         }catch (error){
             res.status(404).send("User not found");

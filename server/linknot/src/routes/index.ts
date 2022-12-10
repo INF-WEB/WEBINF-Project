@@ -4,8 +4,9 @@ import candidates from "./candidates";
 import connection from "./connection";
 import jobSearch from "./jobSearch";
 import user from "./user";
-import diploma from "./diploma"
-
+import diploma from "./diploma";
+import router from "./auth";
+import jobExperience from "./jobExperience";
 //here need you can add route  main part
 //try to split up the routes good
 
@@ -17,5 +18,6 @@ routes.use("/connection", connection);
 routes.use("/jobSearch", jobSearch);
 routes.use("/candidates", candidates);
 routes.use("/diploma", diploma);
+router.use("/jobExpr", jobExperience);
 
 export default routes;

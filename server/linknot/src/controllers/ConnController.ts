@@ -6,7 +6,7 @@ import { rdfDatabase } from "..";
 import { connectionStatus, connectionType } from "../Types/enum";
 
 
-
+//TODO: ask about possible other why to verify or call except with only uri
 class ConnController {
     
     //Gives back all connections of user
@@ -21,8 +21,9 @@ class ConnController {
             });
             //
             //rdfDatabase.
+            const result=await rdfDatabase.selectConnections(user.userURI);
 
-            res.status(200).send();
+            res.status(200).send(result);
         }catch (error){
             res.status(404).send("User not found");
         }
@@ -30,9 +31,15 @@ class ConnController {
     };
 
     //Check connection with one user
+    //TODO: need to place in check for if user is in connection
     static getConnection = async(req:Request, res: Response) => {
         const id = res.locals.jwtPayload.id;
-        let {UserConnectId} = req.body;
+        let {userConnectId, connectionURI} = req.body;
+        if (!(userConnectId && connectionURI)) {
+            res.status(400).send("userConnectId and connectionURI are needed!!");
+            return;
+        }
+
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
@@ -41,12 +48,13 @@ class ConnController {
             });
             
             const connUser = await userRepository.findOneOrFail({
-                where: {id:UserConnectId},
+                where: {id:userConnectId},
                 select: ["userURI"]
             });
 
             //rdf function to call
-            res.status(200).send();
+            const result = await rdfDatabase.selectConnection(connectionURI);
+            res.status(200).send(result);
         }catch (error){
             res.status(404).send("User not found")
         }
@@ -55,8 +63,11 @@ class ConnController {
     //Create,update connection with other person
     static answerConnection = async(req:Request, res: Response) => {
         const id = res.locals.jwtPayload.id;
-        let {UserConnectId, connectionStatus, connectionType} = req.body;
-
+        let {userConnectId, connectionStatus, connectionType, connectionURI} = req.body;
+        if (!(userConnectId && connectionStatus && connectionType && connectionURI)) {
+            res.status(400).send("userConnectId and connectionStatus (right form) and connctionType (righform) and connectionURI are needed!!");
+            return;
+        }
         let connStatus: connectionStatus = connectionStatus;
         let connType: connectionType = connectionType;
         const userRepository = getRepository(UserEntity);
@@ -67,13 +78,13 @@ class ConnController {
             });
 
             const connUser = await userRepository.findOneOrFail({
-                where: {id:UserConnectId},
+                where: {id:userConnectId},
                 select: ["userURI"]
             });
 
             //
             //rdfDatabase.
-            await rdfDatabase.createConnectionWith(user.userURI, connUser.userURI, connStatus, connType);
+            await rdfDatabase.updateConnection(connectionURI,{status: connStatus, type: connType});
 
             res.status(200).send("Connection is changed");
         }catch (error){
@@ -84,8 +95,11 @@ class ConnController {
 
     static createConnection =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
-        let {UserConnectId, connectionStat, connectionType} = req.body;
-
+        let {userConnectId, connectionStat, connectionType} = req.body;
+        if (!(userConnectId && connectionStat && connectionType )) {
+            res.status(400).send("userConnectId and connectionStat (right form) and connctionType (righform) are needed!!");
+            return;
+        }
         let connStatus: connectionStatus = connectionStat;
         let connType: connectionType = connectionType;
         const userRepository = getRepository(UserEntity);
@@ -96,16 +110,16 @@ class ConnController {
             });
 
             const connUser = await userRepository.findOneOrFail({
-                where: {id:UserConnectId},
+                where: {id:userConnectId},
                 select: ["userURI"]
             });
-
+            let connURI: string;
             if(connStatus === connectionStatus.Pending){
-                await rdfDatabase.createConnectionWith(user.userURI, connUser.userURI, connStatus, connType);
+                connURI = await rdfDatabase.createConnectionWith(user.userURI, connUser.userURI, connStatus, connType);
             }else{
                 res.status(400).send("Need to be Pending");
             }
-            res.status(200).send("Connection is Pending");
+            res.status(200).send("Connection is Pending" + connURI);
 
             //
             //rdfDatabase.
@@ -119,8 +133,11 @@ class ConnController {
 
     static deleteConnection = async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
-        let {UserConnectId} = req.body;
-
+        let {userConnectId, connectionURI} = req.body;
+        if (!(userConnectId && connectionURI)) {
+            res.status(400).send("userConnectId and connectionURI are needed!!");
+            return;
+        }
         const userRepository = getRepository(UserEntity);
         try{
             const user = await userRepository.findOneOrFail({
@@ -129,13 +146,14 @@ class ConnController {
             });
 
             const connUser = await userRepository.findOneOrFail({
-                where: {id:UserConnectId},
+                where: {id:userConnectId},
                 select: ["userURI"]
             });
 
             //rdfdatabase remove user
+            rdfDatabase.deleteConnection(connectionURI);
 
-            res.status(200).send("Connection is Pending");
+            res.status(200).send("Connection is removed");
         }catch(error){
             res.status(404).send("User not found");
         }
@@ -155,10 +173,10 @@ class ConnController {
             });
 
             
-
+            await rdfDatabase.deleteAllConnections(user.userURI);
             //rdfdatabase remove all user
 
-            res.status(200).send("Connection is Pending");
+            res.status(200).send("Connections are removed");
         }catch(error){
             res.status(404).send("User not found");
         }

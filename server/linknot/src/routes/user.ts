@@ -7,12 +7,18 @@ import { checkType } from "../middlewares/checkType";
 const router = Router();
 
 
-// Get one user
+// Get logged in user
 router.get(
-    "/accountDetails",
+    "/Details",
     [checkJwt, checkType(["Person", "Company", "ADMIN"])],
     UserController.getAccountDetails
     );
+
+router.get(
+    "/accountDetail",
+    [checkJwt],
+    UserController.getDetails
+);
 
 //Create a new user
 //Rest of data by json

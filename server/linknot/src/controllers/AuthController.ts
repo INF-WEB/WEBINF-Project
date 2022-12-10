@@ -16,7 +16,8 @@ class AuthController {
         //Check if username and password are set
         let { email, password } = req.body;
         if (!(email && password)) {
-            res.status(400).send();
+            res.status(400).send("email and password needed!");
+            return;
         }
 
         //Get user from database
@@ -51,7 +52,8 @@ class AuthController {
         //Get parameters from the body
         const { oldPassword, newPassword } = req.body;
         if (!(oldPassword && newPassword)) {
-            res.status(400).send();
+            res.status(400).send("oldPassword and newPassword needed!");
+            return;
         }
 
         //Get user from the database
