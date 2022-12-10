@@ -15,7 +15,7 @@ const routes = Router();
 routes.use("/auth", auth);
 routes.use("/user", user);
 routes.use("/connection", connection);
-routes.use("/jobSearch", jobSearch);
+routes.use("/job", jobSearch);
 routes.use("/candidates", candidates);
 routes.use("/diploma", diploma);
 router.use("/jobExpr", jobExperience);

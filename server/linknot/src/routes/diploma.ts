@@ -13,8 +13,14 @@ router.get("/all",
     DiplomaController.getAllDiplomas
 );
 
+
+router.get("/detail",
+    [checkJwt],
+    DiplomaController.getDetails
+);
+
 router.get("/single",
-    [checkJwt, checkType(["Person"])],
+    [checkJwt],
     DiplomaController.getDiploma
     );
     

@@ -24,6 +24,29 @@ class DiplomaController {
         }
     }
 
+    static getDetails =async (req:Request, res:Response) => {
+        const userRepository = getRepository(UserEntity);
+        let {userID} = req.body;
+        if (!(userID)) {
+            res.status(400).send("userID are needed!!");
+            return;
+        }
+
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:userID},
+                select: ["userURI"]
+            });
+            //
+            //rdfDatabase.
+            const result = await rdfDatabase.selectDiplomas(user.userURI);
+            res.status(200).send(result);
+
+        }catch (error){
+            res.status(404).send("User not found")
+        }
+    }
+
     static getDiploma = async (req:Request, res: Response) => {
         const id = res.locals.jwtPayload.id;
         let {diplomaURI} = req.body;
