@@ -1778,8 +1778,6 @@ WHERE {
         let diploma1: string =  await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", diplomaDegree.Doctorate, "UHasselt");
         await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", diplomaDegree.Master, "UHasselt");
 
-        // //await db.deleteAllDiplomas(maties);
-
         let connectionURI: string = await db.createConnectionWith(maties, femke, connectionStatus.Pending, connectionType.Friend);
         // await db.createConnectionWith(tijl, femke, connectionStatus.Accepted, connectionType.Friend);
         // await db.createConnectionWith(tijl, maties, connectionStatus.Pending, connectionType.Friend);
@@ -1790,17 +1788,17 @@ WHERE {
         let company: string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", "3");
         let edm: string = await db.createCompany("EDM@gmail.com", "EDM", "EDM.com", "Diepenbeek", "4");
         let CEO: string = await db.createJob(company, "CEO-of-Bol.com", "Alken", "He has done a lot of stuff", diplomaDegree.None, "looking at a screen all day", jobStatus.Pending, "chief executive officer");
-        // let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
+        let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
         //await db.addEmployee(company, CEO, maties);
 
-        try {await db.deleteJob(edm, CEO);}
-        catch(e) {console.log(e)}
-        try {await db.deleteDiploma(femke, diploma1);}
-        catch(e) {console.log(e)}
-        try {await db.deleteProfessionalExperience(femke, professionalExperience1);}
-        catch(e) {console.log(e)}
-        try {await db.deleteConnection(tijl, connectionURI);}
-        catch(e) {console.log(e)}
+        // try {await db.deleteJob(edm, CEO);}
+        // catch(e) {console.log(e)}
+        // try {await db.deleteDiploma(femke, diploma1);}
+        // catch(e) {console.log(e)}
+        // try {await db.deleteProfessionalExperience(femke, professionalExperience1);}
+        // catch(e) {console.log(e)}
+        // try {await db.deleteConnection(tijl, connectionURI);}
+        // catch(e) {console.log(e)}
         // //await db.deleteUser(maties);
 
         // //let callcenterJob: string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", diplomaDegree.None, "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
@@ -1810,6 +1808,16 @@ WHERE {
         //await db.matchForJob({jobURI: callcenterJob, checkDegree: true});
         //await db.matchForJob({jobURI: pakjes, checkDegree: true, maxDistanceKm: 100});
 
+        console.log("selecting user");
+        console.log(await db.selectUser(maties));
+        console.log("selecting company");
+        console.log(await db.selectCompany(company));
+        console.log("selecting diplomas");
+        console.log(await db.selectDiplomas(maties));
+        console.log("selecting job");
+        console.log(await db.selectJob(CEO));
+        console.log("selecting connecties");
+        console.log(await db.selectConnections(maties));
         
         //await db.updateUser(maties, {firstname: "test", lastname: "idk", webpage: "tinder.com", lookingForJob: false});
         //await db.updateCompany(company, {name: "Apple", webpage: "apple.fjdkla;", headquaters: "San Francisco"});
