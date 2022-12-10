@@ -190,7 +190,7 @@ class UserController{
         try {
             await userRepository.save(user);
             if(user.type === "Person"){
-                await rdfDatabase.updateUser(user.userURI, {firstname: name, lastname: lastName, webpage: webpage, lookingForJob: Boolean(search)});
+                await rdfDatabase.updateUser(user.userURI, {firstname: name, lastname: lastName, webpage: webpage, adres:area, lookingForJob: Boolean(search)});
             }else{
                 await rdfDatabase.updateCompany(user.userURI, {name: name, webpage: webpage, headquaters: area});
             }
