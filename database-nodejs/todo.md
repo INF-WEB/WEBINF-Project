@@ -100,12 +100,12 @@
 - [x] update diploma
 - [x] update professional experience
 - [x] update connection
-- [o] update job
+- [x] update job
 ## DELETE
-- [ ] delete diploma
-- [ ] delete professional experience
-- [ ] delete connection
-- [ ] delete job
+- [x] delete diploma
+- [x] delete professional experience
+- [x] delete connection
+- [x] delete job
 
 EXTRA:
 - [ ] change bag index
