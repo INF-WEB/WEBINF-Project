@@ -224,6 +224,18 @@ export class database {
               };`;
     }
 
+    private async checkOwner(ownerURI: string, objectURI: string, bagName: string): Promise<boolean> {
+        let result = await this.client.query.select(`
+            SELECT * WHERE {
+                ?diplomaBag ?item <`+objectURI+`>
+                FILTER( 
+                CONTAINS(STR(?diplomaBag), \"`+ownerURI+"/"+bagName+`\")
+                )
+            }`
+          );
+        return result.length != 0;
+    }
+
     private async getDiplomaType(field: string) : Promise<any> {
         let result: any = await this.sparqlQueryLowLevel(`
         PREFIX schema: <http://schema.org/>
@@ -372,7 +384,7 @@ export class database {
             new Literal(String(lookingForJob), this.rdf.xsdns("boolean"))
         );
         
-        console.log(lookingForJobTriple.toNT());
+        //console.log(lookingForJobTriple.toNT());
 
 
         await this.client.query.update(`
@@ -1044,6 +1056,7 @@ WHERE {
     }
 
     public async updateJob(
+        companyURI: string,
         jobURI: string,
         {
             jobName,
@@ -1055,6 +1068,9 @@ WHERE {
             type
         }: UpdateJob
     ) {
+        let job: any = await this.checkOwner(companyURI, jobURI, "jobs");
+        if (!job)
+            throw new Error(companyURI+" is not the owner of the object "+jobURI);
         let updateJobName: string = "";
         let updateArea: string = "";
         let updateWorkecperience: string = "";
@@ -1090,6 +1106,7 @@ WHERE {
     }
 
     public async updateDiploma(
+        userURI: string,
         diplomaURI: string,
         {
             graduation,
@@ -1098,6 +1115,9 @@ WHERE {
             educationalInstitute
         }: UpdateDiploma
     ){
+        let diploma: any = await this.checkOwner(userURI, diplomaURI, "diplomas");
+        if (!diploma)
+            throw new Error(userURI+" is not the owner of the object "+diplomaURI);
         let updateGraduation: string = "";
         let updateField: string = "";
         let updateDegree: string = "";
@@ -1122,6 +1142,7 @@ WHERE {
     }
 
     public async updateProfessionalExperience(
+        userURI: string, 
         professionalExperienceURI: string,
         {
             startDate,
@@ -1129,6 +1150,10 @@ WHERE {
             description
         }: UpdateProfessionalExperience
     ){
+        let professionalExperience: any = await this.checkOwner(userURI, professionalExperienceURI, "professional-experiences");
+        if (!professionalExperience)
+            throw new Error(userURI+" is not the owner of the object "+professionalExperienceURI);
+
         let updateStartDate: string = "";
         let updateEndDate: string = "";
         let updateDescription: string = "";
@@ -1166,12 +1191,17 @@ WHERE {
     }
 
     public async updateConnection(
+        userURI: string,
         connectionURI: string,
         {
             status,
             type
         }: UpdateConnection
     ){
+        let connection: any = await this.checkOwner(userURI, connectionURI, "connections");
+        if (!connection)
+            throw new Error(userURI+" is not the owner of the object "+connectionURI);
+
         let updateStatus: string = "";
         let updateConnectionType = "";
         if(status != null)
@@ -1229,7 +1259,11 @@ WHERE {
 
     //TODO: delete from bag does not change the index!
     //EXTRA: do not delete employee from employeebag when 2 jobs for same company
-    public async deleteJob(jobURI: string) {
+    public async deleteJob(companyURI: string, jobURI: string) {
+        let job: any = await this.checkOwner(companyURI, jobURI, "jobs");
+        if (!job)
+            throw new Error(companyURI+" is not the owner of the object "+jobURI);
+
         let deleteJob = await this.client.query.update(`
         DELETE {
             ?jobsBagUser ?item ?job .
@@ -1376,7 +1410,11 @@ WHERE {
         `);
     }
 
-    public async deleteDiploma(diplomaURI: string) {
+    public async deleteDiploma(userURI: string, diplomaURI: string) {
+        let diploma: any = await this.checkOwner(userURI, diplomaURI, "diplomas");
+        if (!diploma)
+            throw new Error(userURI+" is not the owner of the object "+diplomaURI);
+
         let del = await this.client.query.update(`
             DELETE {
                 ?diplomas ?item ?diploma .
@@ -1391,7 +1429,11 @@ WHERE {
         `);
     }
 
-    public async deleteProfessionalExperience(professionalExperienceURI: string) {
+    public async deleteProfessionalExperience(userURI: string, professionalExperienceURI: string) {
+        let professionalExperience: any = await this.checkOwner(userURI, professionalExperienceURI, "professional-experiences");
+        if (!professionalExperience)
+            throw new Error(userURI+" is not the owner of the object "+professionalExperienceURI);
+
         let del = await this.client.query.update(`
         DELETE {
             ?pes ?item ?pe .
@@ -1406,7 +1448,11 @@ WHERE {
       `);
     }
 
-    public async deleteConnection(connectionURI: string) {
+    public async deleteConnection(userURI: string, connectionURI: string) {
+        let connection: any = await this.checkOwner(userURI, connectionURI, "connections");
+        if (!connection)
+            throw new Error(userURI+" is not the owner of the object "+connectionURI);
+        
         let del = await this.client.query.update(`
         DELETE {
             ?connectionBag1 ?item ?conn .
@@ -1701,27 +1747,34 @@ WHERE {
         //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')]);
 
         let maties: string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", true, "1");
-         let femke: string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, "2");
-        // let tijl: string = await db.createUser("Tijl", "Elens", "tijl.elens@ergens.com", "Zonhoven", "tijl-elens@blog.com", true, "15");
-        //let diploma1: string =  await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", diplomaDegree.Doctorate, "UHasselt");
-        // await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", diplomaDegree.Master, "UHasselt");
+        let femke: string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, "2");
+        let tijl: string = await db.createUser("Tijl", "Elens", "tijl.elens@ergens.com", "Zonhoven", "tijl-elens@blog.com", true, "15");
+        let diploma1: string =  await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", diplomaDegree.Doctorate, "UHasselt");
+        await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", diplomaDegree.Master, "UHasselt");
 
         // //await db.deleteAllDiplomas(maties);
 
-        //let connectionURI: string = await db.createConnectionWith(maties, femke, connectionStatus.Pending, connectionType.Friend);
+        let connectionURI: string = await db.createConnectionWith(maties, femke, connectionStatus.Pending, connectionType.Friend);
         // await db.createConnectionWith(tijl, femke, connectionStatus.Accepted, connectionType.Friend);
         // await db.createConnectionWith(tijl, maties, connectionStatus.Pending, connectionType.Friend);
 
 
-        //let professionalExperience1: string = await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Afwassen");
-        // await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Test");
+        let professionalExperience1: string = await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Afwassen");
+        //await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Test");
         let company: string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", "3");
-        // let edm: string = await db.createCompany("EDM@gmail.com", "EDM", "EDM.com", "Diepenbeek", "4");
+        let edm: string = await db.createCompany("EDM@gmail.com", "EDM", "EDM.com", "Diepenbeek", "4");
         let CEO: string = await db.createJob(company, "CEO-of-Bol.com", "Alken", "He has done a lot of stuff", diplomaDegree.None, "looking at a screen all day", jobStatus.Pending, "chief executive officer");
         // let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
         //await db.addEmployee(company, CEO, maties);
 
-        // //await db.deleteJob(CEO);
+        try {await db.deleteJob(edm, CEO);}
+        catch(e) {console.log(e)}
+        try {await db.deleteDiploma(femke, diploma1);}
+        catch(e) {console.log(e)}
+        try {await db.deleteProfessionalExperience(femke, professionalExperience1);}
+        catch(e) {console.log(e)}
+        try {await db.deleteConnection(tijl, connectionURI);}
+        catch(e) {console.log(e)}
         // //await db.deleteUser(maties);
 
         // //let callcenterJob: string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", diplomaDegree.None, "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
@@ -1734,10 +1787,14 @@ WHERE {
         
         //await db.updateUser(maties, {firstname: "test", lastname: "idk", webpage: "tinder.com", lookingForJob: false});
         //await db.updateCompany(company, {name: "Apple", webpage: "apple.fjdkla;", headquaters: "San Francisco"});
-        //await db.updateJob(CEO, {jobName: "test", area: "Gent", diploma: diplomaDegree.Bachelor, jobdescription: "Werken", workexperience: "gewerkt hebben", status: jobStatus.Pending, type: "dishwasher"})
-        //await db.updateDiploma(diploma1, {graduation: new Date("2012-1-1"), field: "Master of Resource Studies", degree: diplomaDegree.Master, educationalInstitute: "Leuven"})
-        //await db.updateProfessionalExperience(professionalExperience1, {startDate: new Date("2022-10-18"), endDate: new Date("2022-12-7"), description: "herhkefhelkhflefkhjel"})
-        //await db.updateConnection(connectionURI, {status: connectionStatus.Accepted, type: connectionType.Coworker});
+        //await db.updateJob(company, CEO, {jobName: "test", area: "Gent", diploma: diplomaDegree.Bachelor, jobdescription: "Werken", workexperience: "gewerkt hebben", status: jobStatus.Pending, type: "dishwasher"})
+        //await db.updateJob(edm, CEO, {jobName: "test", area: "Gent", diploma: diplomaDegree.Bachelor, jobdescription: "Werken", workexperience: "gewerkt hebben", status: jobStatus.Pending, type: "dishwasher"})
+        // await db.updateDiploma(maties, diploma1, {graduation: new Date("2012-1-1"), field: "Master of Resource Studies", degree: diplomaDegree.Master, educationalInstitute: "Leuven"})
+        //await db.updateDiploma(femke, diploma1, {graduation: new Date("2012-1-1"), field: "Master of Resource Studies", degree: diplomaDegree.Master, educationalInstitute: "Leuven"})
+        //await db.updateProfessionalExperience(maties, professionalExperience1, {startDate: new Date("2022-10-18"), endDate: new Date("2022-12-7"), description: "herhkefhelkhflefkhjel"})
+        //await db.updateProfessionalExperience(femke, professionalExperience1, {startDate: new Date("2022-10-18"), endDate: new Date("2022-12-7"), description: "herhkefhelkhflefkhjel"})
+        //await db.updateConnection(maties, connectionURI, {status: connectionStatus.Accepted, type: connectionType.Coworker});
+        //await db.updateConnection(tijl, connectionURI, {status: connectionStatus.Accepted, type: connectionType.Coworker});
         //await db.updatePotentialJob(maties, CEO, true);
         console.log("FINAL RESULT");
         let everything: any = await db.sparqlQuery();
