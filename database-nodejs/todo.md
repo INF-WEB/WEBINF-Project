@@ -94,6 +94,19 @@
     - jobs
       - [x] hire someone
 
+
+# SECURITY:
+## UPDATE
+- [x] update diploma
+- [x] update professional experience
+- [x] update connection
+- [o] update job
+## DELETE
+- [ ] delete diploma
+- [ ] delete professional experience
+- [ ] delete connection
+- [ ] delete job
+
 EXTRA:
 - [ ] change bag index
 - [ ] geen job hebben en toch zoeken voor job maar geen job meegeven
