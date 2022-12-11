@@ -25,9 +25,7 @@ class AuthController {
         let user: UserEntity;
         try {
             user = await userRepository.findOneOrFail({ where: { email: email } });
-        } catch (error) {
-            res.status(401).send();
-        }
+
 
         //Need to change prob
         //Check if encrypted password match
@@ -35,7 +33,10 @@ class AuthController {
             res.status(401).send();
             return;
         }
-
+        } catch (error) {
+            res.status(401).send();
+            return;
+        }
         //Sign JWT, valid for 1 hour
         const token = createJWT({email: user.email, id: user.id}, "1h");
         req.session = {jwt: token};

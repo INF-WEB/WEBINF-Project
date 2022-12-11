@@ -158,6 +158,11 @@ class JobSearchController {
 
     static getPotenEmployees =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
+        let { jobURI } = req.body;
+        if (!jobURI) {
+            res.status(400).send("jobURI is needed!!");
+            return;
+        }
 
         const userRepository = getRepository(UserEntity);
         try{
@@ -165,7 +170,7 @@ class JobSearchController {
                 where: {id:id},
                 select: ["userURI"]
             });
-            const results = await rdfDatabase.selectPotentialEmployees(user.userURI);
+            const results = await rdfDatabase.selectPotentialEmployees(user.userURI, jobURI);
             res.status(200).send(results);
 
         }catch (error){
