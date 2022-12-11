@@ -3,8 +3,6 @@ const workingDir: string = "..";
 const { v4: uuidv4 } = require('uuid');
 const Client = require('../Libs/jena-tdb/ParsingClient');
 
-import { userInfo } from "os";
-import { stringify } from "querystring";
 import { jobStatus, connectionStatus, connectionType, diplomaDegree, MatchForUser, MatchForJob, UpdateUser, UpdateCompany, UpdateJob, UpdateDiploma, UpdateProfessionalExperience, UpdateConnection } from "../Types/enum";
 import { Geonames } from "./geonames";
 
@@ -460,9 +458,6 @@ export class database {
             new Literal(typeOfDiploma)
         );
 
-        
-
-
         let diplomaDegreeTriple = new this.rdf.Triple(
             diplomaNode,
             database.WEB_DOMAIN + "degree", //TODO: type for diploma @Mathias
@@ -738,13 +733,13 @@ export class database {
 
         let descriptionTriple = new this.rdf.Triple(
             jobNameNode,
-            database.dc('description'),
+            database.WEB_DOMAIN + "work-experience",
             new Literal(workExperience)
         );
 
         let jobDescriptionTriple = new this.rdf.Triple(
             jobNameNode,
-            database.dc('description'),
+            database.WEB_DOMAIN + "job-description",
             new Literal(jobDescription)
         );
 
@@ -1090,11 +1085,11 @@ WHERE {
         if(area != null)
             updateArea = this.getUpdateString(database.gn('name'), area, jobURI);
         if(workexperience != null)
-            updateWorkecperience = this.getUpdateString(database.dc('description'), workexperience, jobURI);
+            updateWorkecperience = this.getUpdateString(database.WEB_DOMAIN + "work-experience", workexperience, jobURI);
         if(diploma != null)
             updateDiploma = this.getUpdateString(database.WEB_DOMAIN + "diploma", diploma.toString(), jobURI);
         if(jobdescription != null)
-            updateJobDescription = this.getUpdateString(database.dc('description'), jobdescription, jobURI);
+            updateJobDescription = this.getUpdateString(database.WEB_DOMAIN + "job-description", jobdescription, jobURI);
         if(status != null)
             updateStatus = this.getUpdateString(jobURI + "/status", status.toString(), jobURI);
         if(type != null) {
@@ -1657,7 +1652,7 @@ WHERE {
         let job: any = await this.checkOwner(companyURI, jobURI, "jobs");
         if (!job)
             throw new Error(companyURI+" is not the owner of the object "+jobURI);
-        await this.deleteAllPotentials(userURI);
+        //await this.deleteAllPotentials(userURI);
         await this.addPotential(jobURI, userURI, false);
     }
 
@@ -1760,6 +1755,7 @@ WHERE {
     public async addEmployee(companyURI: string, jobURI: string, employeeURI: string) {
         await this.addEmployeeToCompany(companyURI, employeeURI);
         await this.addJobToEmployee(employeeURI, jobURI);
+        await this.updateJob(companyURI, jobURI, {status: jobStatus.Hired});
     }
 
     // -- TESTS --
@@ -1779,17 +1775,17 @@ WHERE {
         await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", diplomaDegree.Master, "UHasselt");
 
         let connectionURI: string = await db.createConnectionWith(maties, femke, connectionStatus.Pending, connectionType.Friend);
-        // await db.createConnectionWith(tijl, femke, connectionStatus.Accepted, connectionType.Friend);
-        // await db.createConnectionWith(tijl, maties, connectionStatus.Pending, connectionType.Friend);
+         await db.createConnectionWith(tijl, femke, connectionStatus.Accepted, connectionType.Friend);
+         await db.createConnectionWith(tijl, maties, connectionStatus.Pending, connectionType.Friend);
 
 
         let professionalExperience1: string = await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Afwassen");
-        //await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Test");
+        await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Test");
         let company: string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", "3");
         let edm: string = await db.createCompany("EDM@gmail.com", "EDM", "EDM.com", "Diepenbeek", "4");
         let CEO: string = await db.createJob(company, "CEO-of-Bol.com", "Alken", "He has done a lot of stuff", diplomaDegree.None, "looking at a screen all day", jobStatus.Pending, "chief executive officer");
         let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
-        //await db.addEmployee(company, CEO, maties);
+        await db.addEmployee(company, CEO, maties);
 
         // try {await db.deleteJob(edm, CEO);}
         // catch(e) {console.log(e)}
@@ -1808,16 +1804,16 @@ WHERE {
         //await db.matchForJob({jobURI: callcenterJob, checkDegree: true});
         //await db.matchForJob({jobURI: pakjes, checkDegree: true, maxDistanceKm: 100});
 
-        console.log("selecting user");
-        console.log(await db.selectUser(maties));
-        console.log("selecting company");
-        console.log(await db.selectCompany(company));
-        console.log("selecting diplomas");
-        console.log(await db.selectDiplomas(maties));
-        console.log("selecting job");
-        console.log(await db.selectJob(CEO));
-        console.log("selecting connecties");
-        console.log(await db.selectConnections(maties));
+        //console.log("selecting user");
+        //console.log(await db.selectUser(maties));
+        //console.log("selecting company");
+        //console.log(await db.selectCompany(company));
+        //console.log("selecting diplomas");
+        //console.log(await db.selectDiplomas(maties));
+        //console.log("selecting job");
+        //console.log(await db.selectJob(CEO));
+        //console.log("selecting connecties");
+        //console.log(await db.selectConnections(maties));
         
         //await db.updateUser(maties, {firstname: "test", lastname: "idk", webpage: "tinder.com", lookingForJob: false});
         //await db.updateCompany(company, {name: "Apple", webpage: "apple.fjdkla;", headquaters: "San Francisco"});
@@ -1830,6 +1826,7 @@ WHERE {
         //await db.updateConnection(maties, connectionURI, {status: connectionStatus.Accepted, type: connectionType.Coworker});
         //await db.updateConnection(tijl, connectionURI, {status: connectionStatus.Accepted, type: connectionType.Coworker});
         //await db.updatePotentialJob(maties, CEO, true);
+        
         console.log("FINAL RESULT");
         let everything: any = await db.sparqlQuery();
         console.log(everything);
