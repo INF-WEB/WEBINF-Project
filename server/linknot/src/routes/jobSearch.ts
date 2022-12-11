@@ -20,10 +20,20 @@ router.get("/all",
     JobSearchController.getAllJobs
 );
 
+router.get("/CompJobs",
+    [checkJwt],
+    JobSearchController.getAllCompJobs
+);
+
 //Maybe change name
 router.get("/current",
     [checkJwt, checkType(["Person"])],
     JobSearchController.getAllUserjobs
+);
+
+router.get("/PersonJobs",
+    [checkJwt],
+    JobSearchController.getPersonJobs
 );
 
 router.get("/myEmployees",

@@ -66,6 +66,23 @@ class JobSearchController {
         }
     }
 
+    static getAllCompJobs =async (req:Request, res:Response) => {
+        let {companyID} = req.body;
+
+        const userRepository = getRepository(UserEntity);
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:companyID},
+                select: ["userURI"]
+            });
+            const results = await rdfDatabase.selectJobsCompany(user.userURI);
+            res.status(200).send(results);
+
+        }catch (error){
+            res.status(404).send("user not found");
+        }
+    }
+
 
     static getAllUserjobs =async (req:Request, res:Response) => {
         const id = res.locals.jwtPayload.id;
@@ -74,6 +91,23 @@ class JobSearchController {
         try{
             const user = await userRepository.findOneOrFail({
                 where: {id:id},
+                select: ["userURI"]
+            });
+            const results = await rdfDatabase.selectJobsUser(user.userURI);
+            res.status(200).send(results);
+
+        }catch (error){
+            res.status(404).send("user not found");
+        }
+    }
+
+    static getPersonJobs =async (req:Request, res:Response) => {
+        let {userID} = req.body;
+
+        const userRepository = getRepository(UserEntity);
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:userID},
                 select: ["userURI"]
             });
             const results = await rdfDatabase.selectJobsUser(user.userURI);
