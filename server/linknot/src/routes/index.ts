@@ -16,6 +16,6 @@ routes.use("/user", user);
 routes.use("/connection", connection);
 routes.use("/job", jobSearch);
 routes.use("/diploma", diploma);
-router.use("/jobExpr", jobExperience);
+routes.use("/jobExpr", jobExperience);
 
 export default routes;
