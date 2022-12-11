@@ -4,21 +4,32 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import helmet from "helmet";
 import routes from "./routes";
-//import cors from "./cors" ;
-//import * as cookieSession from "cookie-session";
+
 import cookieSession = require("cookie-session");
 import * as cors from "cors";
 import { binDir, database, databaseDir } from "./RDFAcces/RDFDataAcess";
-
+import * as http from "http";
+import * as fs from "fs";
+import * as https from "https";
 export let rdfDatabase: database;
 //Connects to the Database -> then starts the express
+
+//const privateKey = fs.readFileSync("./credentials/key.pem", "utf8");
+
 
 //possible need to be changed depricated
 createConnection()
     .then(async connection => {
     // Create a new express application instance
     const app = express();
+    const privateKey = fs.readFileSync("src/credentials/key.pem", "utf8");
 
+    const certificate = fs.readFileSync("src/credentials/cert.pem");
+    
+    const credentials = {
+      key: privateKey,
+      cert: certificate
+    };
     rdfDatabase = new database(binDir,databaseDir);
 
     // Call midlewares
@@ -34,9 +45,19 @@ createConnection()
 
     //Set all routes from routes folder
     app.use("/", routes);
-
-    app.listen(3000, () => {
-      console.log("Server started on port 3000!");
+    const httpsServer = https.createServer(credentials, app);
+    const httpServer = http.createServer(app);
+    httpsServer.listen(8080, () => {
+      console.log("HTTPS server is running on 8080");
+      
     });
+
+    httpServer.listen(3000, () => {
+      console.log("HTTP server running on 3000");
+      
+    });
+    // app.listen(3000, () => {
+    //   console.log("Server started on port 3000!");
+    // });
   })
   .catch(error => console.log(error));
