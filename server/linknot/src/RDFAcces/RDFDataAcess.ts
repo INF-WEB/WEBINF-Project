@@ -935,12 +935,15 @@ export class database {
         return result;
     }
 
-    public async selectPotentialEmployees(companyURI: string): Promise<any> {
+    public async selectPotentialEmployees(companyURI: string, jobURI: string): Promise<any> {
+        let job: any = await this.checkOwner(companyURI, jobURI, "jobs");
+        if (!job)
+            throw new Error(companyURI+" is not the owner of the object "+jobURI);
         let result = await this.client.query.select(`
         SELECT * WHERE {
             ?employees ?item ?uri .
             FILTER (
-                CONTAINS(STR(?employees), \"`+ companyURI + `/potential-employees\")
+                CONTAINS(STR(?employees), \"`+ jobURI + `/potential-employees\")
             )
         }
         `);
@@ -1789,7 +1792,7 @@ WHERE {
         //let professionalExperience1: string = await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Afwassen");
         //await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Test");
         let company: string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", "3");
-        //let edm: string = await db.createCompany("EDM@gmail.com", "EDM", "EDM.com", "Diepenbeek", "4");
+        let edm: string = await db.createCompany("EDM@gmail.com", "EDM", "EDM.com", "Diepenbeek", "4");
         let CEO: string = await db.createJob(company, "CEO-of-Bol.com", "Alken", "He has done a lot of stuff", diplomaDegree.None, "looking at a screen all day", jobStatus.Pending, "chief executive officer");
         let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
         await db.addEmployee(company, CEO, maties);
@@ -1806,7 +1809,7 @@ WHERE {
 
         // //let callcenterJob: string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", diplomaDegree.None, "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
 
-        console.log(await db.matchForUser({ userURI: maties, maxDistanceKm: 5, jobType: "chief executive officer"}));
+        console.log(await db.matchForUser({ userURI: maties, maxDistanceKm: 100, jobType: "chief executive officer"}));
         //await db.matchForUser({ userURI: maties, maxDistanceKm: 50,checkDegree: true });
         //await db.matchForJob({jobURI: callcenterJob, checkDegree: true});
         //await db.matchForJob({jobURI: pakjes, checkDegree: true, maxDistanceKm: 100});
@@ -1824,7 +1827,7 @@ WHERE {
         console.log("selecting employees");
         console.log(await db.selectEmployees(company));
         console.log("selecting potential employees");
-        console.log(await db.selectPotentialEmployees(company));
+        console.log(await db.selectPotentialEmployees(company, pakjes));
         
         //await db.updateUser(maties, {firstname: "test", lastname: "idk", webpage: "tinder.com", lookingForJob: false});
         //await db.updateCompany(company, {name: "Apple", webpage: "apple.fjdkla;", headquaters: "San Francisco"});
