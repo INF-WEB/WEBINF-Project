@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getRepository } from "typeorm";
-import { validate } from "class-validator";
+import { isRFC3339, validate } from "class-validator";
 import { UserEntity } from "../database/entities/user.entities";
 import { rdfDatabase } from "..";
 import { diplomaDegree, jobStatus } from "../Types/enum";
@@ -29,7 +29,7 @@ class JobSearchController {
             res.status(200).send("Created job " + jobURI);
 
         }catch (error){
-            res.status(404).send("User not found");
+            res.status(404).send("Couldn't create job");
         }
     };
 
@@ -62,7 +62,7 @@ class JobSearchController {
             res.status(200).send(results);
 
         }catch (error){
-            res.status(404).send("Company not found");
+            res.status(404).send("user not found");
         }
     }
 
@@ -80,7 +80,7 @@ class JobSearchController {
             res.status(200).send(results);
 
         }catch (error){
-            res.status(404).send("Company not found");
+            res.status(404).send("user not found");
         }
     }
 
@@ -152,7 +152,7 @@ class JobSearchController {
             res.status(200).send(results);
 
         }catch (error){
-            res.status(404).send("Company not found");
+            res.status(404).send("User not found!!");
         }
     }
 
@@ -182,7 +182,7 @@ class JobSearchController {
             res.status(200).send("job updated");
 
         }catch (error){
-            res.status(404).send("User not found");
+            res.status(404).send("job not found!! Or don't have permission!!");
         }
     }
 
@@ -205,7 +205,7 @@ class JobSearchController {
             res.status(200).send("potenial job updated");
 
         }catch (error){
-            res.status(404).send("User not found");
+            res.status(404).send("Job or user not found!! Possible not right permissions!");
         }
     }
 
@@ -293,6 +293,35 @@ class JobSearchController {
 
         }catch (error){
             res.status(404).send("Job or Company not found! Or don't have permission");
+        }
+    }
+
+
+    static sendApplicationTo =async (req:Request, res:Response) => {
+        const id = res.locals.jwtPayload.id;
+        let {jobURI, receiverID} = req.body;
+        if(!(jobURI && receiverID)){
+            res.status(400).send("jobURI and receiverID are needed!");
+            return;
+        }
+
+        const userRepository = getRepository(UserEntity);
+        try{
+            const user = await userRepository.findOneOrFail({
+                where: {id:id},
+                select: ["userURI"]
+            });
+            const receiver = await userRepository.findOneOrFail({
+                where: {id:receiverID},
+                select: ["userURI"]
+            });
+            
+
+            await rdfDatabase.sendJobApplicationToUser(user.userURI, jobURI, receiver.userURI);
+            res.status(200).send("Application is send");
+
+        }catch (error){
+            res.status(404).send("Job, Company or user not found! Or don't have permission");
         }
     }
 
