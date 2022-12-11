@@ -25,13 +25,14 @@ class AuthController {
         let user: UserEntity;
         try {
             user = await userRepository.findOneOrFail({ where: { email: email } });
-        } catch (error) {
-            res.status(401).send();
-        }
 
-        //Need to change prob
-        //Check if encrypted password match
-        if (!user.checkIfUnencryptedPasswordIsValid(password)) {
+            //Need to change prob
+            //Check if encrypted password match
+            if (!user.checkIfUnencryptedPasswordIsValid(password)) {
+                res.status(401).send();
+                return;
+            }
+        } catch (error) {
             res.status(401).send();
             return;
         }

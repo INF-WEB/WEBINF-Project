@@ -62,6 +62,7 @@ class UserController{
                     select: ["email","name", "lastName" , "type", "userURI"]
                 });
                 let result: object;
+                console.log(user.userURI);
                 if(user.type === "Person"){
                     result = await rdfDatabase.selectUser(user.userURI);
                 }else{
@@ -85,7 +86,7 @@ class UserController{
       	//Get parameters from the body
         let { name, lastName, email, area, webpage, password, search, type } = req.body;
         // console.log(req.body);
-        if(!(name && email && password && search && type)){
+        if(!(name && email && password && search && type && area && webpage)){
             let temp = "area, webpage, lastName(Person only) are optionel!";
             res.status(400).send("Name and email and password and search and type (Person or Company) are needed!\n"+temp);
             return;
