@@ -26,17 +26,17 @@ class AuthController {
         try {
             user = await userRepository.findOneOrFail({ where: { email: email } });
 
-
-        //Need to change prob
-        //Check if encrypted password match
-        if (!user.checkIfUnencryptedPasswordIsValid(password)) {
-            res.status(401).send();
-            return;
-        }
+            //Need to change prob
+            //Check if encrypted password match
+            if (!user.checkIfUnencryptedPasswordIsValid(password)) {
+                res.status(401).send();
+                return;
+            }
         } catch (error) {
             res.status(401).send();
             return;
         }
+
         //Sign JWT, valid for 1 hour
         const token = createJWT({email: user.email, id: user.id}, "1h");
         req.session = {jwt: token};

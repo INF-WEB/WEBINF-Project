@@ -1778,7 +1778,7 @@ WHERE {
 
         //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')]);
 
-        let maties: string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", true, "1");
+        let maties: string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Alken", "maties.blog.com", true, "1");
         //let femke: string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, "2");
         //let tijl: string = await db.createUser("Tijl", "Elens", "tijl.elens@ergens.com", "Zonhoven", "tijl-elens@blog.com", true, "15");
         let diploma1: string =  await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", diplomaDegree.Doctorate, "UHasselt");
