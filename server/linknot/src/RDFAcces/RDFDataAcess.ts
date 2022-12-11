@@ -928,7 +928,7 @@ export class database {
         SELECT * WHERE {
             ?employees ?item ?uri .
             FILTER (
-                CONTAINS(STR(?employees), `+ companyURI + `\"/employees\")
+                CONTAINS(STR(?employees), \"`+ companyURI + `/employees\")
             )
         }
         `);
@@ -1486,6 +1486,8 @@ WHERE {
                             <`+userURI+`> gn:name ?area
             }
         `);
+        if (userResult.length <= 0)
+            throw new Error("user not found");
         let userAddrName: string = userResult[0].area.value;
 
         let queryJobType: string;
@@ -1545,7 +1547,7 @@ WHERE {
 
         const userAddrResult = await this.geo(userAddrName);
         //console.log(userAddrResult[0]);
-
+        let matchedUsers: Array<string> = new Array();
         for (const job of matchedJobs) {
             //console.log(job);
             let jobAddrName: string = job.jobArea.value;
@@ -1553,16 +1555,21 @@ WHERE {
             //console.log(jobAddrResult);
 
             let distance: any = this.calcLongLatDist(userAddrResult, jobAddrResult);
-            //console.log("Distance km: " + distance.kilometers);
+            
+            console.log(distance.kilometers);
+            console.log(distance.kilometers <= maxDistanceKm);
+            console.log(maxDistanceKm == -1);
+            console.log(maxDistanceKm);
+            console.log(maxDistanceKm == -1 || distance.kilometers <= maxDistanceKm);
             if (maxDistanceKm == -1 || distance.kilometers <= maxDistanceKm) {
                 let jobURI: string = job.job.value;
-                //console.log("added " + jobURI + " to " + userURI);
+                console.log("added " + jobURI + " to " + userURI);
                 await this.addPotential(jobURI, userURI, false);
-                
+                matchedUsers.push(job);
             }
         };
 
-        return matchedJobs;
+        return matchedUsers;
     }
 
     public async matchForCompany(companyURI: string): Promise<Object> {
@@ -1769,20 +1776,20 @@ WHERE {
         //await client.endpoint.importFiles([require.resolve('/Users/matiesclaesen/Documents/WEBINF/nodejs/triples.nt')]);
 
         let maties: string = await db.createUser("Maties", "Claesen", "matiesclaesen@gmail.com", "Genk", "maties.blog.com", true, "1");
-        let femke: string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, "2");
-        let tijl: string = await db.createUser("Tijl", "Elens", "tijl.elens@ergens.com", "Zonhoven", "tijl-elens@blog.com", true, "15");
+        //let femke: string = await db.createUser("Femke", "Grandjean", "femke.grandjean@ergens.com", "Hasselt", "femke.com", false, "2");
+        //let tijl: string = await db.createUser("Tijl", "Elens", "tijl.elens@ergens.com", "Zonhoven", "tijl-elens@blog.com", true, "15");
         let diploma1: string =  await db.createDiplomaFor(maties, new Date(), "Doctor of Philosophy in Mechanical Engineering", diplomaDegree.Doctorate, "UHasselt");
-        await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", diplomaDegree.Master, "UHasselt");
+        //await db.createDiplomaFor(maties, new Date(), "Master of Resource Studies", diplomaDegree.Master, "UHasselt");
 
-        let connectionURI: string = await db.createConnectionWith(maties, femke, connectionStatus.Pending, connectionType.Friend);
-         await db.createConnectionWith(tijl, femke, connectionStatus.Accepted, connectionType.Friend);
-         await db.createConnectionWith(tijl, maties, connectionStatus.Pending, connectionType.Friend);
+        //let connectionURI: string = await db.createConnectionWith(maties, femke, connectionStatus.Pending, connectionType.Friend);
+        // await db.createConnectionWith(tijl, femke, connectionStatus.Accepted, connectionType.Friend);
+        // await db.createConnectionWith(tijl, maties, connectionStatus.Pending, connectionType.Friend);
 
 
-        let professionalExperience1: string = await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Afwassen");
-        await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Test");
+        //let professionalExperience1: string = await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Afwassen");
+        //await db.createProfessionalExperienceFor(maties, new Date(), new Date(), "Test");
         let company: string = await db.createCompany("Bol@gmail.com", "Bol", "Bol.com", "Utrecht", "3");
-        let edm: string = await db.createCompany("EDM@gmail.com", "EDM", "EDM.com", "Diepenbeek", "4");
+        //let edm: string = await db.createCompany("EDM@gmail.com", "EDM", "EDM.com", "Diepenbeek", "4");
         let CEO: string = await db.createJob(company, "CEO-of-Bol.com", "Alken", "He has done a lot of stuff", diplomaDegree.None, "looking at a screen all day", jobStatus.Pending, "chief executive officer");
         let pakjes: string = await db.createJob(company, "Pakjes-Verplaatser", "Brussel", "Kunnen adressen lezen", diplomaDegree.Doctorate, "Pakjes in de juiste regio zetten", jobStatus.Pending, "chief executive officer");
         await db.addEmployee(company, CEO, maties);
@@ -1799,7 +1806,7 @@ WHERE {
 
         // //let callcenterJob: string = await db.createJob(company, "Callcenter", "Leuven", "telefoon kunnen gebruiken", diplomaDegree.None, "24/7 telefoons oppakken", jobStatus.Pending, "dishwasher");
 
-        await db.matchForUser({ userURI: maties, maxDistanceKm: 200, jobType: "chief executive officer"});
+        console.log(await db.matchForUser({ userURI: maties, maxDistanceKm: 5, jobType: "chief executive officer"}));
         //await db.matchForUser({ userURI: maties, maxDistanceKm: 50,checkDegree: true });
         //await db.matchForJob({jobURI: callcenterJob, checkDegree: true});
         //await db.matchForJob({jobURI: pakjes, checkDegree: true, maxDistanceKm: 100});
@@ -1814,6 +1821,10 @@ WHERE {
         //console.log(await db.selectJob(CEO));
         //console.log("selecting connecties");
         //console.log(await db.selectConnections(maties));
+        console.log("selecting employees");
+        console.log(await db.selectEmployees(company));
+        console.log("selecting potential employees");
+        console.log(await db.selectPotentialEmployees(company));
         
         //await db.updateUser(maties, {firstname: "test", lastname: "idk", webpage: "tinder.com", lookingForJob: false});
         //await db.updateCompany(company, {name: "Apple", webpage: "apple.fjdkla;", headquaters: "San Francisco"});
