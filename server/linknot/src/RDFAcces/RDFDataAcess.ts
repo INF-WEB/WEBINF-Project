@@ -1644,7 +1644,7 @@ WHERE {
         return matchedUsers;
     }
 
-    private async sendJobApplicationToUser(
+    public async sendJobApplicationToUser(
         companyURI: string,
         jobURI: string,
         userURI: string,

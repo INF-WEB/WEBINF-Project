@@ -10,7 +10,6 @@ router.post("/Create",
     JobSearchController.newJob
 );
 
-
 router.get("/detail",
     [checkJwt],
     JobSearchController.getDetail    
@@ -71,4 +70,11 @@ router.get("/matchCanidates",
     [checkJwt, checkType(["Company"])],
     JobSearchController.getmatchCanidates  
 );
+
+router.put("/sendApplication",
+    [checkJwt, checkType(["Company"])],
+    JobSearchController.sendApplicationTo
+);
+
+
 export default router;
