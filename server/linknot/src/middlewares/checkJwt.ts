@@ -17,9 +17,8 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
     try {
         const jwtPayload:TokenPayload = <TokenPayload>jwt.verify(token, config.jwtSecret);
         res.locals.jwtPayload = jwtPayload;
-        console.log(jwtPayload);
         const payload = {email: jwtPayload.email, id: jwtPayload.id}
-        const newToken = createJWT(payload, "1h");
+        const newToken = createJWT(payload, "8h");
 
         req.session = {jwt:newToken};
     } catch (error) {

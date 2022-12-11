@@ -282,13 +282,13 @@ class JobSearchController {
 
         const userRepository = getRepository(UserEntity);
         try{
-            // const user = await userRepository.findOneOrFail({
-            //     where: {id:id},
-            //     select: ["userURI"]
-            // });
+            const user = await userRepository.findOneOrFail({
+                where: {id:id},
+                select: ["userURI"]
+            });
             //via userURI en diplomaNumber
             //rdfDatabase
-            const result = await rdfDatabase.matchForJob({jobURI:jobURI, maxDistanceKm: maxDistance, checkDegree: degree});
+            const result = await rdfDatabase.matchForJob(user.userURI, {jobURI:jobURI, maxDistanceKm: maxDistance, checkDegree: degree});
             res.status(200).send(result);
 
         }catch (error){

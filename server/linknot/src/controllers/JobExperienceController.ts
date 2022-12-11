@@ -54,7 +54,7 @@ class JobExperienceController {
             res.status(400).send("ExprURI is needed!!");
             return;
         }
-        const userRepository = getRepository(UserEntity);
+        //const userRepository = getRepository(UserEntity);
         try{
             // const user = await userRepository.findOneOrFail({
             //     where: {id:id},
@@ -77,8 +77,8 @@ class JobExperienceController {
             res.status(400).send("startDate (date form) and endDate (date form) and description are needed!!");
             return;
         }
-        const sDate:Date = startDate;
-        const eDate:Date = endDate;
+        const sDate:Date = new Date(startDate);
+        const eDate:Date = new Date(endDate);
 
         const userRepository = getRepository(UserEntity);
         try{
@@ -141,8 +141,8 @@ class JobExperienceController {
         const id = res.locals.jwtPayload.id;
 
         let {exprURI, startDate, endDate, description} = req.body;
-        let sDate: Date = startDate;
-        let eDate: Date = endDate;
+        let sDate: Date = new Date(startDate);
+        let eDate: Date = new Date(endDate);
         if(!exprURI){
             res.status(400).send("exprURI needed!!\n startDate (date form) or endDate (date form) or description are optionel\ one is well needed");
             return;

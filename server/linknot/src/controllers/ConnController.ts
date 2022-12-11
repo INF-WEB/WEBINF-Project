@@ -34,13 +34,13 @@ class ConnController {
     //TODO: need to place in check for if user is in connection
     static getConnection = async(req:Request, res: Response) => {
         //const id = res.locals.jwtPayload.id;
-        let {userConnectId, connectionURI} = req.body;
-        if (!(userConnectId && connectionURI)) {
-            res.status(400).send("userConnectId and connectionURI are needed!!");
+        let {connectionURI} = req.body;
+        if (!(connectionURI)) {
+            res.status(400).send("connectionURI are needed!!");
             return;
         }
 
-        const userRepository = getRepository(UserEntity);
+        //const userRepository = getRepository(UserEntity);
         try{
             // const user = await userRepository.findOneOrFail({
             //     where: {id:id},

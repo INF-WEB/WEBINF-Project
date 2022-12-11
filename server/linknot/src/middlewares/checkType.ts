@@ -11,7 +11,6 @@ import { UserEntity } from "../database/entities/user.entities";
 export const checkType = (types: Array<string>) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         //Get the user ID from previous midleware
-        console.log(res.locals.jwtPayload.id);
         
 
         const id = res.locals.jwtPayload.id;

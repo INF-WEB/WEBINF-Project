@@ -43,17 +43,6 @@ router.delete(
     );
 
 
-//TEST just debugging, gives back all the users
-router.get(
-    "/test",
-    [checkJwt],
-    UserController.listAll
-    );
 
-router.get(
-    "/database-tests",
-    [], 
-    UserController.testDatabase
-)
 
 export default router;
