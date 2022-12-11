@@ -54,7 +54,7 @@ class DiplomaController {
             res.status(400).send("diplomaURI are needed!!");
             return;
         }
-        const userRepository = getRepository(UserEntity);
+        //const userRepository = getRepository(UserEntity);
         try{
             // const user = await userRepository.findOneOrFail({
             //     where: {id:id},
@@ -77,7 +77,9 @@ class DiplomaController {
             res.status(400).send("graduation (date) and field and educationalInstitute and degree (right form) are needed!!");
             return;
         }
-        let grad: Date = graduation;
+        let grad: Date = new Date(graduation);
+        console.log(grad);
+        
         let degreeEnum: diplomaDegree = degree;
 
         const userRepository = getRepository(UserEntity);
@@ -91,7 +93,7 @@ class DiplomaController {
             res.status(200).send("Created Diploma " + diplomaURI);
 
         }catch (error){
-            res.status(404).send("User not found");
+            res.status(404).send("User not found"+error);
         }
     }
 
@@ -150,7 +152,7 @@ class DiplomaController {
             res.status(400).send("diplomaURI is needed, graduation or field or educationalInstitute or degree optional");
             return;
         }
-        let grad: Date = graduation;
+        let grad: Date = new Date(graduation);
         let degreeEnum: diplomaDegree = degree;
 
         const userRepository = getRepository(UserEntity);
